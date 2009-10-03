@@ -1,0 +1,10 @@
+#!/bin/sh
+FFF_PATH='../';
+PHP_PROGRAM='/Applications/MAMP/bin/php5/bin/php'
+
+if test -z $PHP_PROGRAM; then
+  echo "No PHP program was found on path.";
+  exit 1;
+fi
+
+$PHP_PROGRAM $FFF_PATH/fff.php FooBar

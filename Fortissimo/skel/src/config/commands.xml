@@ -1,0 +1,74 @@
+<?xml version="1.0"?>
+<commands xmlns="http://technosophos.com/2009/1.1/commands.xml">
+  
+  <!--
+  A group is a grouping of commands that cannot be executed as a request.
+  
+  They can be referenced in requests, though.
+  -->
+  <group name="bootstrap">
+    <!--
+    These are alternatives. Either should be accessible using 
+    the main database factory:
+    
+    FFDatabase::writer();
+    FFDatabase::reader();
+    -->
+    <cmd name="database" invoke="SimpleDatabaseAccess">
+      <param name="dsn">MyDSN</param>
+      <param name="user">user</param>
+      <param name="password">pass</param>
+    </cmd>
+    <!--
+    <cmd name="complex-database" invoke="CompoundDatabaseAccess">
+      <param name="master-dsn">MyDSN</param>
+      <param name="master-user">user</param>
+      <param name="master-password">pass</param>
+      <param name="slave1-dsn">MyDSN</param>
+      <param name="slave1-user">user</param>
+      <param name="slave1-password">pass</param>
+    </cmd>
+    -->
+  </group>
+     
+     
+  <!-- The default request will be executed when the index is loaded. -->
+  <request name="default">
+    
+    <!-- Invoke all commands in the bootstrap group. -->
+    <cmd group="bootstrap"/>
+    
+    <cmd name="echo" invoke="FFEchoCommand">
+      <param name="message">Echo this</param>
+    </cmd>
+    <!-- Invoke users the alias assigned above. -->
+    <cmd name="template" invoke="template">
+      <!-- Use a literal string. -->
+      <param name="template_name">templates/main.html</param>
+      <!-- Get $_GET['something'] (aka ?something=foo) -->
+      <param name="something_id" from="get:something"/>
+      <!-- Get $_SESSION['session_id'] -->
+      <param name="my_session" from="session:session_id"/>
+      <!-- Get the output of cmd:echo (see above) -->
+      <param name="echo_out" from="cmd:echo"/>
+      
+      <!-- Check GET, and if nothing is found, check POST, and if nothing is found,
+      use the default. -->
+      <param name="foo" from="get:primary post:secondary">Default value</param>
+      <!-- Supported "from" protocols: 
+        get, post, cookies, session, context (or cmd), environment (or env) -->
+    </cmd>
+  </request>
+  
+  <!-- This is an example that would map to 
+  http://example.com/this_app/item or http://example.com/this_app.php?c=item
+  -->
+  <request name="item">
+    <cmd name="echo" invoke="FFEchoCommand">
+      <param name="message">Test</param>
+    </cmd>
+    <cmd name="dump" invoke="FFVarDumper">
+      <param name="variable" from="cmd:echo"/>
+    </cmd>
+  </request>
+</commands>

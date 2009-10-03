@@ -1,0 +1,19 @@
+
+Fortissimo
+
+The main command for starting a new project is ff.php.
+
+This command is executed like this:
+
+    ff.php projectName
+
+It does the following:
+
+- It creates a new project, named projectName, in the current directory.
+- It adds the base directories necessary for that new project.
+- It creates customized build.xml and command.xml documents.
+  * build.xml is used by Phing. It's like a make or rake file.
+  * command.xml is used by the front controller.
+- It installs base classes in the App's library.
+- Create default .htaccess file
+- Create default index file.
