@@ -1,6 +1,8 @@
 <?xml version="1.0"?>
 <commands xmlns="http://technosophos.com/2009/1.1/commands.xml">
   
+  <logger name="foil" invoke="FortissimoOutputInjectionLogger"/>
+  
   <group name="bootstrap">
     <cmd name="database" invoke="SimpleDatabaseAccess">
       <param name="dsn">MyDSN</param>
@@ -13,6 +15,7 @@
       <param name="deleteMe">Test</param>
     </cmd>
   </group>
+  
      
   <request name="default">
     <cmd group="bootstrap"/>
@@ -37,6 +40,55 @@
     </cmd>
   </request>
   
+  <request name="testHandleRequest1">
+    <cmd name="mockCommand" invoke="MockCommand"/>
+  </request>
+  
+  <request name="testHandleRequest2">
+    <cmd name="mockCommand2" invoke="MockCommand">
+      <param name="value">From Default</param>
+    </cmd>
+  </request>
+  
+  <request name="testHandleRequest3">
+    <cmd name="mockCommand2" invoke="MockCommand">
+      <param name="value">From Default 2</param>
+    </cmd>
+    <cmd name="repeater" invoke="CommandRepeater">
+      <param name="cmd" from="cmd:mockCommand2">Binky was here</param>
+    </cmd>
+  </request>
+  
+  <request name="testForwardRequest1">
+    <cmd name="forwarder" invoke="CommandForward">
+      <param name="forward">testForwardRequest2</param>
+    </cmd>
+  </request>
+  
+  <request name="testForwardRequest2">
+    <cmd name="mockCommand2" invoke="MockCommand">
+      <param name="value">From Default</param>
+    </cmd>
+  </request>
+  
+  <request name="testRequestCache1" cache="true">
+    <cmd name="mockCommand2" invoke="MockCommand">
+      <param name="value">From Default</param>
+    </cmd>
+  </request>
+  
+  <request name="testRequestCache2" cache="true">
+    <cmd name="barprint" invoke="MockPrintBarCommand"></cmd>
+  </request>
+  
+  <request name="testBaseFortissimoCommand1">
+    <cmd name="simpleCommandTest1" invoke="SimpleCommandTest">
+      <param name="testString">String1</param>
+      <param name="testNumeric">3.5</param>
+      <param name="testNumeric2">3.5</param>
+    </cmd>
+  </request>
+    
   <request name="dummy">
     <cmd name="mock1" invoke="CommandMockOne">
       <param name="variable0">Default Value</param>

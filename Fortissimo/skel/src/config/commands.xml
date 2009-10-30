@@ -71,4 +71,15 @@
       <param name="variable" from="cmd:echo"/>
     </cmd>
   </request>
+  
+  <logger name="foil" invoke="FortissimoOutputInjectionLogger"/>
+  <logger name="syslog" invoke="FortissimoSyslogLogger">
+    <param name="facility">local6</param>
+  </logger>
+  
+  <cache name="dummy" invoke="FortissimoDummyRequestCache"/>
+  <cache name="dummy2" invoke="FortissimoDummyRequestCache">
+    <param name="param" value="foo"/>
+  </cache>
+  
 </commands>

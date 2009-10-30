@@ -57,7 +57,8 @@ class FortissimoConfigTest extends PHPUnit_Framework_TestCase {
     
     $req = $fc->getRequest($requestName);
     
-    $this->assertTrue(is_array($req), 'Request is an array.');
+    $this->assertTrue($req instanceof FortissimoRequest, 'Request is a fortissimo  request.');
+    $this->assertTrue($req instanceof IteratorAggregate, 'Request is iterable.');
   }
   
 }
@@ -75,6 +76,8 @@ class AbstractCommandMock implements FortissimoCommand {
     if ($paramArray['retval'])
       $cxt->put($this->name, $paramArray['retval']);
   }
+  
+  public function isCacheable() {return FALSE;}
 }
 
 class CommandMockOne extends AbstractCommandMock {
