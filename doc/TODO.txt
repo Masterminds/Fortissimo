@@ -1,0 +1,14 @@
+
+To Do
+=====
+
+X Rewrite requests to be objects
+X Add an interrupt handler that will forward to a new request
+X Request caching
+
+* Complete command caching mechanism
+  - Issue: What are we going to cache for commands?
+* Abstract command
+  - Rewrite validator to use PHP's native validators and filters
+* Data source abstraction layer
+* Bootstrap interception?
