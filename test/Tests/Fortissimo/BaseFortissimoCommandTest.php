@@ -83,24 +83,6 @@ class SimpleCommandTest extends BaseFortissimoCommand {
       
       ->param('testNumeric2', 'Another test numeric value')
       ->withFilter('callback', array('options' => array(new SimpleValidatorTest(), 'validate')));
-    
-    /*
-    return array(
-      'testString' => array(
-        'type' => self::string_type,
-        'description' => 'A test string.'
-      ),
-      'testNumeric' => array(
-        'type' => self::float_type,
-        'description' => 'A test numeric value',
-      ),
-      'testNumeric2' => array(
-        'type' => self::float_type,
-        'description' => 'A test numeric value',
-        'validate' => new SimpleValidatorTest(),
-      ),
-    );
-    */
   }
   
   public function doCommand() {
