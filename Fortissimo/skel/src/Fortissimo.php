@@ -9,6 +9,36 @@
  *
  * When this file is loaded, the include path is augmented to include the 
  * includes/, core/, and phar/ directories.
+ *
+ * <b>Using Fortissimo</b>
+ * Fortissimo is a framework for developing web applications. Unlike most
+ * web frameworks, it is not based on the MVC pattern. Instead, it uses
+ * the front controller pattern, coupled with a variation on the chain-of-command
+ * pattern.
+ *
+ * To get started, look at the command.xml file. The front controller reads 
+ * this file to map requests to a sequence of commands. When building a 
+ * Fortissimo application, you will be building such mappings yourself.
+ *
+ * Each request will kick off a chain of zero or more commands, which are 
+ * executed in sequence. A command is simply a class that implements the 
+ * {@link FortissimoCommand} class. Most commands will extend the abstract
+ * {@link BaseFortissimoCommand} class, which provides a baseline of 
+ * functionality.
+ *
+ * A command can take zero or more parameters. Parameters can be retrieved from
+ * a wide variety of sources, the most common being GET and POST data, and 
+ * output from other commands. Since commands are highly configurable, they 
+ * are input-neutral: the parameters can come from any input. Fortissimo
+ * itself handles the retrieval of parameters, and the source of each parameter
+ * is configured not in code, but in the commands.xml file. Practically speaking,
+ * what this means is that one command can recieve input from a user-configurable
+ * source. The data can come from GET, POST, cookies, sessions, other commands, 
+ * command line args, or environment variables.
+ *
+ * To get started with Fortissimo, take a look at some of the unit testing
+ * classes or read the online documentation. Then write a custom class implementing
+ * the BaseFortissimoCommand.
  */
 
 /**
@@ -48,6 +78,8 @@ require_once('QueryPath/QueryPath.php');
  * takes a request name and executes all associated commands.
  *
  * For more details, see {@link __construct()}.
+ *
+ * @see Fortissimo.php
  */
 class Fortissimo {
   
@@ -416,7 +448,7 @@ interface FortissimoCommand {
    *  {@link BaseFortissimoCommand} for an example of a caching service. There is
    *  no requirement that caching be supported by a command.
    */
-  public function __construct($name, $caching = FALSE);
+  public function __construct($name/*, $caching = FALSE*/);
   
   /**
    * Execute the command.
@@ -466,7 +498,87 @@ interface FortissimoCommand {
    * @return boolean
    *  Boolean TRUE of the object canbe cached, FALSE otherwise.
    */
-  public function isCacheable();
+  //public function isCacheable();
+}
+
+/**
+ * Container for parameter descriptions.
+ */
+class BaseFortissimoCommandParameterCollection implements IteratorAggregate {
+  protected $params = array();
+  protected $description = '';
+  protected $paramCounter = -1;
+  
+  public function __construct($description) {$this->description = $description;}
+  
+  public function param($name, $description) {
+    $param = new BaseFortissimoCommandParameter($name, $description);
+    $this->params[++$this->paramCounter] = $param;
+    
+    return $this;
+  }
+  /**
+   * Add a filter to this parameter.
+   *
+   * A parameter can have any number of filters. Filters are used to 
+   * either clean (sanitize) a value or check (validate) a value. In the first
+   * case, the system will attempt to remove bad data. In the second case, the
+   * system will merely check to see if the data is acceptible.
+   *
+   * Fortissimo supports all of the filters supplied by PHP. For a complete 
+   * list, including valide options, see 
+   * {@link http://us.php.net/manual/en/book.filter.php}.
+   *
+   * Filters each have options, and the options can augment filter behavior, sometimes
+   * in remarkable ways. See {@link http://us.php.net/manual/en/filter.filters.php} for
+   * complete documentation on all filters and all of their options.
+   *
+   * @param string $filter
+   *  One of the predefined filter types supported by PHP. You can obtain the list
+   *  from the PHP builtin function {@link filter_list()}. Here are values currently 
+   *  documented:
+   *  - int: Checks whether a value is an integer.
+   *  - boolean: Checks whether a value is a boolean.
+   *  - float: Checks whether a value is an integer (optionally, in a range).
+   *  - validate_regexp: Check whether a parameter's value matches a given regular expression.
+   *  - validate_url: Checks whether a URL is valid.
+   *  - validate_email: Checks whether a value is a valid email address.
+   *  - validate_ip: Checks whether a value is a valid IP address.
+   *  - string: Sanitizes a string, strips tags, can encode or strip special characters.
+   *  - stripped: Same as 'string'
+   *  - encoded: URL-encodes a string
+   *  - special_chars: XML/HTML entity-encodes special characters.
+   *  - unsafe_raw: Does nothing (can optionally encode/strip special chars)
+   *  - email: Removes non-Email characters
+   *  - url: Removes non-URL characters
+   *  - number_int: Removes anything that is not a digit or a sign (+ or -).
+   *  - number_float: Removes anything except digits, signs, . , e and E.
+   *  - magic_quotes: Run {@link addslashes()}.
+   *  - callback: Use the given callback to filter.
+   * @param mixed $options
+   *  This can be either an array or an OR'd list of flags, as specified in the 
+   *  PHP documentation.
+   */
+  public function withFilter($filter, $options = NULL) {
+    $this->params[$this->paramCounter]->addFilter($filter, $options);
+    return $this;
+  }
+  
+  public function description() {
+    return $this->description;
+  }
+  
+  public function setParams($array) {
+    $this->params = $array;
+  }
+  
+  public function params() {
+    return $this->params;
+  }
+  
+  public function getIterator() {
+    return new ArrayIterator($this->params);
+  }
 }
 
 /**
@@ -494,23 +606,6 @@ class BaseFortissimoCommandParameter {
   public function __construct($name, $description = '') {
     $this->name = $name;
     $this->description = $description;
-  }
-  
-  /**
-   * Add a description.
-   *
-   * Typically, this is done in the constructor, but it can be explicitly set with
-   * this function.
-   *
-   * @param string $description
-   *  A human-readable description of what this parameter is used for.
-   *  This is used to automatically generate help.
-   * @return BaseFortissimoCommandParameter
-   *  Returns this object to facilitate chaining.
-   */
-  public function setDescription($description) { 
-    $this->description = $description;
-    return $this;
   }
   
   /**
@@ -557,8 +652,8 @@ class BaseFortissimoCommandParameter {
    * @return BaseFortissimoCommandParameter
    *  Returns this object to facilitate chaining.   
    */
-  public function addFilter($filter, $options = array()) {
-    $this->filters[] = array('type' => $filters, 'options' => $options);
+  public function addFilter($filter, $options = NULL) {
+    $this->filters[] = array('type' => $filter, 'options' => $options);
     return $this;
   }
   
@@ -576,8 +671,8 @@ class BaseFortissimoCommandParameter {
    * @return BaseFortissimoCommandParameter
    *  Returns this object to facilitate chaining.
    */
-  public function setFilters($validators) {
-    $this->validators = $validators;
+  public function setFilters($filters) {
+    $this->filters = $filters;
     return $this;
   }
   /**
@@ -585,7 +680,7 @@ class BaseFortissimoCommandParameter {
    * @return array
    *  An array of the form specified in {@link setValidators()}.
    */
-  public function getFilters() { return $this->validators; }
+  public function getFilters() { return $this->filters; }
   public function getName() { return $this->name; }
   public function getDescription() { return $this->description; }
 }
@@ -617,6 +712,8 @@ class BaseFortissimoCommandParameter {
  *  {@link doCommand()}.
  */
 abstract class BaseFortissimoCommand implements FortissimoCommand {
+  
+  protected $paramsCollection;
   
   /**
    * The name of this command.
@@ -666,7 +763,70 @@ abstract class BaseFortissimoCommand implements FortissimoCommand {
   }
   
   public function execute($params, FortissimoExecutionContext $cxt) {
+    $this->context = $cxt;
+    $this->prepareParameters($params);
+    $this->context->add($this->name, $this->doCommand());
+  }
+  
+  /**
+   * Handle a parameter validation/sanitization failure.
+   *
+   * By default, this simply throws an exception, but more advanced processing
+   * can be handled here, if necessary.
+   *
+   * @throws FortissimoException
+   *  If the filter fails, an exception is thrown. Note that 
+   *  FILTER_VALIDATE_BOOLEAN will not throw an exception if it fails. Instead,
+   *  if converts values to FALSE. This is a limitation in the PHP 
+   *  filter library, where a failed filter always returns FALSE.
+   *
+   * @see validate()
+   */
+  public function handleIllegalParameter($name, $filter, $payload, $options) {
+    $msg = "Filter %s failed for %s";
+    throw new FortissimoException(sprintf($msg, $filter, $name));
+  }
+  
+  /**
+   * Run a validator or sanitizer.
+   *
+   * This runs a validator function or a sanitizer function, and returns
+   * the result.
+   *
+   * @param string $name
+   *  The name of the parameter. This is used for error reporting.
+   * @param string $filter
+   *  The name (AS A STRING) of the filter to run. See 
+   *  {@link BaseFortissimoCommandParameter::addFilter()} for a list of names,
+   *  or consult the PHP documentation for filters.
+   * @param mixed $payload
+   *  The value to be validated.
+   * @param mixed $options
+   *  Typically, this is either an array or an ORed list of constants.
+   *  See the PHP documentation for possible options.
+   * @see http://us.php.net/manual/en/book.filter.php
+   * @see handleIllegalParameter() Called if this fails.
+   */
+  protected function validate ($name, $filter, $payload, $options = NULL) {
+    $filterID = filter_id($filter);
+    $res = filter_var($payload, $filterID, $options);
     
+    // Boolean validation returns FALSE if the bool is false, or if a fail occurs.
+    // So we just pass through. Nothing more that can really be done about it.
+    if ($res === FALSE && $filter != FILTER_VALIDATE_BOOLEAN) {
+      $this->handleIllegalParameter($name, $filter, $payload, $options);
+    }
+    
+    return $res;
+  }
+  
+  /**
+   * Prepare all parameters.
+   *
+   * This fetches parameters from the server and performs any necessary
+   * parameter filtering.
+   */
+  protected function prepareParameters($params) {
     $this->parameters = array();
     
     // Gets the list of BaseFortissimoCommandParameter objects and loops
@@ -690,113 +850,92 @@ abstract class BaseFortissimoCommand implements FortissimoCommand {
       // Assign a sanitized/validated value.
       $this->parameters[$name] = $payload;
     }
-    
-    $this->context = $cxt;
-    $this->context->add($this->name, $this->doCommand());
+  }
+  
+  public function description($string) {
+    $this->paramsCollection = new BaseFortissimoCommandParameterCollection($string);
+    return $this->paramsCollection;
   }
   
   /**
-   * Run a validator or sanitizer.
+   * Produces helpful information about this command.
    *
-   * This runs a validator function or a sanitizer function, and returns
-   * the result.
-   *
-   * @param string $name
-   *  The name of the parameter. This is used for error reporting.
-   * @param string $filter
-   *  The name (AS A STRING) of the filter to run. See 
-   *  {@link BaseFortissimoCommandParameter::addFilter()} for a list of names,
-   *  or consult the PHP documentation for filters.
-   * @param mixed $payload
-   *  The value to be validated.
-   * @param mixed $options
-   *  Typically, this is either an array or an ORed list of constants.
-   *  See the PHP documentation for possible options.
-   * @throws FortissimoException
-   *  If the filter fails, an exception is thrown. Note that 
-   *  FILTER_VALIDATE_BOOLEAN will not throw an exception if it fails. Instead,
-   *  if converts values to FALSE. This is a limitation in the PHP 
-   *  filter library, where a failed filter always returns FALSE.
-   * @see http://us.php.net/manual/en/book.filter.php
+   * @return string
+   *  A string with information about all of the paramters that this command uses,
+   *  and what each does.
    */
-  protected function validate ($name, $filter, $payload, $options = NULL) {
-    $filterID = filter_id($filter);
-    $res = filter_var($payload, $filterID, $options);
-
-    
-    // Boolean validation returns FALSE if the bool is false, or if a fail occurs.
-    // So we just pass through. Nothing more that can really be done about it.
-    if ($res === FALSE && $filter != FILTER_VALIDATE_BOOLEAN) {
-      $msg = "Filter %s failed for %s";
-      throw new FortissimoException(sprintf($msg, $filter, $name));
-    }
-    
-    return $res;
-  }
-  
-  protected function verifyClass($obj, $class) {
-    $ref = new ReflectionObject($obj);
-    return $ref->getName() == $class;
-  }
-  
   public function explain() {
     $expects = $this->expects();
-    $defaults = array('type' => self::string_type, 'description' => '');
-    $format = "%s (%s): %s\n\n";
+    $format = "\t%s (%s): %s\n";
     $buffer = '';
-    foreach ($expects as $name => $data) {
-      $data += $defaults;
-      $buffer .= sprintf($name, $this->typeAsString($data['type']), $data['description']);
+    foreach ($expects as $paramObj) {
+      $name = $paramObj->getName();
+      $desc = $paramObj->getDescription();
+      $fltr = array();
+      foreach ($paramObj->getValidators() as $filter) {
+        // If callback, display the callback name. Otherwise display the filter.
+        switch ($filter['type']) {
+          case 'callback':
+            $fltr[] = 'callback: ' . $filter['options']['options'];
+            break;
+          case 'regex':
+            $fltr[] = 'regex: ' . $filter['options']['regex'];
+            break;
+          default:
+            $fltr[] = $filter['type'];
+        }
+      }
+      $filterString = implode(', ', $fltr);
+      if (strlen($filterString) == 0) $filterString = 'no filters';
+      $buffer .= sprintf($name, $filterString, $desc);
     }
+    
+    return __CLASS__ . PHP_EOL 
+      . $this->paramsCollection->description() . PHP_EOL 
+      . $buffer . PHP_EOL;
   }
   
   /**
    * Information about what parameters the command expects.
    *
-   * This function returns a registry of variables that the command expects.
-   * These variables are derived from the params settings for the command (e.g. from
-   * the cmd parameters in the command configuration file).
+   * A command is intended to perform a single discrete task. To perform
+   * this task, a command may require one or more input parameters. This 
+   * method is used to accomplish two things:
    *
-   * For example, an expects() function may return something like this:
+   * - Declare what parameters it uses
+   * - Explain what it does
+   *
+   * The first of these tasks is straightforward: A command uses parameters
+   * for input. This method gives the command developer the tools to declare
+   * which paramaters are used. Additionally, generic sanitization and validation
+   * can automatically be done by the base command. Developers can declare which 
+   * filters should be run on data so that the parameters prepared before the 
+   * command is executed.
+   *
+   * The second task is to explain what this command does with these parameters.
+   * This is done to provide real-time documentation to developers. A command
+   * has the ability to report (using {@link explain()}) what it does, which 
+   * expedites the development of a Fortissimo application.
+   *
+   * An implementation of this function should look something like this:
    * <?php
-   * array(
-   *    // Validate that age is an integer. If not, an exception will be thrown.
-   *   'age' => array(
-   *     'validate' => FILTER_VALIDATE_INT,
-   *     'validate_options' => array('options' => array('default' => 3));
-   *     'description' => 'Your age as an integer',
-   *   ),
-   *   // Sanitize and then validate. Sanitizing always goes first.
-   *   // This will attempt to clean the email address, and then validate it.
-   *   'email' => array(
-   *     'sanitize' => FILTER_SANITIZE_EMAIL,
-   *     'validate' => FILTER_VALIDATE_EMAIL,
-   *     'description' => 'A surname',
-   *   ),
-   *   // Use my_func() as a callback function for sanitizing.
-   *  'first_name' => array(
-   *    'sanitize' => FILTER_CALLBACK,
-   *    'sanitize_options' = array('options' => 'my_func'),
-   *   ),
-   * )
+   * public function expects() {
+   *  return $this
+   *   ->description('This command sends a name to an email address.')
+   *   ->param('name', 'The name to echo back')
+   *    ->withFilter('string')
+   *   ->param('email', 'An email address to echo data to.')
+   *    ->withFilter('email')
+   *    ->withFilter('validate_email');
+   * }
    * ?>
-   * The form of this array is $array['name_of_param'] = array(detail => value);
    *
-   * Details that MUST be returned in the array:
-   * - type: One of the const *_type from this class, or a string classname.
-   * - description: The description of what this parameter does.
-   *
-   * Optional details:
-   * - sanitize: One of the PHP  filter FILTER_SANITIZE_* constants
-   * - sanitize_options: Options to be passed into the sanitizer
-   * - validate: One of the PHP filter FILTER_VALIDATE_* constants
-   * - validate_options: Options to be passed into the validator
-   *
-   * This data structure accomplishes several things, including:
-   *  - Input validation. Simple validation can be accomplished by telling this object
-   *    what kind of data it collects.
-   *  - Self-documentation. Calling explain() will return a formatted display of
-   *    what arguments this command expects.
+   * The above describes a command that expects two parameters: name and email.
+   * The name command is validated with the string sanitizer, which makes sure
+   * that the string doesn't have markup in it.
+   * The email command is first santized against the email sanitizer, then it
+   * is checked against the email validator to make sure that it is a legitimate
+   * email address.
    *
    * @see http://us.php.net/manual/en/book.filter.php The PHP Filter system.
    */
@@ -836,6 +975,8 @@ abstract class BaseFortissimoCommand implements FortissimoCommand {
  * Fortissimo validators are called from within the BaseFortissimoCommand. They
  * provide extended validation of a parameter before the parameter is used to 
  * execute the command.
+ * 
+ * @deprecated This is no longer used.
  */
 interface FortissimoValidator {
   /**

@@ -14,10 +14,38 @@ class BaseFortissimoCommandTest extends PHPUnit_Framework_TestCase {
     $cmd = new SimpleCommandTest('test');
     $expectations = $cmd->expects();
     
-    $this->assertEquals(3, count($expectations));
-    $this->assertEquals(6, $expectations['testNumeric']['type']);
-    $this->assertEquals('A test string.', $expectations['testString']['description']);
-    $this->assertTrue($expectations['testNumeric2']['validate'] instanceof FortissimoValidator, 'Object is validator.');
+    $params = $expectations->params();
+    $this->assertEquals(3, count($params));
+    
+    // Since params should be in order, we can shift them off the top:
+    $testString = array_shift($params);
+    $this->assertEquals('testString', $testString->getName());
+    $this->assertEquals('A test string', $testString->getDescription());
+    
+    $testNumeric = array_shift($params);
+    
+    $this->assertEquals('testNumeric', $testNumeric->getName());
+    
+    // Count filters:
+    $filters = $testNumeric->getFilters();
+    $this->assertEquals(1, count($filters));
+    $this->assertEquals('float', $filters[0]['type']);
+    $this->assertNull($filters[0]['options']);
+    
+    // Manually execute a filter:
+    $this->assertEquals(7.5, filter_var(7.5, filter_id($filters[0]['type']), NULL));
+    
+    // Test a failed filter:
+    $this->assertFalse(filter_var('matt', filter_id($filters[0]['type']), NULL), 'String is not a float.');
+    
+    // Test callbacks
+    $testNumeric2 = array_shift($params);
+    $filters = $testNumeric2->getFilters();
+    $this->assertEquals('callback', $filters[0]['type']);
+    $this->assertTrue($filters[0]['options']['options'][0] instanceof SimpleValidatorTest, 'Option callback is a SimpleValidatorTest');
+    
+    $this->assertEquals(7, filter_var(3.5, FILTER_CALLBACK, $filters[0]['options']));
+    
   }
   
   public function testDoRequest() {
@@ -32,10 +60,10 @@ class BaseFortissimoCommandTest extends PHPUnit_Framework_TestCase {
   
 }
 
-class SimpleValidatorTest implements FortissimoValidator {
+class SimpleValidatorTest{
   
-  public function validate($name, $type, $value) {
-    if (!is_float($value)) throw new FortissimoException(sprintf('Expected float, but got non-float %s.', $value));
+  //public function validate($name, $type, $value) {
+  public function validate($value) {
     return $value * 2;
   }
 }
@@ -43,6 +71,20 @@ class SimpleValidatorTest implements FortissimoValidator {
 class SimpleCommandTest extends BaseFortissimoCommand {
   
   public function expects() {
+    
+    return $this
+      ->description('A test command')
+      
+      ->param('testString', 'A test string')
+      ->withFilter('string')
+      
+      ->param('testNumeric', 'A test numeric value')
+      ->withFilter('float')
+      
+      ->param('testNumeric2', 'Another test numeric value')
+      ->withFilter('callback', array('options' => array(new SimpleValidatorTest(), 'validate')));
+    
+    /*
     return array(
       'testString' => array(
         'type' => self::string_type,
@@ -58,6 +100,7 @@ class SimpleCommandTest extends BaseFortissimoCommand {
         'validate' => new SimpleValidatorTest(),
       ),
     );
+    */
   }
   
   public function doCommand() {
