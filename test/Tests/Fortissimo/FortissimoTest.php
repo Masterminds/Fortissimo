@@ -74,7 +74,7 @@ class FortissimoTest extends PHPUnit_Framework_TestCase {
     $ff = new FortissimoHarness(self::config);
     $ff->logException();
     
-    $logger = $ff->loggerManager()->getLoggerByName('foil');
+    $logger = $ff->loggerManager()->getLoggerByName('fail');
     $this->assertNotNull($logger, 'Logger exists.');
     $this->assertEquals(1, count($logger->getMessages()));
   }

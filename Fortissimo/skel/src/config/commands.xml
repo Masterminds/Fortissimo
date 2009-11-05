@@ -82,10 +82,17 @@
     </cmd>
   </request>
   
+  <!-- Logs directly into STDOUT (the browser, the console). -->
   <logger name="foil" invoke="FortissimoOutputInjectionLogger"/>
+  
+  <!-- Buffers log messages in an array to be retrieved later. -->
+  <logger name="fail" invoke="FortissimoArrayInjectionLogger"/>
+  <!--
+  Example of a more sophisticated (non-existent) logger:
   <logger name="syslog" invoke="FortissimoSyslogLogger">
     <param name="facility">local6</param>
   </logger>
+  -->
   
   <cache name="dummy" invoke="FortissimoDummyRequestCache"/>
   <cache name="dummy2" invoke="FortissimoDummyRequestCache">

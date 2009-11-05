@@ -141,7 +141,7 @@ class Fortissimo {
     
     // Add additional files to the include path:
     $paths = $this->commandConfig->getIncludePaths();
-    $this->addIncldePaths($paths);
+    $this->addIncludePaths($paths);
     
     // Create the log manager.
     $this->logManager = new FortissimoLoggerManager($this->commandConfig->getLoggers());
@@ -1028,39 +1028,6 @@ abstract class BaseFortissimoCommand implements FortissimoCommand {
 }
 
 /**
- * Validate or transform arguments passed to a {@link BaseFortissimoCommand}.
- *
- * Fortissimo validators are called from within the BaseFortissimoCommand. They
- * provide extended validation of a parameter before the parameter is used to 
- * execute the command.
- * 
- * @deprecated This is no longer used.
- */
-interface FortissimoValidator {
-  /**
-   * Validate a single param.
-   *
-   * @param string $name
-   *  The name of the parameter.
-   * @param mixed $type
-   *  The type (reported by {@link BaseFortissimoCommand::explain()}) of teh 
-   *  parameter.
-   * @param mixed $value
-   *  The value of the parameter.
-   * @return mixed
-   *  The return value will be used in lieu of the original $value.
-   * @throws FortissimoException
-   *  If validation fails, a FortissimoException should be thrown.
-   * @throws FortissimoInterrupt
-   *  If the process of validating indicates thtat the request should be 
-   *  terminated, this should be thrown.
-   * @throws FortissimoInterruptException
-   *  If validation fails and the request should be terminated, this should be thrown.
-   */
-  public function validate($name, $type, $value);
-}
-
-/**
  * Stores information about Fortissimo commands.
  *
  * This is used when bootstrapping to map a request to a series of commands.
@@ -1714,15 +1681,35 @@ class FortissimoLoggerManager {
 }
 
 /**
- * The FOIL logger captures log messages which can later be retrieved.
+ * The FOIL logger sends messages directly to STDOUT.
  *
+ * Log messages will be emitted to STDOUT as soon as they are logged.
+ */
+class FortissimoOutputInjectionLogger extends FortissimoLogger {
+  protected $filter;
+  
+  public function init() {
+    $this->filter = empty($this->params['html']) ? '%s: %s' : '<div class="log-item %s">%s</div>';
+  }
+  public function log($message, $category) {
+    printf($this->filter, $category, $message);
+  }
+}
+
+/**
+ * The FAIL logger maintains an array of messages to be retrieved later.
+ * 
  * Log entries can be injected into the output by retrieving a list
  * of log messages with {@link getMessages()}, and then displaying them,
  * or by simply calling {@link printMessages()}.
  */
-class FortissimoOutputInjectionLogger extends FortissimoLogger {
-  
+class FortissimoArrayInjectionLogger extends FortissimoLogger {
   protected $logItems = array();
+  protected $filter;
+  
+  public function init() {
+    $this->filter = empty($this->params['html']) ? '%s: %s' : '<div class="log-item %s">%s</div>';
+  }
   
   public function getMessages() {
     return $this->logItems;
@@ -1732,9 +1719,8 @@ class FortissimoOutputInjectionLogger extends FortissimoLogger {
     print implode('', $this->logItems);
   }
   
-  public function init() {}
   public function log($message, $category) {
-    $this->logItems[] = sprintf('<div class="log-item %s">%s</div>', $category, $message);
+    $this->logItems[] = sprintf($this->filter, $category, $message);
   }
 }
 
@@ -1828,7 +1814,6 @@ abstract class FortissimoLogger {
     if ($message instanceof Exception) {
       $buffer = $message->getMessage();
       $buffer .= $message->getTraceAsString();
-      
     }
     elseif (is_object($message)) {
       $buffer = $mesage->toString();
@@ -1838,7 +1823,6 @@ abstract class FortissimoLogger {
     }
     $this->log($buffer, $category);
     return;
-    
   }
   
   /**

@@ -5,11 +5,10 @@ To Do
 X Rewrite requests to be objects
 X Add an interrupt handler that will forward to a new request
 X Request caching
+X Unit tests for the autoloader/include paths.
+X Abstract command: Rewrite validator to use PHP's native validators and filters
 
 * Complete command caching mechanism
   - Issue: What are we going to cache for commands?
-* Abstract command
-  - Rewrite validator to use PHP's native validators and filters
 * Data source abstraction layer
 * Bootstrap interception?
-* Unit tests for the autoloader/include paths.
