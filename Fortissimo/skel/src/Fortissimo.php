@@ -39,6 +39,19 @@
  * To get started with Fortissimo, take a look at some of the unit testing
  * classes or read the online documentation. Then write a custom class implementing
  * the BaseFortissimoCommand.
+ *
+ * <strong>The Fortissimo Autoloader</strong>
+ * Fortissimo uses the default SPL autoloader to find and load classes. For that
+ * reason, if you follow the convention of storing classes inside of files
+ * named with the class name, you will not need to use {@link include()} or any
+ * other such functions.
+ *
+ * Current benchmarks indicate that the SPL autoloader is slightly faster than
+ * using require/require_once, both with and without an opcode cache.
+ *
+ * You can augment the autoloader's default paths using <code>include</code>
+ * elements in the command.xml file (or manually loading them in via the 
+ * config object).
  */
 
 /**
@@ -54,15 +67,22 @@ $basePath = dirname(__FILE__);
 $paths[] = get_include_path();
 $paths[] = $basePath . '/includes';
 $paths[] = $basePath . '/core';
+$paths[] = $basePath . '/core/Fortissimo';
 $paths[] = $basePath . '/phar';
 $path = implode(PATH_SEPARATOR, $paths);
 set_include_path($path);
+
+// Prepare the autoloader.
+spl_autoload_extensions('.php,.cmd.php,.inc');
+// For performance, use the default loader.
+spl_autoload_register();
 
 /**
  * QueryPath is a core Fortissimo utility.
  * @see http://querypath.org
  */ 
 require_once('QueryPath/QueryPath.php');
+// ^^ This is explicitly loaded because of the factory function.
  
 /**
  * The Fortissimo front controller.
@@ -119,11 +139,42 @@ class Fortissimo {
     // Parse configuration file.
     $this->commandConfig = new FortissimoConfig($commandsXMLFile);
     
+    // Add additional files to the include path:
+    $paths = $this->commandConfig->getIncludePaths();
+    $this->addIncldePaths($paths);
+    
     // Create the log manager.
     $this->logManager = new FortissimoLoggerManager($this->commandConfig->getLoggers());
     
     // Create cache manager.
     $this->cacheManager = new FortissimoCacheManager($this->commandConfig->getCaches());
+    
+    //spl_autoload(string class_name, [string file_extensions])
+    //spl_autoload_extensions('.cmd.php');
+    spl_autoload_register();
+  }
+  
+  /**
+   * Add paths that will be used by the autoloader and include/require.
+   *
+   * Fortissimo uses the {@link spl_autoload()} family of functions to
+   * automatically load classes. This method can be used to dynamically 
+   * append directories to the paths used for including class files.
+   *
+   * No duplicate checking is done internally. That means that this
+   * multiple instances of the same path can be added to the include
+   * path. There are no known problems associated with this behavior.
+   * 
+   * @param array $paths
+   *  An indexed array of path names. This will be appended to the PHP
+   *  include path.
+   * @see get_include_path()
+   */
+  public function addIncludePaths($paths) {
+    array_unshift($paths, get_include_path());
+    
+    $path = implode(PATH_SEPARATOR, $paths);
+    set_include_path($path);
   }
   
   public function genCacheKey($requestName) {
@@ -937,6 +988,13 @@ abstract class BaseFortissimoCommand implements FortissimoCommand {
    * is checked against the email validator to make sure that it is a legitimate
    * email address.
    *
+   * @return BaseFortissimoCommandParameterCollection
+   *  Returns a collection of parameters. This can be easily obtained by 
+   *  calling {@link description()} on the present object. View the example above
+   *  or the {@link SimpleCommandTest} class to see basic examples of how to
+   *  return the appropriate data from this method.
+   *
+   * @see SimpleCommandTest::expects() An example can be found in the unit tests.
    * @see http://us.php.net/manual/en/book.filter.php The PHP Filter system.
    */
   abstract public function expects();
@@ -1026,6 +1084,22 @@ class FortissimoConfig {
    */
   public function __construct($commandsXMLFile) {
     $this->config = qp($commandsXMLFile);
+  }
+  
+  /**
+   * Get an array of additional paths to be added to the include path.
+   *
+   * Fortissimo uses an autoloader to load classes into the engine. This
+   * loader can use additional paths. To pass additional paths to Fortissimo,
+   * add them using the <code>include</code> element in the commands.xml file.
+   */
+  public function getIncludePaths() {
+    $includes = $this->config->branch(':root>include');
+    $array = array();
+    foreach ($includes as $i) {
+      $array[] = $i->attr('path');
+    }
+    return $array;
   }
   
   /**

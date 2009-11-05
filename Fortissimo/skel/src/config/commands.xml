@@ -1,6 +1,16 @@
 <?xml version="1.0"?>
 <commands xmlns="http://technosophos.com/2009/1.1/commands.xml">
   
+  <!-- 
+  Fortissimo users the SPL autoloader to load classes, where the 
+  assumption is that ClassName is stored in ClassName.php, ClassName.cmd.php,
+  or ClassName.inc.
+  
+  To add additional directories to the class loader, specify them here.
+  -->
+  <include path="test/Tests"/>
+  <include path="test/Tests/Fortissimo"/>
+  
   <!--
   A group is a grouping of commands that cannot be executed as a request.
   

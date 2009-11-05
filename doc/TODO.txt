@@ -12,3 +12,4 @@ X Request caching
   - Rewrite validator to use PHP's native validators and filters
 * Data source abstraction layer
 * Bootstrap interception?
+* Unit tests for the autoloader/include paths.

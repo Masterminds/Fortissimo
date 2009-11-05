@@ -131,6 +131,15 @@ class FortissimoTest extends PHPUnit_Framework_TestCase {
     $this->assertTrue($cxt->has('forwarder'), 'Forwarder command is in context.');
   }
   
+  public function testAutoloader() {
+    $path = get_include_path();
+    $paths = explode(PATH_SEPARATOR, $path);
+    
+    $this->assertTrue(in_array('test/Tests/Fortissimo/Stubs', $paths));
+    
+    $class = new LoaderStub();
+    $this->assertTrue($class->isLoaded(), 'Verify that classes are autoloaded.');
+  }
   
 }
 

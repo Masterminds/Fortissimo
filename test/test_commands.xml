@@ -1,6 +1,9 @@
 <?xml version="1.0"?>
 <commands xmlns="http://technosophos.com/2009/1.1/commands.xml">
   
+  <include path="test/Tests/Fortissimo/Stubs"/>
+  <include path="test/Tests/Fortissimo"/>
+  
   <logger name="foil" invoke="FortissimoOutputInjectionLogger"/>
   
   <group name="bootstrap">
