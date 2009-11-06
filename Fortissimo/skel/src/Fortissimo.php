@@ -148,10 +148,6 @@ class Fortissimo {
     
     // Create cache manager.
     $this->cacheManager = new FortissimoCacheManager($this->commandConfig->getCaches());
-    
-    //spl_autoload(string class_name, [string file_extensions])
-    //spl_autoload_extensions('.cmd.php');
-    spl_autoload_register();
   }
   
   /**
@@ -182,6 +178,34 @@ class Fortissimo {
   }
   
   /**
+   * Explain all of the commands in a request.
+   *
+   * This will explain the request, and then attempt to explain
+   * every command in the request. If the command is an {@link Explainable}
+   * object, then {@link Explainable::explain()} will be called. Otherwise,
+   * Fortissimo will use other methods, such as introspection, to attempt to
+   * self-document.
+   *
+   * @param FortissimoRequest $request
+   *  A request object.
+   * @return string
+   *  An explanation string in plain text.
+   */
+  public function explainRequest($request) {
+    $out = sprintf('Request: %s', $requestName) . PHP_EOL;
+    foreach($request as $name => $command) {
+      // If this command as an explain() method, use it.
+      if ($command instanceof Explainable) {
+        $out .= $command->explain();
+      }
+      else {
+        $out = $name . PHP_EOL;
+      }
+    }
+    return $out . PHP_EOL;
+  }
+  
+  /**
    * Handles a request.
    *
    * When a request comes in, this method is responsible for displatching
@@ -191,8 +215,13 @@ class Fortissimo {
     $request = $this->commandConfig->getRequest($requestName);
     $cacheKey = NULL; // This is set only if necessary.
     
+    // If this request is in explain mode, explain and exit.
+    if ($request->isExplaining()) {
+      print $this->handleExplain($request);
+      return;
+    }
     // If this allows caching, check the cached output.
-    if ($request->isCaching() && isset($this->cacheManager)) {
+    elseif ($request->isCaching() && isset($this->cacheManager)) {
       // Handle caching.
       $cacheKey = $this->genCacheKey($requestName);
       $response = $this->cacheManager->get($cacheKey);
@@ -416,6 +445,7 @@ class FortissimoRequest implements IteratorAggregate {
   
   protected $commandQueue = NULL;
   protected $isCaching = FALSE;
+  protected $isExplaining = FALSE;
   
   public function __construct($commands) {
     $this->commandQueue = $commands;
@@ -436,6 +466,31 @@ class FortissimoRequest implements IteratorAggregate {
    */
   public function setCaching($boolean) {
     $this->isCaching = $boolean;
+  }
+  
+  /**
+   * Set explain mode.
+   *
+   * By default a command is NOT in explain mode.
+   * @param boolean $boolean
+   *  Set to TRUE to turn on explain mode.
+   */
+  public function setExplain($boolean) {
+    $this->isExplaining = $boolean;
+  }
+  
+  /**
+   * Determine whether this request is in 'explain' mode.
+   *
+   * When a request is explaining, Fortissimo will output detailed
+   * information about each command, such as what parameters it expects
+   * and what its purpose is.
+   *
+   * @return boolean
+   *  TRUE if this request is in explain mode, false otherwise.
+   */
+  public function isExplaining() {
+    return $this->isExplaining;
   }
   
   /**
@@ -737,6 +792,20 @@ class BaseFortissimoCommandParameter {
 }
 
 /**
+ * Any class that implements Explainable must return a string that describes,
+ * in human readable language, what it does.
+ */
+interface Explainable {
+  /**
+   * Provides a string explaining what this class does.
+   * 
+   * @return string
+   *  A string explaining the role of the class.
+   */
+  public function explain();
+}
+
+/**
  * This is a base class that can be extended to add new commands.
  *
  * The class provides several basic services. 
@@ -762,7 +831,7 @@ class BaseFortissimoCommandParameter {
  * 2. It must provide logic for performing the command. This is done in 
  *  {@link doCommand()}.
  */
-abstract class BaseFortissimoCommand implements FortissimoCommand {
+abstract class BaseFortissimoCommand implements FortissimoCommand, Explainable {
   
   protected $paramsCollection;
   
@@ -876,6 +945,13 @@ abstract class BaseFortissimoCommand implements FortissimoCommand {
    *
    * This fetches parameters from the server and performs any necessary
    * parameter filtering.
+   *
+   * @param array $params
+   *  And array of {@link BaseFortissimoCommandParameter} objects which 
+   *  will be used to determine what parameters this object needs. 
+   *
+   * @see BaseFortissimoCommand::expects()
+   * @see BaseFortissimoCommand::describe()
    */
   protected function prepareParameters($params) {
     $this->parameters = array();
@@ -903,6 +979,21 @@ abstract class BaseFortissimoCommand implements FortissimoCommand {
     }
   }
   
+  /**
+   * Set a description of this object.
+   *
+   * This function should be called from within {@link expects()}. Set a description
+   * of what this command does. The resulting {@link BaseFortissimoCommandParameterCollection}
+   * object that is returned should be used to set which parameters this command
+   * expects to receive.
+   *
+   * @param string $string
+   *  A description.
+   * @return BaseFortissimoCommandParameterCollection
+   *  An object for configuring this command.
+   * @see BaseFortissimoCommand::expects();
+   * @see BaseFortissimoCommand::explain();
+   */
   public function description($string) {
     $this->paramsCollection = new BaseFortissimoCommandParameterCollection($string);
     return $this->paramsCollection;
@@ -1059,6 +1150,10 @@ class FortissimoConfig {
    * Fortissimo uses an autoloader to load classes into the engine. This
    * loader can use additional paths. To pass additional paths to Fortissimo,
    * add them using the <code>include</code> element in the commands.xml file.
+   *
+   * @return array
+   *  An array of include paths as defined in the command configuration 
+   *  (commands.xml).
    */
   public function getIncludePaths() {
     $includes = $this->config->branch(':root>include');
@@ -1204,8 +1299,11 @@ class FortissimoConfig {
     
     // Determine whether the request supports caching.
     $cache = $request->attr('cache');
+    $explain = $request->attr('explain');
     // FIXME: This should support true, t, yes, y.
-    $isCaching = isset($cache) && strtolower($cache) == 'true';
+    //$isCaching = isset($cache) && strtolower($cache) == 'true';
+    $isCaching = filter_var($cache, FILTER_VALIDATE_BOOLEAN);
+    $isExplaining = filter_var($explain, FILTER_VALIDATE_BOOLEAN);
     
     // Once we have the request, find out what commands we need to execute.
     $commands = array();
@@ -1228,6 +1326,7 @@ class FortissimoConfig {
     
     $request = new FortissimoRequest($commands);
     $request->setCaching($isCaching);
+    $request->setExplain($isExplaining);
     
     return $request;
   }

@@ -3,6 +3,11 @@
  * The top-level Fortissimo server.
  *
  * This handles the HTTP/HTTPS service for Fortissimo.
+ *
+ * It expects a GET string with the query 'ff=someRequestName', which 
+ * will be translated to a request section in the commands.xml file. That 
+ * request will then be executed, one command after another, until the end of
+ * the command chain is reached.
  */
 if(version_compare(phpversion(), '5.2', '>') === TRUE) {
   print 'PHP 5.2 or greater is required.';
@@ -25,4 +30,4 @@ require 'Fortissimo.php';
 
 $base = dirname(__FILE__);
 $ff = new Fortissimo($base . '/config/commands.xml');
-$ff->handleRequest($_GET['c']);
+$ff->handleRequest($_GET['ff']);

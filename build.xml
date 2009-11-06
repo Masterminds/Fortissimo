@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
-<project name="" 
-  description=""
+<project name="Fortissimo Framework" 
+  description="The Fortissimo Framework Generator"
   basedir="." 
   default="main"
 >
