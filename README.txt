@@ -5,7 +5,7 @@ Copyright (c) 2009
 Fortissimo is a framework for rapidly building PHP-based web sites and
 web applications.
 
-To begin, use the ff.php command.
+To begin, use the fff.php command.
 
 Requirements:
 - QueryPath

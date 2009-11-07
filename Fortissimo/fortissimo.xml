@@ -11,7 +11,7 @@ Copyright (c) 2009, Matt Butcher, some rights reserved.
 -->
 
   <property name="project" value="FORTISSIMO"/>
-  <property name="basepath" value="."/>
+  <property name="basepath" value="${application.startdir}"/>
   <property name="origindir" value="."/>
 
 
@@ -22,7 +22,7 @@ Copyright (c) 2009, Matt Butcher, some rights reserved.
   <property name="docsdir" value="./docs"/>
   <property name="packagedir" value="./dist"/>
   
-  <fileset id="skeleton" dir="${origindir}/lib/skel">
+  <fileset id="skeleton" dir="${origindir}/Fortissimo/skel">
     <include name="**"/>
   </fileset>
 
@@ -46,14 +46,15 @@ Copyright (c) 2009, Matt Butcher, some rights reserved.
   <target name="test" description="Test target.">
     <echo>This is a test target</echo>
     <echo>Origin: ${origindir}</echo>
-    <echo>Project: ${project}</echo>
+    <echo>Project: ${basepath}/${project}</echo>
+    <echo>Base Dir: ${basepath}</echo>
   </target>
   
   <target name="newProject" description="Create a new project">
     <!-- Create the project -->
-    <mkdir dir="${project}"/>
+    <mkdir dir="${basepath}/${project}"/>
     <!-- Copy in the base files -->
-    <copy todir="${project}">
+    <copy todir="${basepath}/${project}">
       <fileset refid="skeleton"/>
     </copy>
   </target>

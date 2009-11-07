@@ -210,6 +210,12 @@ class Fortissimo {
    *
    * When a request comes in, this method is responsible for displatching
    * the request to the necessary commands, executing commands in sequence.
+   *
+   * <strong>Note:</strong> Fortissimo has experimental support for request
+   * caching. When request caching is enabled, the output of a request is 
+   * stored in a cache. Subsequent identical requests will be served out of
+   * the cache, thereby avoiding all overhead associated with loading and 
+   * executing commands.
    */
   public function handleRequest($requestName, FortissimoExecutionContext $initialCxt = NULL) {
     $request = $this->commandConfig->getRequest($requestName);
@@ -284,6 +290,9 @@ class Fortissimo {
   
   /**
    * Retrieve the associated logger manager.
+   *
+   * The logger manager proxies data to the underlying logging facilities
+   * as defined in the command configuration.
    *
    * @return FortissimoLoggerManager
    *  The logger manager overseeing logs for this server.

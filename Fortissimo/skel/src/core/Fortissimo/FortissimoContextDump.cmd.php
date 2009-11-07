@@ -2,7 +2,15 @@
 /**
  * This file contains the command for dumping context.
  */
- 
+
+/**
+ * This command dumps the contents of the context to standard out.
+ *
+ * It performs this operation by running {@link var_dump()} on the
+ * contents of the {@link FortissimoExecutionContext}.
+ *
+ * This is useful (occasionally) for debugging.
+ */
 class FortissimoContextDump extends BaseFortissimoCommand {
   
   public function expects() {

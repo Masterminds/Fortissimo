@@ -1,18 +1,18 @@
 #!/usr/bin/env php
 <?php
 /**
- * ff.php is the front end to the Fortissimo framework.
+ * fff.php is the front end to the Fortissimo framework.
  */
  
 /* This is from phing.php */
 if (getenv('PHP_CLASSPATH')) {
-    if (!defined('PHP_CLASSPATH')) { define('PHP_CLASSPATH',  getenv('PHP_CLASSPATH') . PATH_SEPARATOR . get_include_path()); }
-    ini_set('include_path', PHP_CLASSPATH);
+  if (!defined('PHP_CLASSPATH')) { define('PHP_CLASSPATH',  getenv('PHP_CLASSPATH') . PATH_SEPARATOR . get_include_path()); }
+  ini_set('include_path', PHP_CLASSPATH);
 } else {
-    if (!defined('PHP_CLASSPATH')) { define('PHP_CLASSPATH',  get_include_path()); }
+  if (!defined('PHP_CLASSPATH')) { define('PHP_CLASSPATH',  get_include_path()); }
 }
 
-require 'Fortissimo.php'; 
+require 'FortissimoFramework.php'; 
 require 'phing/Phing.php';
 
 $buildfile = Fortissimo::getBuildXML();
@@ -29,7 +29,7 @@ exit(1);
 }
 
 array_shift($args);
-$build_target = 'test'; // 'newProject';
+$build_target = 'newProject';
 
 $phing_args = array(
   '-Dproject=' . array_pop($args),
@@ -58,4 +58,5 @@ catch (ConfigurationException $x) {
 catch (Exception $x) {
   exit(1);
 }
+print "Project is now created." . PHP_EOL;
 ?>

@@ -1,5 +1,5 @@
 <?php
-
+/** Test the FortissimoContextDump class. */
 require_once 'PHPUnit/Framework.php';
 require_once 'Fortissimo/skel/src/Fortissimo.php';
 
