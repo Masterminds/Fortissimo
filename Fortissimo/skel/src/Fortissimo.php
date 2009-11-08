@@ -52,6 +52,14 @@
  * You can augment the autoloader's default paths using <code>include</code>
  * elements in the command.xml file (or manually loading them in via the 
  * config object).
+ *
+ * The code in the Fortissimo project is released under the LGPL v. 2.1.
+ * @package Fortissimo
+ * @author M Butcher <matt @aleph-null.tv>
+ * @license http://opensource.org/licenses/lgpl-2.1.php The GNU Lesser GPL (LGPL)
+ * @see Fortissimo
+ * @copyright Copyright (c) 2009, Matt Butcher.
+ * @version @UNSTABLE@
  */
 
 /**
@@ -61,6 +69,23 @@
  * to generate the NOW time.
  */
 define('FORTISSIMO_REQ_TIME', time());
+
+/**
+ * The version number for this release of QueryPath.
+ *
+ * Stable versions are numbered in standard x.y.z format, where x is the major
+ * version, y is the minor version, and z is the bug-fix/patch level.
+ *
+ * Developer releases are stamped dev-DATE, where DATE is the ISO-formatted date
+ * of the build. You should not use these versions on production systems, nor
+ * as a platform for application development, since they are considered unfrozen,
+ * and hence subject to change.
+ *
+ * The special flag @UNSTABLE@ means that a non-built version of the application
+ * is being used. This should occur only for developers who are actively developing
+ * Fortissimo. No production release should ever have this tag.
+ */
+define('FORTISSIMO_VERSION', '@UNSTABLE@');
 
 // Set the include path to include Fortissimo directories.
 $basePath = dirname(__FILE__); 
