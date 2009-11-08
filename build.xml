@@ -35,6 +35,30 @@ Copyright (c) 2009, Matt Butcher, some rights reserved.
   <fileset id="unittests" dir="${testdir}/Tests">
     <include name="**/*Test.php" />
   </fileset>
+  
+  <!-- Examples -->
+  <fileset id="examplecode" dir="./examples">
+    <include name="**/*" />
+  </fileset>
+  
+  <!-- DocBook Tutorials -->
+  <fileset id="tutorials" dir="./tutorials">
+    <include name="**/*" />
+  </fileset>
+  
+  <!-- Documentation -->
+  <fileset id="docs" dir="./docs">
+    <include name="**/*" />
+  </fileset>
+  
+<!-- ================== TARGETS ========================= -->  
+  
+  <!-- Target that should be run always. -->
+  <target name="setup" description="Run required configuration for any build.">
+    <tstamp/>
+    <!-- Default version -->
+    <property name="version" value="dev-${DSTAMP}"/>
+  </target>
 
   <!-- Main Target -->
   <target name="main" description="main target">
@@ -64,5 +88,42 @@ Copyright (c) 2009, Matt Butcher, some rights reserved.
         format="noframes" 
         todir="test/reports/html" 
         />
+  </target>
+  
+  <!-- Build documentation -->
+  <target name="doc" depends="lint,setup" description="Generate API docs.">
+    <delete dir="${docsdir}"/>
+    <phpdoc title="Fortissimo ${version}"
+      sourcecode="yes"
+      destdir="${docsdir}"
+      output="HTML:frames:DOM/phphtmllib" 
+      defaultcategoryname="Fortissimo"
+      defaultpackagename="Fortissimo"
+      examplesdir="examples"
+      quiet="true"
+      >
+      <!-- 
+        output="HTML:frames:phphtmllib"
+      -->
+      <fileset refid="sourcecode"/>
+      <fileset refid="tutorials"/>
+      <fileset refid="examplecode"/>
+      <projdocfileset dir=".">
+        <include name="README.txt"/>
+        <include name="INSTALL.txt"/>
+        <include name="COPYING-LGPL.txt"/>
+        <include name="COPYING-MIT.txt"/>
+        <include name="LGPL-2.1.txt"/>
+      </projdocfileset>
+    </phpdoc>
+    <!-- Need to replace version information in generated documentation -->
+    <reflexive>
+      <fileset refid="docs"/>
+      <filterchain>
+        <replacetokens begintoken="@" endtoken="@">
+          <token key="UNSTABLE" value="${version}"/>
+        </replacetokens>
+      </filterchain>
+    </reflexive>
   </target>
 </project>

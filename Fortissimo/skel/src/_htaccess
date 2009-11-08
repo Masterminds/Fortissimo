@@ -1,0 +1,26 @@
+# Configuration directives for Apache 2.
+<FilesMatch "\.(inc|sh|.*sql|)$">
+  Order allow,deny
+</FilesMatch>
+
+Options -Indexes
+Options +FollowSymLinks
+DirectoryIndex index.php
+
+<IfModule mod_php5.c>
+  php_value magic_quotes_gpc                0
+  php_value register_globals                0
+  php_value mbstring.http_input             pass
+  php_value mbstring.http_output            pass
+  php_value mbstring.encoding_translation   0
+</IfModule>
+<IfModule mod_rewrite.c>
+  # Rewrite URLs of the form 'x' to the form 'index.php?q=x'.
+  RewriteEngine on
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteCond %{REQUEST_URI} !=/favicon.ico
+  RewriteRule ^(.*)$ index.php?q=$1 [L,QSA]
+</IfModule>
+
+# Based on the .htaccess file from Drupal 6.

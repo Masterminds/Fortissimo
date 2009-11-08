@@ -43,6 +43,8 @@ Copyright (c) 2009, Matt Butcher, some rights reserved.
           <fileset refid="srcdir" />
       </copy>
   </target>
+  
+  <!-- TEST -->
   <target name="test" description="Test target.">
     <echo>This is a test target</echo>
     <echo>Origin: ${origindir}</echo>
@@ -50,12 +52,31 @@ Copyright (c) 2009, Matt Butcher, some rights reserved.
     <echo>Base Dir: ${basepath}</echo>
   </target>
   
+  <!-- Create a new project -->
   <target name="newProject" description="Create a new project">
     <!-- Create the project -->
     <mkdir dir="${basepath}/${project}"/>
+    
     <!-- Copy in the base files -->
     <copy todir="${basepath}/${project}">
       <fileset refid="skeleton"/>
+      <fileset refid="licensefiles"/>
     </copy>
+    
+    <!-- Clean up core Fortissimo tools -->
+    <reflexive>
+      <fileset dir="${basepath}/${project}/src">
+        <!-- Right now, we just compress Fortissimo. -->
+        <include pattern="Fortissimo.php"/>
+      </fileset>
+      <filterchain>
+        <stripwhitespace/>
+        <stripphpcomments/>
+      </filterchain>
+    </reflexive>
+    
+    <!-- Move _htaccess to .htaccess -->
+    <move file="${basepath}/${project}/src/_htaccess" 
+      toFile="${basepath}/${project}/src/.htaccess" overwrite="false"/>
   </target>
 </project>
