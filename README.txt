@@ -1,4 +1,4 @@
-Fortissimo: Code Loud
+Fortissimo
 Matt Butcher <matt@aleph-null.tv>
 Copyright (c) 2009
 
@@ -8,10 +8,18 @@ web applications.
 To begin, use the fff.php command.
 
 Requirements:
-- QueryPath
 - Phing
 - PEAR
 - PHPDocumentor
 - PHPUnit
 
-The code in the Fortissimo project is released under the LGPL v. 2.1.
+
+ABOUT THE LICENSE:
+==================
+Fortissimo is licensed under the MIT license. The version of QueryPath that is
+included within Fortissimo is dual-licensed under LGPL 2.1 and MIT.
+
+You may build applications on top of Fortissimo without releasing your own code
+under an Open Source (or Free Software) license. Of course, the Fortissimo team
+is very grateful for any improvements you contribute back to the framework. But
+we believe that the best person to choose how you license your software is you.

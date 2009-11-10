@@ -25,7 +25,7 @@ if (count($argv) < 2 || $argv[1] == '-h' || $argv[1] == '--help') {
   
 Create a new Fortissimo project. This command will build out all of
 the necessary directories and files for begining a new project.";
-exit(1);
+  exit(1);
 }
 
 array_shift($args);

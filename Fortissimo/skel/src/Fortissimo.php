@@ -53,10 +53,10 @@
  * elements in the command.xml file (or manually loading them in via the 
  * config object).
  *
- * The code in the Fortissimo project is released under the LGPL v. 2.1.
+ * The code in the Fortissimo project is released under an MIT-style license.
  * @package Fortissimo
  * @author M Butcher <matt @aleph-null.tv>
- * @license http://opensource.org/licenses/lgpl-2.1.php The GNU Lesser GPL (LGPL)
+ * @license http://opensource.org/licenses/mit.php An MIT-style License (See LICENSE.txt)
  * @see Fortissimo
  * @copyright Copyright (c) 2009, Matt Butcher.
  * @version @UNSTABLE@

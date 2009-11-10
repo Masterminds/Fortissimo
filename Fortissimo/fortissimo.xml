@@ -13,14 +13,8 @@ Copyright (c) 2009, Matt Butcher, some rights reserved.
   <property name="project" value="FORTISSIMO"/>
   <property name="basepath" value="${application.startdir}"/>
   <property name="origindir" value="."/>
-
-
-  <!-- Global properties -->
   <property name="srcdir" value="./src"/>
-  <property name="testdir" value="./test"/>
-  <property name="builddir" value="./bin/build"/>
-  <property name="docsdir" value="./docs"/>
-  <property name="packagedir" value="./dist"/>
+  <property name="docsdir" value="${origindir}/doc"/>
   
   <fileset id="skeleton" dir="${origindir}/Fortissimo/skel">
     <include name="**"/>
@@ -39,9 +33,7 @@ Copyright (c) 2009, Matt Butcher, some rights reserved.
 
   <!-- Main Target -->
   <target name="main" description="main target">
-      <copy todir="">
-          <fileset refid="srcdir" />
-      </copy>
+    <echo>The Fortissimo Framework Builder. Use fff.php to run this script.</echo>
   </target>
   
   <!-- TEST -->
@@ -61,6 +53,15 @@ Copyright (c) 2009, Matt Butcher, some rights reserved.
     <copy todir="${basepath}/${project}">
       <fileset refid="skeleton"/>
       <fileset refid="licensefiles"/>
+    </copy>
+    
+    <!-- Copy the base API docs. -->
+    <mkdir dir="${basepath}/${project}/doc/Fortissimo"/>
+    <copy todir="${basepath}/${project}/doc/Fortissimo">
+      <fileset dir="${docsdir}">
+        <include pattern="api/**"/>
+        <include pattern="Overview.txt"/>
+      </fileset>
     </copy>
     
     <!-- Clean up core Fortissimo tools -->

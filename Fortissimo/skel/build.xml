@@ -1,0 +1,73 @@
+<?xml version="1.0"?>
+<project name="%%PROJECT%%" 
+  description=""
+  basedir="." 
+  default="main"
+>
+<!--
+Fortissimo project build file.
+
+This file contains all of the definitions for building a Fortissimo-based 
+project using Phing. To view the list of supported commands, use the command:
+
+$ phing -l
+
+Copyright (c) 2009, Matt Butcher, some rights reserved.
+-->
+
+  <target name="info" description="Information on using the QueryPath Phing build.">
+    <echo>
+To build this project, run
+
+phing build
+
+To list all of the commands that you can perform on a Fortissimo project, run
+
+phing -l
+
+
+    </echo>
+  </target>
+
+  <!--
+  =============================================================================
+  GLOBAL PROPERTIES
+  =============================================================================
+  -->
+  <property name="project" value="%%PROJECT%%"
+  <property name="srcdir" value="./src"/>
+  <property name="testdir" value="./test"/>
+  <property name="builddir" value="./bin/build"/>
+  <property name="docsdir" value="./docs"/>
+  <property name="packagedir" value="./dist"/>
+
+  <!--
+  =============================================================================
+  FILE SETS
+  =============================================================================
+  -->
+
+  <!-- Files that must be included in the release -->
+  <fileset id="licensefiles" dir=".">
+    <include name="README"/>
+    <include name="INSTALL"/>
+  </fileset>
+
+  <!-- Files to be treated as source code -->
+  <fileset id="sourcecode" dir="">
+    <include name="**/*" />
+  </fileset>
+  
+  <!--
+  =============================================================================
+  COMMANDS (BUILD TARGETS)
+  =============================================================================
+  -->
+
+  <!-- Main Target -->
+  <target name="main" description="main target">
+      <copy todir="">
+          <fileset refid="srcdir" />
+      </copy>
+  </target>
+</project>
