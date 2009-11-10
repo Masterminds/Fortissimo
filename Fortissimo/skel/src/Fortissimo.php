@@ -220,14 +220,16 @@ class Fortissimo {
    *  An explanation string in plain text.
    */
   public function explainRequest($request) {
-    $out = sprintf('Request: %s', $requestName) . PHP_EOL;
+    $out = sprintf('REQUEST: %s', $request->getName()) . PHP_EOL;
     foreach($request as $name => $command) {
       // If this command as an explain() method, use it.
-      if ($command instanceof Explainable) {
-        $out .= $command->explain();
+      if ($command['instance'] instanceof Explainable) {
+        $out .= $command['instance']->explain();
       }
       else {
-        $out = $name . PHP_EOL;
+        $filter = 'CMD: %s (%s): Unexplainable command, unknown parameters.';
+        
+        $out .= sprintf($filter, $command['name'], $command['class']) . PHP_EOL;
       }
     }
     return $out . PHP_EOL;
@@ -251,7 +253,7 @@ class Fortissimo {
     
     // If this request is in explain mode, explain and exit.
     if ($request->isExplaining()) {
-      print $this->handleExplain($request);
+      print $this->explainRequest($request);
       return;
     }
     // If this allows caching, check the cached output.
@@ -485,9 +487,15 @@ class FortissimoRequest implements IteratorAggregate {
   protected $commandQueue = NULL;
   protected $isCaching = FALSE;
   protected $isExplaining = FALSE;
+  protected $requestName;
   
-  public function __construct($commands) {
+  public function __construct($requestName, $commands) {
+    $this->requestName = $requestName;
     $this->commandQueue = $commands;
+  }
+  
+  public function getName() {
+    return $this->requestName;
   }
   
   /**
@@ -1070,13 +1078,13 @@ abstract class BaseFortissimoCommand implements FortissimoCommand, Explainable {
    */
   public function explain() {
     $expects = $this->expects();
-    $format = "\t%s (%s): %s\n";
-    $buffer = '';
+    $format = "\t* %s (%s): %s\n";
+    $buffer = "\tPARAMS:" . PHP_EOL;
     foreach ($expects as $paramObj) {
       $name = $paramObj->getName();
       $desc = $paramObj->getDescription();
       $fltr = array();
-      foreach ($paramObj->getValidators() as $filter) {
+      foreach ($paramObj->getFilters() as $filter) {
         // If callback, display the callback name. Otherwise display the filter.
         switch ($filter['type']) {
           case 'callback':
@@ -1091,12 +1099,16 @@ abstract class BaseFortissimoCommand implements FortissimoCommand, Explainable {
       }
       $filterString = implode(', ', $fltr);
       if (strlen($filterString) == 0) $filterString = 'no filters';
-      $buffer .= sprintf($name, $filterString, $desc);
+      $buffer .= sprintf($format, $name, $filterString, $desc);
     }
     
-    return __CLASS__ . PHP_EOL 
-      . $this->paramsCollection->description() . PHP_EOL 
-      . $buffer . PHP_EOL;
+    $klass = new ReflectionClass($this);
+    
+    $cmdFilter = 'CMD: %s (%s): %s';
+    return sprintf($cmdFilter, $this->name, $klass->name, $this->paramsCollection->description())
+      . PHP_EOL
+      . $buffer
+      . PHP_EOL;
   }
   
   /**
@@ -1392,7 +1404,7 @@ class FortissimoConfig {
       }
     }
     
-    $request = new FortissimoRequest($commands);
+    $request = new FortissimoRequest($requestName, $commands);
     $request->setCaching($isCaching);
     $request->setExplain($isExplaining);
     

@@ -36,6 +36,9 @@
     
     <!-- Invoke all commands in the bootstrap group. -->
     <cmd group="bootstrap"/>
+    <cmd name="echo" invoke="FortissimoEcho">
+      <param name="text">Fortissimo has been successfully installed.</param>
+    </cmd>
     
   </request>
   
