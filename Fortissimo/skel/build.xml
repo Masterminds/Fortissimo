@@ -53,7 +53,7 @@ fff MyProjectName
   =============================================================================
   -->
   <taskdef classname="lib.task.FortissimoExplainTask" name="fortissimoexplain"/>
-
+  <taskdef classname="lib.task.FortissimoRunRequestTask" name="fortissimorequest"/>
 
   <!--
   =============================================================================
@@ -90,5 +90,8 @@ fff MyProjectName
   
   <target name="explain" description="Explain all of the requests.">
     <fortissimoexplain/>
+  </target>
+  <target name="getDefault" description="Run the default request">
+    <fortissimorequest request="default"/>
   </target>
 </project>

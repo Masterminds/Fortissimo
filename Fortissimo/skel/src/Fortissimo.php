@@ -1118,6 +1118,7 @@ abstract class BaseFortissimoCommand implements FortissimoCommand, Explainable {
       $buffer .= sprintf($format, $name, $filterString, $desc);
     }
     
+    // We do this because __CLASS__ will return the abstract class.
     $klass = new ReflectionClass($this);
     
     $cmdFilter = 'CMD: %s (%s): %s';
