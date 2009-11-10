@@ -49,6 +49,14 @@ fff MyProjectName
 
   <!--
   =============================================================================
+  FORTISSIMO TASKS
+  =============================================================================
+  -->
+  <taskdef classname="lib.task.FortissimoExplainTask" name="fortissimoexplain"/>
+
+
+  <!--
+  =============================================================================
   FILE SETS
   =============================================================================
   -->
@@ -77,8 +85,10 @@ fff MyProjectName
 
   <!-- Main Target -->
   <target name="main" description="main target">
-      <copy todir="">
-          <fileset refid="srcdir" />
-      </copy>
+      
+  </target>
+  
+  <target name="explain" description="Explain all of the requests.">
+    <fortissimoexplain/>
   </target>
 </project>

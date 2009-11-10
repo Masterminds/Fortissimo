@@ -7,27 +7,38 @@
   or ClassName.inc.
   
   To add additional directories to the class loader, specify them here.
-  
-  Example:
-  <include path="test/Tests"/>  
   -->
+  <include path="test/Tests"/>
+  <include path="test/Tests/Fortissimo"/>
   
   <!--
   A group is a grouping of commands that cannot be executed as a request.
   
   They can be referenced in requests, though.
-  
-  Example:
+  -->
   <group name="bootstrap">
+    <!--
+    These are alternatives. Either should be accessible using 
+    the main database factory:
+    
+    FFDatabase::writer();
+    FFDatabase::reader();
+    -->
     <cmd name="database" invoke="SimpleDatabaseAccess">
       <param name="dsn">MyDSN</param>
       <param name="user">user</param>
       <param name="password">pass</param>
     </cmd>
-  </group>
-  -->
-  
-  <group name="bootstrap">
+    <!--
+    <cmd name="complex-database" invoke="CompoundDatabaseAccess">
+      <param name="master-dsn">MyDSN</param>
+      <param name="master-user">user</param>
+      <param name="master-password">pass</param>
+      <param name="slave1-dsn">MyDSN</param>
+      <param name="slave1-user">user</param>
+      <param name="slave1-password">pass</param>
+    </cmd>
+    -->
   </group>
      
      
@@ -37,11 +48,31 @@
     <!-- Invoke all commands in the bootstrap group. -->
     <cmd group="bootstrap"/>
     
+    <cmd name="echo" invoke="FFEchoCommand">
+      <param name="message">Echo this</param>
+    </cmd>
+    <!-- Invoke users the alias assigned above. -->
+    <cmd name="template" invoke="template">
+      <!-- Use a literal string. -->
+      <param name="template_name">templates/main.html</param>
+      <!-- Get $_GET['something'] (aka ?something=foo) -->
+      <param name="something_id" from="get:something"/>
+      <!-- Get $_SESSION['session_id'] -->
+      <param name="my_session" from="session:session_id"/>
+      <!-- Get the output of cmd:echo (see above) -->
+      <param name="echo_out" from="cmd:echo"/>
+      
+      <!-- Check GET, and if nothing is found, check POST, and if nothing is found,
+      use the default. -->
+      <param name="foo" from="get:primary post:secondary">Default value</param>
+      <!-- Supported "from" protocols: 
+        get, post, cookies, session, context (or cmd), environment (or env) -->
+    </cmd>
   </request>
   
   <!-- This is an example that would map to 
   http://example.com/this_app/item or http://example.com/this_app.php?c=item
-  
+  -->
   <request name="item">
     <cmd name="echo" invoke="FFEchoCommand">
       <param name="message">Test</param>
@@ -51,15 +82,11 @@
     </cmd>
   </request>
   
-  -->
-  
   <!-- Logs directly into STDOUT (the browser, the console). -->
   <logger name="foil" invoke="FortissimoOutputInjectionLogger"/>
   
-  <!-- Buffers log messages in an array to be retrieved later. 
+  <!-- Buffers log messages in an array to be retrieved later. -->
   <logger name="fail" invoke="FortissimoArrayInjectionLogger"/>
-  -->
-  
   <!--
   Example of a more sophisticated (non-existent) logger:
   <logger name="syslog" invoke="FortissimoSyslogLogger">
@@ -67,12 +94,9 @@
   </logger>
   -->
   
-  <!--
-  Fortissimo supports global caches, though this is currently
-  experimental.
   <cache name="dummy" invoke="FortissimoDummyRequestCache"/>
   <cache name="dummy2" invoke="FortissimoDummyRequestCache">
     <param name="param" value="foo"/>
   </cache>
-  -->
+  
 </commands>

@@ -1122,6 +1122,7 @@ abstract class BaseFortissimoCommand implements FortissimoCommand, Explainable {
    * expedites the development of a Fortissimo application.
    *
    * An implementation of this function should look something like this:
+   * <code>
    * <?php
    * public function expects() {
    *  return $this
@@ -1133,6 +1134,7 @@ abstract class BaseFortissimoCommand implements FortissimoCommand, Explainable {
    *    ->withFilter('validate_email');
    * }
    * ?>
+   * </code>
    *
    * The above describes a command that expects two parameters: name and email.
    * The name command is validated with the string sanitizer, which makes sure
