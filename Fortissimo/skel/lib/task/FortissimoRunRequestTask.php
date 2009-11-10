@@ -1,4 +1,9 @@
 <?php
+/**
+ * Phing task for running a request from the build.xml file.
+ * @package Fortissimo
+ * @subpackage PhingTask
+ */
 require_once 'src/Fortissimo.php';
 
 class FortissimoRunRequestTask extends Task {

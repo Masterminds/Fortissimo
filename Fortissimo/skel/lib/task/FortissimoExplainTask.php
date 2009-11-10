@@ -1,5 +1,12 @@
 <?php
-
+/**
+ * Phing Task for running {@Fortissimo::explainRequest()} on all requests.
+ *
+ * This will print out help text on all requests currently registered for
+ * Fortissimo.
+ * @package Fortissimo
+ * @subpackage PhingTask
+ */
 require_once 'src/Fortissimo.php';
 
 class FortissimoExplainTask extends Task {
