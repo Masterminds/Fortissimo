@@ -674,6 +674,7 @@ class BaseFortissimoCommandParameterCollection implements IteratorAggregate {
   protected $params = array();
   protected $description = '';
   protected $paramCounter = -1;
+  protected $returns = 'Nothing';
   
   public function __construct($description) {$this->description = $description;}
   
@@ -732,6 +733,21 @@ class BaseFortissimoCommandParameterCollection implements IteratorAggregate {
   
   public function description() {
     return $this->description;
+  }
+  
+  /**
+   * Provide a description of what value or values are returned.
+   *
+   * @param string $description
+   *  A description of what the invoking command returns from its
+   *  {@link BaseFortissimoCommand::doCommand()} method.
+   */
+  public function andReturns($description) {
+    $this->returns = $description;
+  }
+  
+  public function returnDescription() {
+    return $this->returns;
   }
   
   public function setParams($array) {
@@ -1108,7 +1124,10 @@ abstract class BaseFortissimoCommand implements FortissimoCommand, Explainable {
     return sprintf($cmdFilter, $this->name, $klass->name, $this->paramsCollection->description())
       . PHP_EOL
       . $buffer
-      . PHP_EOL;
+      //. PHP_EOL
+      . "\tRETURNS: " 
+      . $expects->returnDescription()
+      . PHP_EOL . PHP_EOL;
   }
   
   /**
@@ -1143,7 +1162,8 @@ abstract class BaseFortissimoCommand implements FortissimoCommand, Explainable {
    *    ->withFilter('string')
    *   ->param('email', 'An email address to echo data to.')
    *    ->withFilter('email')
-   *    ->withFilter('validate_email');
+   *    ->withFilter('validate_email')
+   *   ->andReturns('A copy of the sent message.');
    * }
    * ?>
    * </code>
