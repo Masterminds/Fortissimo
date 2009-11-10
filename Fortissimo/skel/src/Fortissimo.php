@@ -40,7 +40,7 @@
  * classes or read the online documentation. Then write a custom class implementing
  * the BaseFortissimoCommand.
  *
- * <strong>The Fortissimo Autoloader</strong>
+ * <b>The Fortissimo Autoloader</b>
  * Fortissimo uses the default SPL autoloader to find and load classes. For that
  * reason, if you follow the convention of storing classes inside of files
  * named with the class name, you will not need to use {@link include()} or any
@@ -55,7 +55,8 @@
  *
  * The code in the Fortissimo project is released under an MIT-style license.
  * @package Fortissimo
- * @author M Butcher <matt @aleph-null.tv>
+ * @subpackage Core
+ * @author M Butcher <matt@aleph-null.tv>
  * @license http://opensource.org/licenses/mit.php An MIT-style License (See LICENSE.txt)
  * @see Fortissimo
  * @copyright Copyright (c) 2009, Matt Butcher.
@@ -81,7 +82,7 @@ define('FORTISSIMO_REQ_TIME', time());
  * as a platform for application development, since they are considered unfrozen,
  * and hence subject to change.
  *
- * The special flag @UNSTABLE@ means that a non-built version of the application
+ * The special flag @ UNSTABLE @ means that a non-built version of the application
  * is being used. This should occur only for developers who are actively developing
  * Fortissimo. No production release should ever have this tag.
  */

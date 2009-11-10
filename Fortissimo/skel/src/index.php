@@ -8,6 +8,14 @@
  * will be translated to a request section in the commands.xml file. That 
  * request will then be executed, one command after another, until the end of
  * the command chain is reached.
+ * @package Fortissimo
+ * @subpackage Core
+ * @author M Butcher <matt@aleph-null.tv>
+ * @license http://opensource.org/licenses/mit.php An MIT-style License (See LICENSE.txt)
+ * @see Fortissimo
+ * @see Fortissimo.php
+ * @copyright Copyright (c) 2009, Matt Butcher.
+ * @version @UNSTABLE@
  */
 if(version_compare(phpversion(), '5.2', '>') === TRUE) {
   print 'PHP 5.2 or greater is required.';
