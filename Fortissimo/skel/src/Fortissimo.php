@@ -126,6 +126,8 @@ require_once('QueryPath/QueryPath.php');
  * For more details, see {@link __construct()}.
  *
  * @see Fortissimo.php
+ * @package Fortissimo
+ * @subpackage Core
  */
 class Fortissimo {
   
@@ -475,6 +477,8 @@ class Fortissimo {
  * A Fortissimo request.
  *
  * This class represents a single request.
+ * @package Fortissimo
+ * @subpackage Core
  */
 class FortissimoRequest implements IteratorAggregate {
   
@@ -571,6 +575,8 @@ class FortissimoRequest implements IteratorAggregate {
  *
  * Typically, the last command in a request will format the data found in the context
  * and send it to the client for display.
+ * @package Fortissimo
+ * @subpackage Core
  */
 interface FortissimoCommand {
   /**
@@ -644,6 +650,17 @@ interface FortissimoCommand {
 
 /**
  * Container for parameter descriptions.
+ *
+ * This collection contains parameters. It is used by anything that extends
+ * {@link BaseFortissimoCommand} to store parameter information for use
+ * in {@link BaseFortissimoCommand::explain()} and 
+ * {@link BaseFortissimoCommand::expects()}. A builder for these is found
+ * in {@link BaseFortissimoCommand::description()}, which provides a semi-fluent
+ * interface for defining expectations.
+ * @package Fortissimo
+ * @subpackage Core
+ * @see BaseFortissimoCommand
+ * @see BaseFortissimoCommandParameter
  */
 class BaseFortissimoCommandParameterCollection implements IteratorAggregate {
   protected $params = array();
@@ -729,6 +746,9 @@ class BaseFortissimoCommandParameterCollection implements IteratorAggregate {
  *
  * @see BaseFortissimoCommand
  * @see BaseFortissimoCommand::expects()
+ * @see BaseFortissimoCommandParameterCollection
+ * @package Fortissimo
+ * @subpackage Core
  */
 class BaseFortissimoCommandParameter {
   protected $filters = array();
@@ -829,6 +849,10 @@ class BaseFortissimoCommandParameter {
 /**
  * Any class that implements Explainable must return a string that describes,
  * in human readable language, what it does.
+ *
+ * @see BaseFortissimoCommand
+ * @package Fortissimo
+ * @subpackage Core
  */
 interface Explainable {
   /**
@@ -865,6 +889,9 @@ interface Explainable {
  *  by implementing {@link expects()}.
  * 2. It must provide logic for performing the command. This is done in 
  *  {@link doCommand()}.
+ * @abstract
+ * @package Fortissimo
+ * @subpackage Core
  */
 abstract class BaseFortissimoCommand implements FortissimoCommand, Explainable {
   
@@ -1161,6 +1188,10 @@ abstract class BaseFortissimoCommand implements FortissimoCommand, Explainable {
  * file. Instead, it interprets the configuration file, and assembles the 
  * information as the application needs it. To get directly at the configuration
  * information, use {@link getConfig()}.
+ *
+ * @package Fortissimo
+ * @subpackage Core
+ * @see Fortissimo
  */
 class FortissimoConfig {
   
@@ -1469,6 +1500,10 @@ class FortissimoConfig {
  * this operation is not without its risks. Finally, objects may use information
  * found in the context, either to perform some operation (writing data to 
  * the client) or to modify the context data.
+ *
+ * @package Fortissimo
+ * @subpackage Core
+ * @see Fortissimo
  */
 class FortissimoExecutionContext implements IteratorAggregate {
   
@@ -1645,6 +1680,8 @@ class FortissimoExecutionContext implements IteratorAggregate {
  * for storage in the database. All details of caching algorithms, caching style
  * (e.g. time-based, LRU, etc.) is handled by the low-level caching classes.
  *
+ * @package Fortissimo
+ * @subpackage Core
  * @see FortissimoRequestCache For details on caching.
  */
 class FortissimoCacheManager {
@@ -1761,6 +1798,16 @@ class FortissimoCacheManager {
 
 /**
  * Manage loggers for a server.
+ *
+ * A {@link Fortissimo} instance may have zero or more loggers. Loggers
+ * perform the standard task of handling messages that need recording for
+ * review by administrators.
+ *
+ * The logger manager manages the various logging instances, delegating logging
+ * tasks.
+ *
+ * @package Fortissimo
+ * @subpackage Core
  */
 class FortissimoLoggerManager {
   
@@ -1818,6 +1865,9 @@ class FortissimoLoggerManager {
  * The FOIL logger sends messages directly to STDOUT.
  *
  * Log messages will be emitted to STDOUT as soon as they are logged.
+ *
+ * @package Fortissimo
+ * @subpackage Core
  */
 class FortissimoOutputInjectionLogger extends FortissimoLogger {
   protected $filter;
@@ -1836,6 +1886,9 @@ class FortissimoOutputInjectionLogger extends FortissimoLogger {
  * Log entries can be injected into the output by retrieving a list
  * of log messages with {@link getMessages()}, and then displaying them,
  * or by simply calling {@link printMessages()}.
+ *
+ * @package Fortissimo
+ * @subpackage Core
  */
 class FortissimoArrayInjectionLogger extends FortissimoLogger {
   protected $logItems = array();
@@ -1875,6 +1928,8 @@ class FortissimoArrayInjectionLogger extends FortissimoLogger {
  * External caches, like Varnish or Squid, tend not to use this mechanism. Internal
  * mechanisms like APC or custom database caches would use this mechanism. Memcached
  * would also use this mechanism, if appropriate.
+ * @package Fortissimo
+ * @subpackage Core
  */
 interface FortissimoRequestCache {
   /**
@@ -1913,6 +1968,9 @@ interface FortissimoRequestCache {
 /**
  * A logger responsible for logging messages to a particular destination.
  *
+ * @package Fortissimo
+ * @subpackage Core
+ * @abstract
  */
 abstract class FortissimoLogger {
   
@@ -1996,6 +2054,8 @@ abstract class FortissimoLogger {
  * Examples of cases where this might be desirable:
  * - Application should redirect (302, 304, etc.) user to another page.
  * - User needs to be prompted to log in, using HTTP auth, before continuing.
+ * @package Fortissimo
+ * @subpackage Core
  */
 class FortissimoInterrupt extends Exception {}
 /**
@@ -2010,6 +2070,8 @@ class FortissimoInterrupt extends Exception {}
  * - A fatal error has occurred, and a 500-level error should be returned to the user.
  * - Access is denied to the user.
  * - A request name cannot be found.
+ * @package Fortissimo
+ * @subpackage Core
  */
 class FortissimoInterruptException extends Exception {}
 /**
@@ -2017,14 +2079,20 @@ class FortissimoInterruptException extends Exception {}
  *
  * This should be thrown when Fortissimo encounters an exception that should be
  * logged and stored, but should not interrupt the execution of a command.
+ * @package Fortissimo
+ * @subpackage Core
  */
 class FortissimoException extends Exception {}
 /**
  * Configuration error.
+ * @package Fortissimo
+ * @subpackage Core
  */
 class FortissimoConfigurationException extends FortissimoException {}
 /**
  * Request was not found.
+ * @package Fortissimo
+ * @subpackage Core
  */
 class FortissimoRequestNotFoundException extends FortissimoException {}
 
@@ -2034,6 +2102,8 @@ class FortissimoRequestNotFoundException extends FortissimoException {}
  * This special type of interrupt can be thrown to redirect a request mid-stream
  * to another request. The context passed in will be used to pre-seed the context
  * of the next request.
+ * @package Fortissimo
+ * @subpackage Core
  */
 class FortissimoForwardRequest extends FortissimoInterrupt {
   protected $destination;
