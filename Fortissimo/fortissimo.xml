@@ -53,6 +53,11 @@ Copyright (c) 2009, Matt Butcher, some rights reserved.
     <copy todir="${basepath}/${project}">
       <fileset refid="skeleton"/>
       <fileset refid="licensefiles"/>
+      <filterchain>
+        <replacetokens begintoken="%%" endtoken="%%">
+          <token key="PROJECT" value="${project}"/>
+        </replacetokens>
+      </filterchain>
     </copy>
     
     <!-- Copy the base API docs. -->

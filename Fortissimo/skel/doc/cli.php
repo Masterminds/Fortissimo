@@ -1,3 +1,4 @@
+#!/usr/bin/env php
 <?php
 /**
  * This is a demonstration Command Line client for Fortissimo.

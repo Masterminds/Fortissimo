@@ -25,7 +25,12 @@ To list all of the commands that you can perform on a Fortissimo project, run
 
 phing -l
 
+Creating a New Project
+======================
+If you want to create a new Fortissimo project, and you have the Fortissimo
+toolchain installed, simply run this command:
 
+fff MyProjectName
     </echo>
   </target>
 
@@ -34,12 +39,13 @@ phing -l
   GLOBAL PROPERTIES
   =============================================================================
   -->
-  <property name="project" value="%%PROJECT%%"
+  <property name="project" value="%%PROJECT%%"/>
   <property name="srcdir" value="./src"/>
   <property name="testdir" value="./test"/>
   <property name="builddir" value="./bin/build"/>
   <property name="docsdir" value="./docs"/>
   <property name="packagedir" value="./dist"/>
+  <property name="appdir" value="{$srcdir}/includes"/>
 
   <!--
   =============================================================================
@@ -54,7 +60,12 @@ phing -l
   </fileset>
 
   <!-- Files to be treated as source code -->
-  <fileset id="sourcecode" dir="">
+  <fileset id="sourcecode" dir="$srcdir">
+    <include name="**/*" />
+  </fileset>
+  
+  <!-- App-specific Files to be treated as source code -->
+  <fileset id="appcode" dir="$appdir">
     <include name="**/*" />
   </fileset>
   
