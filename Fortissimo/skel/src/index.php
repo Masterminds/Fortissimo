@@ -36,6 +36,11 @@ if (get_magic_quotes_runtime()) {
  */
 require 'Fortissimo.php';
 
+$cmd = filter_input(INPUT_GET, 'ff', 'string');
+if (empty($cmd)) {
+  $cmd = 'default';
+}
+
 $base = dirname(__FILE__);
 $ff = new Fortissimo($base . '/config/commands.xml');
-$ff->handleRequest($_GET['ff']);
+$ff->handleRequest($cmd);

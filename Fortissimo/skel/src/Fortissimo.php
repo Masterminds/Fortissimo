@@ -253,6 +253,7 @@ class Fortissimo {
    * executing commands.
    */
   public function handleRequest($requestName = 'default', FortissimoExecutionContext $initialCxt = NULL) {
+    
     $request = $this->commandConfig->getRequest($requestName);
     $cacheKey = NULL; // This is set only if necessary.
     
@@ -1936,12 +1937,23 @@ class FortissimoLoggerManager {
  */
 class FortissimoOutputInjectionLogger extends FortissimoLogger {
   protected $filter;
+  protected $isHTML = FALSE;
   
   public function init() {
-    $this->filter = empty($this->params['html']) ? '%s: %s' : '<div class="log-item %s">%s</div>';
+    $this->isHTML = filter_var($this->params['html'], FILTER_VALIDATE_BOOLEAN);
+    $this->filter = empty($this->params['html']) ?  : '<div class="log-item">%s</div>';
   }
   public function log($message, $category) {
-    printf($this->filter, $category, $message);
+    
+    if ($this->isHTML) {
+      $severity = strtr($category, ' ', '-');
+      $message = strtr($message, array("\n" => '<br/>'));
+      $filter = '<div class="log-item %s"><strong>%s</strong> %s</div>';
+      printf($filter, $severity, $category, $message);
+    }
+    else {
+      printf('%s: %s', $category, $message);
+    }
   }
 }
 
