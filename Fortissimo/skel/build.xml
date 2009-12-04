@@ -68,7 +68,7 @@ fff MyProjectName
   </fileset>
 
   <!-- Files to be treated as source code -->
-  <fileset id="sourcecode" dir="$srcdir">
+  <fileset id="sourcecode" dir="${srcdir}">
     <include name="**/*" />
   </fileset>
   
@@ -93,5 +93,10 @@ fff MyProjectName
   </target>
   <target name="getDefault" description="Run the default request">
     <fortissimorequest request="default"/>
+  </target>
+  <target name="lint" description="Check syntax of source.">
+    <phplint>
+      <fileset refid="sourcecode" />
+    </phplint>
   </target>
 </project>

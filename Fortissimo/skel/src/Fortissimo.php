@@ -220,6 +220,11 @@ class Fortissimo {
    *  An explanation string in plain text.
    */
   public function explainRequest($request) {
+    
+    if (empty($request)) {
+      throw new FortissimoException('Request not found.');
+    }
+    
     $out = sprintf('REQUEST: %s', $request->getName()) . PHP_EOL;
     foreach($request as $name => $command) {
       // If this command as an explain() method, use it.
@@ -247,7 +252,7 @@ class Fortissimo {
    * the cache, thereby avoiding all overhead associated with loading and 
    * executing commands.
    */
-  public function handleRequest($requestName, FortissimoExecutionContext $initialCxt = NULL) {
+  public function handleRequest($requestName = 'default', FortissimoExecutionContext $initialCxt = NULL) {
     $request = $this->commandConfig->getRequest($requestName);
     $cacheKey = NULL; // This is set only if necessary.
     
@@ -744,6 +749,12 @@ class BaseFortissimoCommandParameterCollection implements IteratorAggregate {
    */
   public function andReturns($description) {
     $this->returns = $description;
+    return $this;
+  }
+  
+  public function andIsRequired() {
+    $this->params[$this->paramCounter]->setRequired(TRUE);
+    return $this;
   }
   
   public function returnDescription() {
@@ -777,6 +788,7 @@ class BaseFortissimoCommandParameterCollection implements IteratorAggregate {
 class BaseFortissimoCommandParameter {
   protected $filters = array();
   protected $name, $description;
+  protected $required = FALSE;
   
   /**
    * Create a new parameter with a name, and optionally a description.
@@ -859,6 +871,10 @@ class BaseFortissimoCommandParameter {
   public function setFilters($filters) {
     $this->filters = $filters;
     return $this;
+  }
+  
+  public function setRequired($required) {
+    $this->required = $required;
   }
   /**
    * Get the list of filters.
@@ -1017,6 +1033,7 @@ abstract class BaseFortissimoCommand implements FortissimoCommand, Explainable {
     $filterID = filter_id($filter);
     $res = filter_var($payload, $filterID, $options);
     
+    
     // Boolean validation returns FALSE if the bool is false, or if a fail occurs.
     // So we just pass through. Nothing more that can really be done about it.
     if ($res === FALSE && $filter != FILTER_VALIDATE_BOOLEAN) {
@@ -1094,6 +1111,11 @@ abstract class BaseFortissimoCommand implements FortissimoCommand, Explainable {
    */
   public function explain() {
     $expects = $this->expects();
+    
+    if (empty($expects)) {
+      throw new FortissimoException('No information for ' . get_class($this));
+    }
+    
     $format = "\t* %s (%s): %s\n";
     $buffer = "\tPARAMS:" . PHP_EOL;
     foreach ($expects as $paramObj) {
@@ -1343,7 +1365,10 @@ class FortissimoConfig {
       $klass = $facility->attr('invoke');
       $params = $this->getParams($facility);
       
-      $facilities[$name] = new $klass($params);
+      $facility = new $klass($params);
+      $facility->init();
+      
+      $facilities[$name] = $facility;
     }
     return $facilities;
   }

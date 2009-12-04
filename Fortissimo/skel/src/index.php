@@ -17,7 +17,7 @@
  * @copyright Copyright (c) 2009, Matt Butcher.
  * @version @UNSTABLE@
  */
-if(version_compare(phpversion(), '5.2', '>') === TRUE) {
+if(version_compare(phpversion(), '5.2', '>') === FALSE) {
   print 'PHP 5.2 or greater is required.';
   exit;
 }
