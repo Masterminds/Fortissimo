@@ -293,7 +293,7 @@ class Fortissimo {
       }
       // Kill the request and log an error.
       catch (FortissimoInterruptException $ie) {
-        $this->logManager->log($e);
+        $this->logManager->log($e, 'Fatal Error');
         return;
       }
       // Forward any requests.
@@ -307,8 +307,13 @@ class Fortissimo {
       }
       // Log the error, but continue to the next command.
       catch (FortissimoException $e) {
-        $this->logManager->log($e);
+        $this->logManager->log($e, 'Recoverable Error');
         continue;
+      }
+      catch (Exception $e) {
+        // Assume that a non-caught exception is fatal.
+        $this->logManager->log($e, 'Fatal Error');
+        return;
       }
     }
     
@@ -373,7 +378,7 @@ class Fortissimo {
     }
     // Only catch a FortissimoException. Allow FortissimoInterupt to go on.
     catch (FortissimoException $e) {
-      $this->logManager->log($e);
+      $this->logManager->log($e, 'Recoverable Error');
     }
   }
   
@@ -1915,7 +1920,7 @@ class FortissimoLoggerManager {
    */
   public function log($msg, $category) {
     foreach ($this->loggers as $name => $logger) {
-      $logger->rawLog($msg, $severity);
+      $logger->rawLog($msg, $category);
     }
   }
   
@@ -2062,9 +2067,10 @@ abstract class FortissimoLogger {
    * @param string $category
    *  This message is passed on to the logger.
    */
-  public function rawLog($message, $category) {
+  public function rawLog($message, $category = 'General Error') {
     if ($message instanceof Exception) {
-      $buffer = $message->getMessage();
+      $buffer = get_class($message) . PHP_EOL;
+      $buffer .= $message->getMessage() . PHP_EOL;
       $buffer .= $message->getTraceAsString();
     }
     elseif (is_object($message)) {
