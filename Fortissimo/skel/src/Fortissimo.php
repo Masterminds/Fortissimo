@@ -689,7 +689,7 @@ class BaseFortissimoCommandParameterCollection implements IteratorAggregate {
   
   public function __construct($description) {$this->description = $description;}
   
-  public function param($name, $description) {
+  public function usesParam($name, $description) {
     $param = new BaseFortissimoCommandParameter($name, $description);
     $this->params[++$this->paramCounter] = $param;
     
@@ -988,6 +988,46 @@ abstract class BaseFortissimoCommand implements FortissimoCommand, Explainable {
    */
   public function isCacheable() {
     return TRUE;
+  }
+  
+  /**
+   * Get a parameter by name.
+   *
+   * Fetch a parameter by name. If no such parameter exists, the
+   * $default value will be returned.
+   *
+   * @param string $name
+   *  The name of the parameter to fetch.
+   * @param mixed $default
+   *  The default value to return if no such paramter is found.
+   *  This is NULL by default.
+   * @see context()
+   */
+  protected function param($name, $default = NULL) {
+    $val = $this->parameters[$name];
+    return isset($val) ? $val : $default;
+  }
+  
+  /**
+   * Get an object from the context.
+   *
+   * Get an object from the context by name. The context is the 
+   * {@link FortissimoExecutionContext} for the current request. When
+   * a Fortissimo command extending {@link BaseFortissimoCommand} returns,
+   * its data goes into the context, so you can use this to fetch the results
+   * of previous commands.
+   *
+   * @param string $name
+   *  The name of the context object. Typically, this is the name value assigned
+   *  to a command in the commands.xml file.
+   * @param mixed $default
+   *  The default value that will be returned if no such object is found in the 
+   *  context.
+   * @see param()
+   */
+  protected function context($name, $default = NULL) {
+    $val = $this->context->get($name);
+    return isset($val) ? $val : $default;
   }
   
   public function execute($params, FortissimoExecutionContext $cxt) {
@@ -1372,7 +1412,7 @@ class FortissimoConfig {
       $params = $this->getParams($facility);
       
       $facility = new $klass($params);
-      $facility->init();
+      //$facility->init();
       
       $facilities[$name] = $facility;
     }

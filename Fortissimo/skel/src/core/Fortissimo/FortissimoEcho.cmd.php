@@ -13,7 +13,7 @@ class FortissimoEcho extends BaseFortissimoCommand {
   public function expects() {
     return $this
       ->description('Echo the contents of the "text" parameter to standard output.')
-      ->param('text', 'The text to echo.')
+      ->usesParam('text', 'The text to echo.')
       ->withFilter('string');
   }
   

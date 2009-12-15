@@ -75,22 +75,22 @@ class SimpleCommandTest extends BaseFortissimoCommand {
     return $this
       ->description('A test command')
       
-      ->param('testString', 'A test string')
+      ->usesParam('testString', 'A test string')
       ->withFilter('string')
       
-      ->param('testNumeric', 'A test numeric value')
+      ->usesParam('testNumeric', 'A test numeric value')
       ->withFilter('float')
       
-      ->param('testNumeric2', 'Another test numeric value')
+      ->usesParam('testNumeric2', 'Another test numeric value')
       ->withFilter('callback', array('options' => array(new SimpleValidatorTest(), 'validate')));
   }
   
   public function doCommand() {
     $param = $this->parameters;
-    if ($param['testString'] != 'String1') throw new Exception(sprintf('Expected String1, got %s', print_r($param, TRUE)));
-    if ($param['testNumeric'] != 3.5) throw new Exception('Expected float 3.5');
-    if ($param['testNumeric2'] != 7) throw new Exception('Expected float to be 7');
+    if ($this->param('testString') != 'String1') throw new Exception(sprintf('Expected String1, got %s', print_r($param, TRUE)));
+    if ($this->param('testNumeric') != 3.5) throw new Exception('Expected float 3.5');
+    if ($this->param('testNumeric2') != 7) throw new Exception('Expected float to be 7');
     
-    return $param['testNumeric2'];
+    return $this->param('testNumeric2');
   }
 }
