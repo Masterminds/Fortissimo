@@ -448,7 +448,7 @@ class Fortissimo {
    */
   protected function fetchParameterFromSource($from) {
     list($proto, $paramName) = explode(':', $from, 2);
-    $proto = strtolower($source);
+    $proto = strtolower($proto);
     switch ($proto) {
       case 'g':
       case 'get':
@@ -758,8 +758,13 @@ class BaseFortissimoCommandParameterCollection implements IteratorAggregate {
     return $this;
   }
   
-  public function andIsRequired() {
+  public function whichIsRequired() {
     $this->params[$this->paramCounter]->setRequired(TRUE);
+    return $this;
+  }
+  
+  public function whichHasDefault($default) {
+    $this->params[$this->paramCounter]->setDefault($default);
     return $this;
   }
   
@@ -793,7 +798,7 @@ class BaseFortissimoCommandParameterCollection implements IteratorAggregate {
  */
 class BaseFortissimoCommandParameter {
   protected $filters = array();
-  protected $name, $description;
+  protected $name, $description, $defaultValue;
   protected $required = FALSE;
   
   /**
@@ -882,6 +887,23 @@ class BaseFortissimoCommandParameter {
   public function setRequired($required) {
     $this->required = $required;
   }
+  
+  public function isRequired() {return $this->required;}
+  
+  /**
+   * Set the default value.
+   */
+  public function setDefault($val) {
+    $this->defaultValue = $val;
+  }
+  
+  /**
+   * Get the default value.
+   */
+  public function getDefault() {
+    return $this->defaultValue;
+  }
+  
   /**
    * Get the list of filters.
    * @return array
@@ -1112,7 +1134,11 @@ abstract class BaseFortissimoCommand implements FortissimoCommand, Explainable {
       $name = $paramObj->getName();
       $filters = $paramObj->getFilters();
       if (!isset($params[$name])) {
-        throw new FortissimoException(sprintf('Expected param %s in command %s', $name, $this->name));
+        if ($paramObj->isRequired()) {
+          throw new FortissimoException(sprintf('Expected param %s in command %s', $name, $this->name));
+        }
+        $params[$name] = $paramObj->getDefault();
+        
       }
       
       // The value.
@@ -1167,6 +1193,23 @@ abstract class BaseFortissimoCommand implements FortissimoCommand, Explainable {
     foreach ($expects as $paramObj) {
       $name = $paramObj->getName();
       $desc = $paramObj->getDescription();
+      
+      if ($paramObj->isRequired()) {
+        $desc .= ' !REQUIRED!';
+      }
+      elseif(($val = $paramObj->getDefault()) != NULL) {
+        if (is_object($val)) {
+          $val = get_class($val);
+        }
+        elseif (is_array($val)) {
+          $val = print_r($val, TRUE);
+        }
+        elseif (is_resource($val)) {
+          $val = 'RESOURCE';
+        }
+        $desc .= ' [' . $val . ']';
+      }
+      
       $fltr = array();
       foreach ($paramObj->getFilters() as $filter) {
         // If callback, display the callback name. Otherwise display the filter.
@@ -1412,7 +1455,7 @@ class FortissimoConfig {
       $params = $this->getParams($facility);
       
       $facility = new $klass($params);
-      //$facility->init();
+      $facility->init();
       
       $facilities[$name] = $facility;
     }
@@ -2049,6 +2092,12 @@ class FortissimoArrayInjectionLogger extends FortissimoLogger {
  * @subpackage Core
  */
 interface FortissimoRequestCache {
+  
+  /**
+   * Perform any necessary initialization.
+   */
+  public function init();
+  
   /**
    * Add an item to the cache.
    *
