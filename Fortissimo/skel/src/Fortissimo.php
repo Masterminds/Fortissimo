@@ -467,7 +467,7 @@ class Fortissimo {
       case 'cmd':
       case 'cxt':
       case 'context':
-        return $this->cxt[$paramName];
+        return $this->cxt->get($paramName);
       case 'e':
       case 'env':
       case 'environment':
