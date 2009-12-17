@@ -2024,7 +2024,7 @@ class FortissimoOutputInjectionLogger extends FortissimoLogger {
   
   public function init() {
     $this->isHTML = filter_var($this->params['html'], FILTER_VALIDATE_BOOLEAN);
-    $this->filter = empty($this->params['html']) ?  : '<div class="log-item">%s</div>';
+    $this->filter = empty($this->params['html']) ? '%s %s %s' : '<div class="log-item %s"><strong>%s</strong> %s</div>';
   }
   public function log($message, $category) {
     
@@ -2067,9 +2067,52 @@ class FortissimoArrayInjectionLogger extends FortissimoLogger {
   }
   
   public function log($message, $category) {
-    $this->logItems[] = sprintf($this->filter, $category, $message);
+    $severity = str_replace(' ', '-', $category);
+    $this->logItems[] = sprintf($this->filter, $severity, $message);
   }
 }
+
+/**
+ * Provide a simple user-friendly (non-trace) error message.
+ * @see FortissimoArrayInjectionLogger
+ */
+class SimpleArrayInjectionLogger extends FortissimoArrayInjectionLogger {
+  public function log($message, $category) {
+    $severity = str_replace(' ', '-', $category);
+    $filter = '<div class="log-item %s"><strong>%s</strong> %s</div>';
+    switch ($category) {
+      case 'Fatal Error':
+        $msg = 'An unrecoverable error occurred. Your request could not be completed.';
+      case 'Recoverable Error':
+        $msg = 'An error occurred. Some data may be lost or incomplete.';
+      default:
+        $msg = 'An unexpected error occurred. Some data may be lost or incomplete.';
+    }
+    $this->logItems[] = sprintf($filter, $severity, 'Error', $msg);
+  }
+}
+
+/**
+ * Provide a simple user-friendly (non-trace) error message.
+ */
+class SimpleOutputInjectionLogger extends FortissimoOutputInjectionLogger {
+  
+  public function log($message, $category) {
+    $severity = strtr($category, ' ', '-');
+    $filter = '<div class="log-item %s"><strong>%s</strong> %s</div>';
+    switch ($category) {
+      case 'Fatal Error':
+        $msg = 'An unrecoverable error occurred. Your request could not be completed.';
+      case 'Recoverable Error':
+        $msg = 'An error occurred. Some data may be lost or incomplete.';
+      default:
+        $msg = 'An unexpected error occurred. Some data may be lost or incomplete.';
+    }
+    printf($filter, $severity, 'Error', $msg);
+  }
+}
+
+
 
 /**
  * A cache for command or request output.
