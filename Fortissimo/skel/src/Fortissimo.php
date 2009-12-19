@@ -262,6 +262,7 @@ class Fortissimo {
       print $this->explainRequest($request);
       return;
     }
+    /*
     // If this allows caching, check the cached output.
     elseif ($request->isCaching() && isset($this->cacheManager)) {
       // Handle caching.
@@ -278,6 +279,7 @@ class Fortissimo {
       // for insertion into the cache.
       ob_start();
     }
+    */
     
     // This allows pre-seeding of the context.
     if (isset($initialCxt)) {
@@ -318,6 +320,7 @@ class Fortissimo {
       }
     }
     
+    /*
     // If caching is on, place this entry into the cache.
     if ($request->isCaching() && isset($this->cacheManager)) {
       $contents = ob_get_contents();
@@ -327,6 +330,7 @@ class Fortissimo {
       // Turn off output buffering & send to client.
       ob_end_flush();
     }    
+    */
   }
   
   /**
@@ -374,13 +378,21 @@ class Fortissimo {
     
     $params = $this->fetchParameters($commandArray, $this->cxt);
     
+    set_error_handler(array('FortissimoException', 'initializeFromError'), 771);
+    
     try {
       $inst->execute($params, $this->cxt);
     }
     // Only catch a FortissimoException. Allow FortissimoInterupt to go on.
     catch (FortissimoException $e) {
+      restore_error_handler();
       $this->logManager->log($e, 'Recoverable Error');
     }
+    catch (Exception $fatal) {
+      restore_error_handler();
+      throw $fatal;
+    }
+    restore_error_handler();
   }
   
   /**
@@ -1810,6 +1822,20 @@ class FortissimoExecutionContext implements IteratorAggregate {
     // Does this work?
     return new ArrayIterator($this->data);
   }
+  
+  /**
+   * Expose the logger manager to commands.
+   *
+   * The logger manager is responsible for managing all of the underlying
+   * loggers. This method provides access to the logger manager. For integrity
+   * purposes, it is advised that loggers not be re-configured by commands.
+   *
+   * @return FortissimoLoggerManager
+   *  The logger manager for the current server.
+   */
+  public function getLoggerManager() {
+    return $this->logger;
+  }
 }
 
 /**
@@ -1984,6 +2010,29 @@ class FortissimoLoggerManager {
    */
   public function getLoggerByName($name) {
     return $this->loggers[$name];
+  }
+  
+  /**
+   * Get all buffered log messages.
+   *
+   * Some, but by no means all, loggers buffer messages for later retrieval.
+   * This method provides a way of retrieving all buffered messages from all
+   * buffering loggers. Messages are simply concatenated together from all of 
+   * the available loggers.
+   *
+   * To fetch the log messages of just one logger instead of all of them, use
+   * {@link getLoggerByName()}, and then call that logger's {@link FortissimoLogger::getMessages()}
+   * method.
+   *
+   * @return array
+   *  An indexed array of messages.
+   */
+  public function getMessages() {
+    $buffer = array();
+    foreach ($this->loggers as $name => $logger) {
+      $buffer += $logger->getMessages();
+    }
+    return $buffer;
   }
   
   /**
@@ -2199,6 +2248,20 @@ abstract class FortissimoLogger {
   }
   
   /**
+   * Return log messages.
+   * 
+   * Some, but not all, loggers buffer messages for retrieval later. This
+   * method should be used to retrieve messages from such loggers.
+   *
+   * @return array
+   *  An indexed array of log message strings. By default, this returns an 
+   *  empty array.
+   */
+  public function getMessages() {
+    return array();
+  }
+  
+  /**
    * Handle raw log requests.
    *
    * This handles the transformation of objects (Exceptions)
@@ -2292,7 +2355,13 @@ class FortissimoInterruptException extends Exception {}
  * @package Fortissimo
  * @subpackage Core
  */
-class FortissimoException extends Exception {}
+class FortissimoException extends Exception {
+  public static function initializeFromError($code, $str, $file, $line, $cxt) {
+    printf("\n\nCODE: %s %s\n\n", $code, $str);
+    $class = __CLASS__;
+    throw new $class($str, $code, $file, $line);
+  }
+}
 /**
  * Configuration error.
  * @package Fortissimo
