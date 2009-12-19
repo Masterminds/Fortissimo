@@ -140,7 +140,7 @@ class FortissimoTest extends PHPUnit_Framework_TestCase {
     $class = new LoaderStub();
     $this->assertTrue($class->isLoaded(), 'Verify that classes are autoloaded.');
   }
-  
+
 }
 
 // //////////////////////////// //
@@ -264,7 +264,7 @@ class FortissimoHarness extends Fortissimo {
     switch ($proto) {
       case 'g':
       case 'get':
-        return $this->pSources['get'][$paramName];
+        return isset($this->pSources['get'][$paramName]) ? $this->pSources['get'][$paramName] : NULL;
       case 'p':
       case 'post':
         return $this->pSources['post'][$paramName];
@@ -287,7 +287,7 @@ class FortissimoHarness extends Fortissimo {
         return $this->pSources['server'][$paramName];
       case 'r':
       case 'request':
-        return isset($this->pSources['get'][$paramName]) ? $this->pSources['get'][$paramName] : $this->pSources['post'][$paramName];
+        return isset($this->pSources['get'][$paramName]) ? $this->pSources['get'][$paramName] : (isset($this->pSources['post'][$paramName]) ? $this->pSources['post'][$paramName] : NULL);
       case 'a':
       case 'arg':
       case 'argv':

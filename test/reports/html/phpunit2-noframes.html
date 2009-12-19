@@ -85,12 +85,12 @@
 <th>Success rate</th>
 <th>Time</th>
 </tr>
-<tr valign="top" class="">
-<td>26</td>
+<tr valign="top" class="Failure">
+<td>28</td>
+<td>1</td>
 <td>0</td>
-<td>0</td>
-<td>100.00%</td>
-<td>0.112</td>
+<td>96.43%</td>
+<td>0.118</td>
 </tr>
 </table>
 <table border="0" width="95%"><tr><td style="text-align: justify;">
@@ -107,12 +107,12 @@
 <th>Failures</th>
 <th nowrap>Time(s)</th>
 </tr>
-<tr valign="top" class="">
+<tr valign="top" class="Failure">
 <td><a href="#default">default</a></td>
-<td>26</td>
+<td>28</td>
 <td>0</td>
-<td>0</td>
-<td>0.112</td>
+<td>1</td>
+<td>0.118</td>
 </tr>
 </table>
 <hr size="1" width="95%" align="left">
@@ -130,14 +130,14 @@
 <td>2</td>
 <td>0</td>
 <td>0</td>
-<td>0.011</td>
+<td>0.013</td>
 </tr>
 <tr valign="top" class="">
 <td><a href="#FortissimoConfigTest">FortissimoConfigTest</a></td>
 <td>6</td>
 <td>0</td>
 <td>0</td>
-<td>0.022</td>
+<td>0.023</td>
 </tr>
 <tr valign="top" class="">
 <td><a href="#FortissimoContextDumpTest">FortissimoContextDumpTest</a></td>
@@ -154,18 +154,25 @@
 <td>0.005</td>
 </tr>
 <tr valign="top" class="">
+<td><a href="#FortissimoExceptionsTest">FortissimoExceptionsTest</a></td>
+<td>2</td>
+<td>0</td>
+<td>0</td>
+<td>0.011</td>
+</tr>
+<tr valign="top" class="">
 <td><a href="#FortissimoExecutionContextTest">FortissimoExecutionContextTest</a></td>
 <td>9</td>
 <td>0</td>
 <td>0</td>
-<td>0.009</td>
+<td>0.010</td>
 </tr>
-<tr valign="top" class="">
+<tr valign="top" class="Failure">
 <td><a href="#FortissimoTest">FortissimoTest</a></td>
 <td>7</td>
 <td>0</td>
-<td>0</td>
-<td>0.059</td>
+<td>1</td>
+<td>0.050</td>
 </tr>
 </table>
 <a href="#top">Back to top</a><p></p>
@@ -183,13 +190,13 @@
 <td>testExpects</td>
 <td>Success</td>
 <td></td>
-<td>0.002</td>
+<td>0.003</td>
 </tr>
 <tr valign="top" class="">
 <td>testDoRequest</td>
 <td>Success</td>
 <td></td>
-<td>0.009</td>
+<td>0.010</td>
 </tr>
 </table>
 <p></p>
@@ -217,7 +224,7 @@
 <td>testGetConfig</td>
 <td>Success</td>
 <td></td>
-<td>0.001</td>
+<td>0.002</td>
 </tr>
 <tr valign="top" class="">
 <td>testIsLegalRequestName</td>
@@ -271,6 +278,28 @@
 </tr>
 </table>
 <p></p>
+<a href="#top">Back to top</a><a name="FortissimoExceptionsTest"></a><h3>TestCase FortissimoExceptionsTest</h3>
+<table class="details" border="0" cellpadding="5" cellspacing="2" width="95%">
+<tr valign="top">
+<th>Name</th>
+<th>Status</th>
+<th width="80%">Type</th>
+<th nowrap>Time(s)</th>
+</tr>
+<tr valign="top" class="">
+<td>testException</td>
+<td>Success</td>
+<td></td>
+<td>0.005</td>
+</tr>
+<tr valign="top" class="">
+<td>testErrorToException</td>
+<td>Success</td>
+<td></td>
+<td>0.005</td>
+</tr>
+</table>
+<p></p>
 <a href="#top">Back to top</a><a name="FortissimoExecutionContextTest"></a><h3>TestCase FortissimoExecutionContextTest</h3>
 <table class="details" border="0" cellpadding="5" cellspacing="2" width="95%">
 <tr valign="top">
@@ -313,7 +342,7 @@
 <td>testRemove</td>
 <td>Success</td>
 <td></td>
-<td>0.001</td>
+<td>0.002</td>
 </tr>
 <tr valign="top" class="">
 <td>testToArray</td>
@@ -359,7 +388,7 @@
 <td>testHandleRequest</td>
 <td>Success</td>
 <td></td>
-<td>0.014</td>
+<td>0.015</td>
 </tr>
 <tr valign="top" class="">
 <td>testLogger</td>
@@ -367,17 +396,18 @@
 <td></td>
 <td>0.004</td>
 </tr>
-<tr valign="top" class="">
+<tr valign="top" class="Error">
 <td>testRequestCache</td>
-<td>Success</td>
-<td></td>
-<td>0.020</td>
+<td>Failure</td>
+<td>N/A<code><br><br>FortissimoTest::testRequestCache<br>Failed asserting that two strings are equal.<br>--- Expected<br>+++ Actual<br>@@ @@<br>-foo<br>+<br><br>/Users/mbutcher/Code/Fortissimo/test/Tests/Fortissimo/FortissimoTest.php:94<br>/usr/lib/php/phing/tasks/ext/phpunit/PHPUnitTestRunner.php:98<br>/usr/lib/php/phing/tasks/ext/phpunit/PHPUnitTask.php:333<br>/usr/lib/php/phing/tasks/ext/phpunit/PHPUnitTask.php:302<br>/usr/lib/php/phing/Task.php:253<br>/usr/lib/php/phing/Target.php:240<br>/usr/lib/php/phing/Target.php:263<br>/usr/lib/php/phing/Project.php:702<br>/usr/lib/php/phing/Project.php:675<br>/usr/lib/php/phing/Phing.php:541<br>/usr/lib/php/phing/Phing.php:170<br>/usr/lib/php/phing/Phing.php:270<br>/usr/lib/php/phing.php:37<br></code>
+</td>
+<td>0.009</td>
 </tr>
 <tr valign="top" class="">
 <td>testForwardRequest</td>
 <td>Success</td>
 <td></td>
-<td>0.010</td>
+<td>0.011</td>
 </tr>
 <tr valign="top" class="">
 <td>testAutoloader</td>
@@ -389,7 +419,7 @@
 <p></p>
 <a href="#top">Back to top</a><table width="100%">
 <tr><td><hr noshade size="1"></td></tr>
-<tr><td class="small">Report generated at 2009-12-16T21:30:49-06:00</td></tr>
+<tr><td class="small">Report generated at 2009-12-19T16:04:19-06:00</td></tr>
 </table>
 </body>
 </html>

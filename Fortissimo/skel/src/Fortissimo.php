@@ -131,6 +131,11 @@ require_once('QueryPath/QueryPath.php');
  */
 class Fortissimo {
   
+  /**
+   * Error codes that should be converted to exceptions and thrown.
+   */
+  const ERROR_TO_EXCEPTION = 771; // 257 will catch only errors; 771 is errors and warnings.
+  
   protected $commandConfig = NULL;
   protected $initialConfig = NULL;
   protected $logManager = NULL;
@@ -378,8 +383,8 @@ class Fortissimo {
     
     $params = $this->fetchParameters($commandArray, $this->cxt);
     
-    set_error_handler(array('FortissimoException', 'initializeFromError'), 771);
-    
+    //set_error_handler(array('FortissimoErrorException', 'initializeFromError'), 257);
+    set_error_handler(array('FortissimoErrorException', 'initializeFromError'), self::ERROR_TO_EXCEPTION);
     try {
       $inst->execute($params, $this->cxt);
     }
@@ -1779,7 +1784,8 @@ class FortissimoExecutionContext implements IteratorAggregate {
    *  The value in the array, or NULL if $name was not found.
    */
   public function get($name) {
-    return $this->data[$name];
+    // isset() is used to avoid E_STRICT warnings.
+    return isset($this->data[$name]) ? $this->data[$name]: NULL;
   }
   
   /**
@@ -1789,7 +1795,7 @@ class FortissimoExecutionContext implements IteratorAggregate {
    *  The thing to remove.
    */
   public function remove($name) {
-    unset($this->data[$name]);
+    if (isset($this->data[$name])) unset($this->data[$name]);
   }
   
   /**
@@ -2356,10 +2362,26 @@ class FortissimoInterruptException extends Exception {}
  * @subpackage Core
  */
 class FortissimoException extends Exception {
+  
+}
+
+/**
+ * Transform an error or warning into an exception.
+ */
+class FortissimoErrorException extends FortissimoException {
   public static function initializeFromError($code, $str, $file, $line, $cxt) {
     printf("\n\nCODE: %s %s\n\n", $code, $str);
     $class = __CLASS__;
     throw new $class($str, $code, $file, $line);
+  }
+  
+  public function __construct($msg = '', $code = 0, $file = NULL, $line = NULL) {    
+    if (isset($file)) {
+      $msg .= ' (' . $file;
+      if (isset($line)) $msg .= ': ' . $line;
+      $msg .= ')';
+    }
+    parent::__construct($msg, $code);
   }
 }
 /**
