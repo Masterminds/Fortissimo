@@ -49,6 +49,7 @@ class ExceptionThrowingCommand extends BaseFortissimoCommand {
 
 class ErrorThrowingCommand extends ExceptionThrowingCommand {
   public function doCommand() {
+    // I <3 Divde-by-zero
     1/0;
   }
 }
