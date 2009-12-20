@@ -2370,7 +2370,7 @@ class FortissimoException extends Exception {
  */
 class FortissimoErrorException extends FortissimoException {
   public static function initializeFromError($code, $str, $file, $line, $cxt) {
-    printf("\n\nCODE: %s %s\n\n", $code, $str);
+    //printf("\n\nCODE: %s %s\n\n", $code, $str);
     $class = __CLASS__;
     throw new $class($str, $code, $file, $line);
   }
