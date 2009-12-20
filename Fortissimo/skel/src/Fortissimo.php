@@ -2361,9 +2361,7 @@ class FortissimoInterruptException extends Exception {}
  * @package Fortissimo
  * @subpackage Core
  */
-class FortissimoException extends Exception {
-  
-}
+class FortissimoException extends Exception {}
 
 /**
  * Transform an error or warning into an exception.
