@@ -4,16 +4,16 @@ Copyright (c) 2010
 
 Fortissimo is a PHP framework. It's key features are:
 
-* Rapid: You can write applications quickly.
-* Scalable: Unlike other frameworks, Fortissimo is designed to scale across servers.
-* NSFW: There are No Stupid Fortissimo Wrappers. In other words, you don't need to 
-  learn a new API that simply wraps basic PHP functions. Fortissimo is thin.
-* Chain-of-command, not MVC: Fortissimo uses a different base design pattern, called
+* _Rapid_: You can write applications quickly.
+* _Scalable_: Unlike other frameworks, Fortissimo is designed to scale across servers.
+* _Chain-of-command, not MVC_: Fortissimo uses a different base design pattern, called
   Chain-of-Command. CoC is easy, makes the most of reusable components, and scales 
   very well. Take a look at commands.xml to see how this works.
-* Well documented: Every function in the library is documented, and the documentation
-  can easily be extracted and converted to HTML (see below). In addition, 
-  your applications are self-documenting, making maintenance easier.
+* _Well documented_: Every function in the library is documented, and the 
+  documentation can easily be extracted and converted to HTML (see below). In 
+  addition, your applications are self-documenting, making maintenance easier.
+* _NSFW_: There are No Stupid Fortissimo Wrappers. In other words, you don't need to 
+  learn a new API that simply wraps basic PHP functions. Fortissimo is thin.
 
 ## Installation (Early Release Version) ##
 
