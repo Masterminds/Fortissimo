@@ -17,3 +17,36 @@ It does the following:
 - It installs base classes in the App's library.
 - Create default .htaccess file
 - Create default index file.
+
+## Adding a New Command ##
+
+To add a new command, simply add a new file in the includes directory. The file
+should be named MyClass.cmd.php, where MyClass is the name of the command class.
+
+The most common way to create a new command is to extend the BaseFortssimoCommand 
+class.
+
+Example:
+
+  class FortissimoEcho extends BaseFortissimoCommand {
+  
+    public function expects() {
+      return $this
+        ->description('Echo the contents of the "text" parameter to standard output.')
+        ->usesParam('text', 'The text to echo.')
+        ->withFilter('string');
+    }
+  
+    public function doCommand() {
+      print $this->param('text');
+    }
+  }
+  
+The code above implements two methods:
+
+* expects(): Tells the Fortissimo system what parameters this command expects, and
+  what it does with those parameters.
+* doCommand(): Performs the actual processing of the command.
+
+That's all there is to creating a new command. From there, just add the command
+to some request in the `commands.xml` file, and you should be ready.

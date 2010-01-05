@@ -1,0 +1,51 @@
+# Fortissimo #
+Matt Butcher <matt@aleph-null.tv>
+Copyright (c) 2010
+
+Fortissimo is a framework for rapidly building PHP-based web sites and
+web applications.
+
+## Installation (Early Release Version) ##
+
+Eventually, Fortissimo will be installed using either a Phar package or a PEAR 
+package. For now, though, it must be installed manually.
+
+### Prerequisites ###
+
+Install Phing, PHPDocumentor, and PHPUnit. All three of these are PEAR packages.
+
+[Phing](http://phing.info)
+[PHPDocumentor](http://phpdoc.org)
+[PHPUnit](http://phpunit.de)
+
+### Installing Fortissimo ###
+
+To begin, download Fortissimo and untar it into a directory.
+
+To start a new Fortissimo project, execute the `fff.php` command. To create a new
+project called `MyProject`, run this command:
+
+  $ /path/to/fff.php MyProject
+  
+This will create a directory called MyProject/ and stub it out with the appropriate
+files.
+
+From there, you can begin by editing the `commands.xml` file. You can write your 
+own commands and put them in the project's includes/ directory, where Fortissimo
+will automatically find them. For examples, see the commands in `src/core/Fortissimo`.
+
+To run a Fortissimo application as a web app, simply ensure that the project directory is visible to the web server, and that the web server can correctly execute PHP files.
+
+For example, if MyProject is inside of the root directory of a webserver on 
+the domain example.com, then you should be able to access the page in a browser
+using the URL http://example.com/MyProject. Note that that request will execute the 
+default request.
+
+## ABOUT THE LICENSE ##
+Fortissimo is licensed under the MIT license. The version of QueryPath that is
+included within Fortissimo is dual-licensed under LGPL 2.1 and MIT.
+
+You may build applications on top of Fortissimo without releasing your own code
+under an Open Source (or Free Software) license. Of course, the Fortissimo team
+is very grateful for any improvements you contribute back to the framework. But
+we believe that the best person to choose how you license your software is you.
