@@ -41,6 +41,25 @@ the domain example.com, then you should be able to access the page in a browser
 using the URL http://example.com/MyProject. Note that that request will execute the 
 default request.
 
+#### Project Documentation ####
+
+Your project will contain its own documentation in MyProject/doc
+
+Projects are also self-documenting (assuming you write commands using 
+BaseFortissimoCommand). You can run `phing explain` in your project's root, and 
+documentation on all requests (and their commands) will be automatically generated
+and displayed.
+
+### Generating API Documentation ###
+
+To generate API documentation for Fortissimo, go to the base installation directory
+and execute the following:
+
+    $ phing doc
+
+This will generate robust HTML-formatted API documentation, which will be available in 
+`doc/api/`. 
+
 ## ABOUT THE LICENSE ##
 Fortissimo is licensed under the MIT license. The version of QueryPath that is
 included within Fortissimo is dual-licensed under LGPL 2.1 and MIT.
