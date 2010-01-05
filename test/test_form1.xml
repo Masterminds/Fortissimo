@@ -1,0 +1,43 @@
+<?xml version="1.0"?>
+<form>
+  <group name="userinfo" label="User Information">
+    <field name="username" invoke="FormTextInput"/>
+    <field name="email" invoke="FormTextInput">
+      <param name="filter">email</param>
+      <param name="required">true</param>
+    </field>
+  </group>
+  
+  <group name="messagearea">
+    <field name="message" invoke="FormTextArea">
+      <param name="filter">string</param>
+    </field>
+    <field name="messageType" invoke="FormSelect">
+      <param name="value">Public</param>
+      <param name="value">Private</param>
+    </field>
+    <field name="messageAlerts" invoke="FormCheckbox">
+      <param name="value">Administrator</param>
+      <param name="value">Editor</param>
+      <param name="value">Self</param>
+    </field>
+    <field name="messageUrgency" invoke="FormRadio">
+      <param name="value">Unimportant</param>
+      <param name="value">Important</param>
+      <param name="value">Urgent</param>
+      <param name="help">Indicate how important this item is.</param>
+    </field>
+  </group>
+  
+  <group name="buttonarea">
+    <field name="submit" invoke="FormSubmit">
+      <param name="label">Send</param>
+    </field>
+    <field name="reset" invoke="FormReset">
+      <param name="label">Reset</param>
+    </field>
+    <field name="extra" invoke="FormButton">
+      <param name="label">Does Nothing</param>
+    </field>
+  </group>
+</form>
