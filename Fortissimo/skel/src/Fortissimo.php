@@ -142,6 +142,9 @@ class Fortissimo {
   protected $cxt = NULL;
   protected $cacheManager = NULL;
   
+  /** Tracks whether the current request is caching. */
+  protected $isCachingRequest = FALSE;
+  
   /**
    * Construct a new Fortissimo server.
    *
@@ -353,6 +356,7 @@ class Fortissimo {
    * @see stopCaching()
    */
   protected function startCaching() {
+    $this->isCachingRequest = TRUE;
     ob_start();
   }
   
@@ -364,12 +368,14 @@ class Fortissimo {
    * @see startCaching()
    */
   protected function stopCaching() {
-    $contents = ob_get_contents();
-    
-    // Turn off output buffering & send to client.
-    ob_end_flush();
-    
-    return $contents;
+    if ($this->isCachingRequest) {
+      $contents = ob_get_contents();
+
+      // Turn off output buffering & send to client.
+      ob_end_flush();
+
+      return $contents;
+    }
   }
   
   /**
@@ -2112,7 +2118,8 @@ class FortissimoOutputInjectionLogger extends FortissimoLogger {
   protected $isHTML = FALSE;
   
   public function init() {
-    $this->isHTML = filter_var($this->params['html'], FILTER_VALIDATE_BOOLEAN);
+    
+    $this->isHTML = isset($this->params['html']) ? filter_var($this->params['html'], FILTER_VALIDATE_BOOLEAN) : FALSE;
     $this->filter = empty($this->params['html']) ? '%s %s %s' : '<div class="log-item %s"><strong>%s</strong> %s</div>';
   }
   public function log($message, $category) {

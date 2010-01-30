@@ -36,7 +36,7 @@ if (get_magic_quotes_runtime()) {
  */
 require 'Fortissimo.php';
 
-$cmd = filter_input(INPUT_GET, 'ff', 'string');
+$cmd = filter_input(INPUT_GET, 'ff', FILTER_SANITIZE_STRING);
 if (empty($cmd)) {
   $cmd = 'default';
 }
