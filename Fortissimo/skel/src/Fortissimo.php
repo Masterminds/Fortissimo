@@ -259,6 +259,9 @@ class Fortissimo {
    */
   public function handleRequest($requestName = 'default', FortissimoExecutionContext $initialCxt = NULL) {
     
+    // Experimental: Convert errors (E_ERROR | E_USER_ERROR) to exceptions.
+    set_error_handler(array('FortissimoErrorException', 'initializeFromError'), 257);
+    
     $request = $this->commandConfig->getRequest($requestName);
     $cacheKey = NULL; // This is set only if necessary.
     
@@ -267,7 +270,6 @@ class Fortissimo {
       print $this->explainRequest($request);
       return;
     }
-    /*
     // If this allows caching, check the cached output.
     elseif ($request->isCaching() && isset($this->cacheManager)) {
       // Handle caching.
@@ -280,11 +282,8 @@ class Fortissimo {
         return;
       }
       
-      // Turn on output buffering. We use this to capture data
-      // for insertion into the cache.
-      ob_start();
+      $this->startCaching();
     }
-    */
     
     // This allows pre-seeding of the context.
     if (isset($initialCxt)) {
@@ -302,40 +301,75 @@ class Fortissimo {
       // Kill the request and log an error.
       catch (FortissimoInterruptException $ie) {
         $this->logManager->log($e, 'Fatal Error');
+        $this->stopCaching();
         return;
       }
       // Forward any requests.
       catch (FortissimoForwardRequest $forward) {
+        // Not sure what to do about caching here.
+        // For now we just stop caching.
+        $this->stopCaching();
+        
+        // Forward the request to another handler.
         $this->handleRequest($forward->destination(), $forward->context());
         return;
       }
       // Kill the request, no error.
       catch (FortissimoInterrupt $i) {
+        $this->stopCaching();
         return;
       }
       // Log the error, but continue to the next command.
       catch (FortissimoException $e) {
+        // Note that we don't cache if a recoverable error occurs.
+        $this->stopCaching();
         $this->logManager->log($e, 'Recoverable Error');
         continue;
       }
       catch (Exception $e) {
+        $this->stopCaching();
         // Assume that a non-caught exception is fatal.
         $this->logManager->log($e, 'Fatal Error');
+        //print "Fatal error";
         return;
       }
     }
     
-    /*
     // If caching is on, place this entry into the cache.
     if ($request->isCaching() && isset($this->cacheManager)) {
-      $contents = ob_get_contents();
-      
+      $contents = $this->stopCaching();
       // Add entry to cache.
       $this->cacheManager->set($cacheKey, $contents);
-      // Turn off output buffering & send to client.
-      ob_end_flush();
-    }    
-    */
+      
+    }
+    
+    // Experimental: Restore error handler. (see set_error_handler()).
+    restore_error_handler();
+  }
+  
+  /**
+   * Start caching a request.
+   *
+   * @see stopCaching()
+   */
+  protected function startCaching() {
+    ob_start();
+  }
+  
+  /**
+   * Stop caching this request.
+   *
+   * @return string
+   *  The data collected in the cache buffer.
+   * @see startCaching()
+   */
+  protected function stopCaching() {
+    $contents = ob_get_contents();
+    
+    // Turn off output buffering & send to client.
+    ob_end_flush();
+    
+    return $contents;
   }
   
   /**
@@ -1121,7 +1155,7 @@ abstract class BaseFortissimoCommand implements FortissimoCommand, Explainable {
     
     // Boolean validation returns FALSE if the bool is false, or if a fail occurs.
     // So we just pass through. Nothing more that can really be done about it.
-    if ($res === FALSE && $filter != FILTER_VALIDATE_BOOLEAN) {
+    if ($res === FALSE && $filterID != FILTER_VALIDATE_BOOLEAN) {
       $this->handleIllegalParameter($name, $filter, $payload, $options);
     }
     
