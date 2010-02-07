@@ -90,7 +90,7 @@
 <td>1</td>
 <td>0</td>
 <td>96.43%</td>
-<td>0.110</td>
+<td>0.195</td>
 </tr>
 </table>
 <table border="0" width="95%"><tr><td style="text-align: justify;">
@@ -112,7 +112,7 @@
 <td>28</td>
 <td>0</td>
 <td>1</td>
-<td>0.110</td>
+<td>0.195</td>
 </tr>
 </table>
 <hr size="1" width="95%" align="left">
@@ -130,49 +130,49 @@
 <td>2</td>
 <td>0</td>
 <td>0</td>
-<td>0.011</td>
+<td>0.051</td>
 </tr>
 <tr valign="top" class="">
 <td><a href="#FortissimoConfigTest">FortissimoConfigTest</a></td>
 <td>6</td>
 <td>0</td>
 <td>0</td>
-<td>0.022</td>
+<td>0.025</td>
 </tr>
 <tr valign="top" class="">
 <td><a href="#FortissimoContextDumpTest">FortissimoContextDumpTest</a></td>
 <td>1</td>
 <td>0</td>
 <td>0</td>
-<td>0.005</td>
+<td>0.017</td>
 </tr>
 <tr valign="top" class="">
 <td><a href="#FortissimoEchoTest">FortissimoEchoTest</a></td>
 <td>1</td>
 <td>0</td>
 <td>0</td>
-<td>0.005</td>
+<td>0.006</td>
 </tr>
 <tr valign="top" class="">
 <td><a href="#FortissimoExceptionsTest">FortissimoExceptionsTest</a></td>
 <td>2</td>
 <td>0</td>
 <td>0</td>
-<td>0.010</td>
+<td>0.011</td>
 </tr>
 <tr valign="top" class="">
 <td><a href="#FortissimoExecutionContextTest">FortissimoExecutionContextTest</a></td>
 <td>9</td>
 <td>0</td>
 <td>0</td>
-<td>0.009</td>
+<td>0.010</td>
 </tr>
 <tr valign="top" class="Failure">
 <td><a href="#FortissimoTest">FortissimoTest</a></td>
 <td>7</td>
 <td>0</td>
 <td>1</td>
-<td>0.047</td>
+<td>0.075</td>
 </tr>
 </table>
 <a href="#top">Back to top</a><p></p>
@@ -190,13 +190,13 @@
 <td>testExpects</td>
 <td>Success</td>
 <td></td>
-<td>0.002</td>
+<td>0.003</td>
 </tr>
 <tr valign="top" class="">
 <td>testDoRequest</td>
 <td>Success</td>
 <td></td>
-<td>0.010</td>
+<td>0.048</td>
 </tr>
 </table>
 <p></p>
@@ -230,19 +230,19 @@
 <td>testIsLegalRequestName</td>
 <td>Success</td>
 <td></td>
-<td>0.002</td>
+<td>0.001</td>
 </tr>
 <tr valign="top" class="">
 <td>testHasRequest</td>
 <td>Success</td>
 <td></td>
-<td>0.003</td>
+<td>0.004</td>
 </tr>
 <tr valign="top" class="">
 <td>testGetRequest</td>
 <td>Success</td>
 <td></td>
-<td>0.013</td>
+<td>0.015</td>
 </tr>
 </table>
 <p></p>
@@ -258,7 +258,7 @@
 <td>testDoCommand</td>
 <td>Success</td>
 <td></td>
-<td>0.005</td>
+<td>0.017</td>
 </tr>
 </table>
 <p></p>
@@ -274,7 +274,7 @@
 <td>testDoCommand</td>
 <td>Success</td>
 <td></td>
-<td>0.005</td>
+<td>0.006</td>
 </tr>
 </table>
 <p></p>
@@ -290,13 +290,13 @@
 <td>testException</td>
 <td>Success</td>
 <td></td>
-<td>0.005</td>
+<td>0.006</td>
 </tr>
 <tr valign="top" class="">
 <td>testErrorToException</td>
 <td>Success</td>
 <td></td>
-<td>0.005</td>
+<td>0.006</td>
 </tr>
 </table>
 <p></p>
@@ -399,9 +399,9 @@
 <tr valign="top" class="Error">
 <td>testRequestCache</td>
 <td>Failure</td>
-<td>N/A<code><br><br>FortissimoTest::testRequestCache<br>Failed asserting that two strings are equal.<br>--- Expected<br>+++ Actual<br>@@ @@<br>-foo<br>+<br><br>/Users/mbutcher/Code/Fortissimo/test/Tests/Fortissimo/FortissimoTest.php:94<br>/usr/lib/php/phing/tasks/ext/phpunit/PHPUnitTestRunner.php:98<br>/usr/lib/php/phing/tasks/ext/phpunit/PHPUnitTask.php:333<br>/usr/lib/php/phing/tasks/ext/phpunit/PHPUnitTask.php:302<br>/usr/lib/php/phing/Task.php:253<br>/usr/lib/php/phing/Target.php:240<br>/usr/lib/php/phing/Target.php:263<br>/usr/lib/php/phing/Project.php:702<br>/usr/lib/php/phing/Project.php:675<br>/usr/lib/php/phing/Phing.php:541<br>/usr/lib/php/phing/Phing.php:170<br>/usr/lib/php/phing/Phing.php:270<br>/usr/lib/php/phing.php:37<br></code>
+<td>N/A<code><br><br>FortissimoTest::testRequestCache<br>Output was passed through correctly.<br>Failed asserting that two strings are equal.<br>--- Expected<br>+++ Actual<br>@@ @@<br>+<br>+Notice: Undefined index: request-testRequestCache2 in /Users/mbutcher/Code/Fortissimo/test/Tests/Fortissimo/FortissimoTest.php on line 162<br>+<br>+Call Stack:<br>+    0.0008     644040   1. {main}() /usr/lib/php/phing.php:0<br>+    0.0699    6552128   2. Phing::fire() /usr/lib/php/phing.php:37<br>+    0.0699    6552176   3. Phing::start() /usr/lib/php/phing/Phing.php:270<br>+    0.0708    6654824   4. Phing-&gt;runBuild() /usr/lib/php/phing/Phing.php:170<br>+    0.8990   32115512   5. Project-&gt;executeTargets() /usr/lib/php/phing/Phing.php:541<br>+    0.8990   32115816   6. Project-&gt;executeTarget() /usr/lib/php/phing/Project.php:675<br>+    0.8994   32116520   7. Target-&gt;performTasks() /usr/lib/php/phing/Project.php:702<br>+    0.8995   32116520   8. Target-&gt;main() /usr/lib/php/phing/Target.php:263<br>+    0.8995   32116520   9. Task-&gt;perform() /usr/lib/php/phing/Target.php:240<br>+    0.9733   32386048  10. PHPUnitTask-&gt;main() /usr/lib/php/phing/Task.php:253<br>+    1.6315   35813064  11. PHPUnitTask-&gt;execute() /usr/lib/php/phing/tasks/ext/phpunit/PHPUnitTask.php:302<br>+    1.6316   35814616  12. PHPUnitTestRunner-&gt;run() /usr/lib/php/phing/tasks/ext/phpunit/PHPUnitTask.php:333<br>+    1.6317   35817032  13. PHPUnit_Framework_TestSuite-&gt;run() /usr/lib/php/phing/tasks/ext/phpunit/PHPUnitTestRunner.php:98<br>+    1.6607   35823328  14. PHPUnit_Framework_TestSuite-&gt;runTest() /usr/lib/php/PHPUnit/Framework/TestSuite.php:732<br>+    1.6607   35823328  15. PHPUnit_Framework_TestCase-&gt;run() /usr/lib/php/PHPUnit/Framework/TestSuite.php:756<br>+    1.6608   35823328  16. PHPUnit_Framework_TestResult-&gt;run() /usr/lib/php/PHPUnit/Framework/TestCase.php:653<br>+    1.6609   35824328  17. PHPUnit_Framework_TestCase-&gt;runBare() /usr/lib/php/PHPUnit/Framework/TestResult.php:687<br>+    1.6613   35852672  18. PHPUnit_Framework_TestCase-&gt;runTest() /usr/lib/php/PHPUnit/Framework/TestCase.php:706<br>+    1.6614   35854048  19. ReflectionMethod-&gt;invokeArgs() /usr/lib/php/PHPUnit/Framework/TestCase.php:822<br>+    1.6614   35854080  20. FortissimoTest-&gt;testRequestCache() /Users/mbutcher/Code/Fortissimo/test/Tests/Fortissimo/FortissimoTest.php:0<br>+    1.6721   35905000  21. Fortissimo-&gt;handleRequest() /Users/mbutcher/Code/Fortissimo/test/Tests/Fortissimo/FortissimoTest.php:103<br>+    1.6747   35909920  22. FortissimoCacheManager-&gt;get() /Users/mbutcher/Code/Fortissimo/Fortissimo/skel/src/Fortissimo.php:280<br>+    1.6747   35910000  23. MockAlwaysSetValueCache-&gt;get() /Users/mbutcher/Code/Fortissimo/Fortissimo/skel/src/Fortissimo.php:1937<br>+<br> bar<br><br>/Users/mbutcher/Code/Fortissimo/test/Tests/Fortissimo/FortissimoTest.php:112<br>/usr/lib/php/phing/tasks/ext/phpunit/PHPUnitTestRunner.php:98<br>/usr/lib/php/phing/tasks/ext/phpunit/PHPUnitTask.php:333<br>/usr/lib/php/phing/tasks/ext/phpunit/PHPUnitTask.php:302<br>/usr/lib/php/phing/Task.php:253<br>/usr/lib/php/phing/Target.php:240<br>/usr/lib/php/phing/Target.php:263<br>/usr/lib/php/phing/Project.php:702<br>/usr/lib/php/phing/Project.php:675<br>/usr/lib/php/phing/Phing.php:541<br>/usr/lib/php/phing/Phing.php:170<br>/usr/lib/php/phing/Phing.php:270<br>/usr/lib/php/phing.php:37<br></code>
 </td>
-<td>0.008</td>
+<td>0.016</td>
 </tr>
 <tr valign="top" class="">
 <td>testForwardRequest</td>
@@ -413,13 +413,13 @@
 <td>testAutoloader</td>
 <td>Success</td>
 <td></td>
-<td>0.001</td>
+<td>0.021</td>
 </tr>
 </table>
 <p></p>
 <a href="#top">Back to top</a><table width="100%">
 <tr><td><hr noshade size="1"></td></tr>
-<tr><td class="small">Report generated at 2009-12-19T20:23:08-06:00</td></tr>
+<tr><td class="small">Report generated at 2010-02-07T15:47:22-06:00</td></tr>
 </table>
 </body>
 </html>

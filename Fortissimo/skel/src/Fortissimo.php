@@ -303,7 +303,7 @@ class Fortissimo {
       }
       // Kill the request and log an error.
       catch (FortissimoInterruptException $ie) {
-        $this->logManager->log($e, 'Fatal Error');
+        $this->logManager->log($ie, 'Fatal Error');
         $this->stopCaching();
         return;
       }
@@ -509,17 +509,18 @@ class Fortissimo {
     switch ($proto) {
       case 'g':
       case 'get':
-        return $_GET[$paramName];
+        // This null check is for E_STRICT.
+        return isset($_GET[$paramName]) ? $_GET[$paramName] : NULL;
       case 'p':
       case 'post':
-        return $_POST[$paramName];
+        return isset($_POST[$paramName]) ? $_POST[$paramName] : NULL;
       case 'c':
       case 'cookie':
       case 'cookies':
-        return $_COOKIE[$paramName];
+        return isset($_COOKIE[$paramName]) ? $_COOKIE[$paramName] : NULL;
       case 's':
       case 'session':
-        return $_SESSION[$paramName];
+        return isset($_SESSION[$paramName]) ? $_SESSION[$paramName] : NULL;
       case 'x':
       case 'cmd':
       case 'cxt':
@@ -528,16 +529,17 @@ class Fortissimo {
       case 'e':
       case 'env':
       case 'environment':
-        return $_ENV[$paramName];
+        return isset($_ENV[$paramName]) ? $_ENV[$paramName] : NULL;
       case 'server':
-        return $_SERVER[$paramName];
+        return isset($_SERVER[$paramName]) ? $_SERVER[$paramName] : NULL;
       case 'r':
       case 'request':
-        return $_REQUEST[$paramName];
+        return isset($_REQUEST[$paramName]) ? $_REQUEST[$paramName] : NULL;
       case 'a':
       case 'arg':
       case 'argv':
-        return $argv[(int)$paramName];
+        $i = (int)$paramName;
+        return isset($argv[$i]) ? $argv[$i] : NULL;
     }
   }
 }
