@@ -24,9 +24,9 @@ package. For now, though, it must be installed manually.
 
 Install Phing, PHPDocumentor, and PHPUnit. All three of these are PEAR packages.
 
-[Phing](http://phing.info)
-[PHPDocumentor](http://phpdoc.org)
-[PHPUnit](http://phpunit.de)
+* [Phing](http://phing.info)
+* [PHPDocumentor](http://phpdoc.org)
+* [PHPUnit](http://phpunit.de)
 
 Phing is absolutely required. The other two are good to have, but are not strictly
 necessary. They may become required later.
