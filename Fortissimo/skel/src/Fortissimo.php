@@ -1496,6 +1496,10 @@ class FortissimoConfig {
     return $this->getFacility('cache');
   }
   
+  public function getDatasources() {
+    return $this->getFacility('datasource');
+  }
+  
   /**
    * Internal helper function.
    *
@@ -1891,7 +1895,7 @@ class FortissimoExecutionContext implements IteratorAggregate {
  *
  * This manages top-level {@link FortissimoRequestCache}s. Just as with 
  * {@link FortissimoLoggerManager}, a FortissimoCacheManager can manage
- * multiple caches. It will procede from cache to cache in order until it
+ * multiple caches. It will proceed from cache to cache in order until it
  * finds a hit. (Order is determined by the order returned from the 
  * configuration object.)
  *
@@ -2016,6 +2020,44 @@ class FortissimoCacheManager {
       // Short-circuit if we find a value.
       if ($res) return $n;
     }
+  }
+}
+
+/**
+ * Manages data sources.
+ *
+ * Fortissimo provides facilities for declaring multiple data sources. A 
+ * datasource is some readable or writable backend like a database.
+ *
+ * This class manages multiple data sources, providing the execution context
+ * with a simple way of retrieving datasources by name.
+ * @package Fortissimo
+ * @subpackage Core
+ */
+class FortissimoDatasourceManager {
+  
+  protected $datasources = NULL;
+  
+  /**
+   * Build a new datasource manager.
+   *
+   * @param Unknown $config
+   *  The configuration for this manager.
+   */
+  public function __construct($config) {
+    $this->datasources = &$config;
+  }
+  
+  /**
+   * Get a datasource by its string name.
+   *
+   * @param string $name
+   *  The name of the datasource to get.
+   * @return FortissimoDatasource
+   *  The requested source, or NULL if no such source exists.
+   */
+  public function getDatasourceByName($name) {
+    return $this->datasources[$name];
   }
 }
 
@@ -2270,6 +2312,10 @@ interface FortissimoRequestCache {
    *  The string found in the cache, or NULL if nothing was found.
    */
   public function get($key);
+}
+
+interface FortissimoDatasource {
+  
 }
 
 /**
