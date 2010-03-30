@@ -2059,6 +2059,39 @@ class FortissimoDatasourceManager {
   public function getDatasourceByName($name) {
     return $this->datasources[$name];
   }
+  
+  /**
+   * Scan the datasources and return the first one marked default.
+   */
+  public function getDefaultDatasource() {
+    foreach ($this->datasources as $o) {
+      if (isset($o->isDefault) && filter_var($o->isDefault, FILTER_BOOLEAN)) {
+        return $o;
+      }
+    }
+  }
+  
+  /**
+   * Get a datasource.
+   *
+   * If a name is given, retrieve the named datasource. Otherwise, return
+   * the default. If no suitable datasource is found, return NULL.
+   *
+   * @param string $name
+   *  The name of the datasource to return.
+   * @return FortissimoDatasource
+   *  The datasource.
+   */
+  public function datasource($name = NULL) {
+    if (empty($name)) {
+      return $this->getDefaultDatasource();
+    }
+    return $this->getDatasourceByName($name);
+  }
+  
+  public function datasources() {
+    return $this->datasources;
+  }
 }
 
 /**

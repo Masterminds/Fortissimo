@@ -21,10 +21,14 @@
   
   You can use as many datasources as you want. Just give each one a different
   name.
+  
   -->
   <datasource name="db" invoke="FortissimoMongoDB">
     <param name="server">mongodb://localhost:27017</param>
     <param name="defaultDB">%%PROJECT%%</param>
+    
+    <!-- Only one datasource should be set as the default. -->
+    <param name="isDefault">true</param>
   </datasource>
   
   <!--
