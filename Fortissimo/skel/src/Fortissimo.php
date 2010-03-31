@@ -164,7 +164,7 @@ class Fortissimo {
    *  in as $commandsXMLFile.
    * @param array $configData
    *  Any additional configuration data can be added here. This information 
-   *  will be placed into the {@link FortissimoExecutionContext} that is passsed
+   *  will be placed into the {@link FortissimoExecutionContext} that is passed
    *  into each command. In this way, information passed here should be available
    *  to every command, as well as to the overarching framework.
    */
@@ -184,6 +184,9 @@ class Fortissimo {
     
     // Create cache manager.
     $this->cacheManager = new FortissimoCacheManager($this->commandConfig->getCaches());
+    
+    // Create the datasource manager.
+    $this->datasourceManager = new FortissimoDatasourceManager($this->commandConfig->getDatasources());
   }
   
   /**
@@ -251,10 +254,10 @@ class Fortissimo {
   /**
    * Handles a request.
    *
-   * When a request comes in, this method is responsible for displatching
+   * When a request comes in, this method is responsible for dispatching
    * the request to the necessary commands, executing commands in sequence.
    *
-   * <strong>Note:</strong> Fortissimo has experimental support for request
+   * <b>Note:</b> Fortissimo has experimental support for request
    * caching. When request caching is enabled, the output of a request is 
    * stored in a cache. Subsequent identical requests will be served out of
    * the cache, thereby avoiding all overhead associated with loading and 
@@ -2041,8 +2044,9 @@ class FortissimoDatasourceManager {
   /**
    * Build a new datasource manager.
    *
-   * @param Unknown $config
-   *  The configuration for this manager.
+   * @param array $config
+   *  The configuration for this manager as an associative array of 
+   *  names=>instances.
    */
   public function __construct($config) {
     $this->datasources = &$config;
@@ -2062,13 +2066,12 @@ class FortissimoDatasourceManager {
   
   /**
    * Scan the datasources and return the first one marked default.
+   *
+   * @return FortissimoDatasource
+   *  An initialized FortissimoDatasource, or NULL if no default is found.
    */
   public function getDefaultDatasource() {
-    foreach ($this->datasources as $o) {
-      if (isset($o->isDefault) && filter_var($o->isDefault, FILTER_BOOLEAN)) {
-        return $o;
-      }
-    }
+    foreach ($this->datasources as $k => $o) if ($o->isDefault()) return $o;
   }
   
   /**
@@ -2347,8 +2350,72 @@ interface FortissimoRequestCache {
   public function get($key);
 }
 
-interface FortissimoDatasource {
+/**
+ * A datasource.
+ *
+ * Fortissimo provides a very general (and loose) abstraction for datasources.
+ * The idea is to make it possible for all datasources -- from files to RDBs to
+ * NoSQL databases to LDAPS -- to be defined in a central place (along with 
+ * requests) so that they can easily be configured and also leveraged by the 
+ * command configuration.
+ *
+ * The generality of this class makes it less than ideal for doing strict checks
+ * on capabilities, but, then, that's what inheritance if for, isn't it.
+ *
+ * Each data source type should extend this basic class. This base class contains
+ * the absolute minimal amount of information that Fortissimo needs in order to 
+ * load the datasources and instruct them to initialize themselves.
+ *
+ * From there, it's up to implementors to build useful datasource wrappers that
+ * can be leveraged from within commands.
+ */
+abstract class FortissimoDatasource {
+  /**
+   * The parameters for this data source
+   */
+  protected $params = NULL;
+  protected $default = FALSE;
   
+  /**
+   * Construct a new datasource.
+   */
+  public function __construct($params = array()) {
+    $this->params = $params;
+    $this->default = isset($params['isDefault']) && filter_var($params['isDefault'], FILTER_VALIDATE_BOOLEAN);
+  }
+  
+  /**
+   * Determine whether this is the default datasource.
+   *
+   * Note that this may be called *before* init().
+   *
+   * @return boolean
+   *  Returns TRUE if this is the default. Typically the default status is 
+   *  assigned in the commands.xml file.
+   */
+  public function isDefault() {
+    return $this->default;
+  }
+  
+  /**
+   * This is called once before the datasource is first used.
+   *
+   * While there is no guarantee that this will be called only when necessary, it
+   * is lazier than the constructor, so initialization of connections may be better
+   * left to this function than to overridden constructors.
+   */
+  public abstract function init();
+  
+  /**
+   * Retrieve the underlying datasource object.
+   *
+   * Ideally, this returns the underlying data source. In some circumstances,
+   * it may return NULL.
+   *
+   * @return mixed
+   *  The underlying datasource. Example: a PDO object or a Mongo object.
+   */
+  public abstract function get();
 }
 
 /**
