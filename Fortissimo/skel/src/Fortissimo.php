@@ -141,6 +141,7 @@ class Fortissimo {
   protected $logManager = NULL;
   protected $cxt = NULL;
   protected $cacheManager = NULL;
+  protected $datasourceManager = NULL;
   
   /** Tracks whether the current request is caching. */
   protected $isCachingRequest = FALSE;
@@ -297,7 +298,11 @@ class Fortissimo {
     }
     // This sets up the default context.
     else {
-      $this->cxt = new FortissimoExecutionContext($this->initialConfig, $this->logManager);
+      $this->cxt = new FortissimoExecutionContext(
+        $this->initialConfig, 
+        $this->logManager, 
+        $this->datasourceManager
+      );
     }
     
     foreach ($request as $command) {
@@ -1716,6 +1721,21 @@ class FortissimoConfig {
  * found in the context, either to perform some operation (writing data to 
  * the client) or to modify the context data.
  *
+ * The idea of the context is to provide three things during the course of the 
+ * request(s):
+ * - Shared access to data being generated.
+ * - Common access to the logging system
+ * - Common access to the datasources
+ *
+ * Thus, every command can utilize the loggers and datasources defined for the
+ * application, and commands can pass data throughout the lifecycle of the request.
+ *
+ * Note that when one request forwards to another request, the context may be 
+ * transferred along with it. Thus, sometimes a context will span multiple 
+ * defined requests (though this will always be in the handling of one 
+ * client serving operation -- i.e., it will only span one HTTP request, even if
+ * multiple Fortissimo requests are fired.)
+ *
  * @package Fortissimo
  * @subpackage Core
  * @see Fortissimo
@@ -1733,6 +1753,7 @@ class FortissimoExecutionContext implements IteratorAggregate {
   
   protected $data = NULL;
   protected $logger = NULL;
+  protected $datasources = NULL;
   /** Command cache. */
   protected $cache = array();
   protected $caching = FALSE;
@@ -1744,8 +1765,10 @@ class FortissimoExecutionContext implements IteratorAggregate {
    *  An associative array of context pairs.
    * @param FortissimoLoggerManager $logger
    *  The logger.
+   * @param FortissimoDatasourceManager $datasources
+   *  The manager for all datasources declared for this request.
    */
-  public function __construct($initialContext = array(), FortissimoLoggerManager $logger = NULL ) {
+  public function __construct($initialContext = array(), FortissimoLoggerManager $logger = NULL, FortissimoDatasourceManager $datasources = NULL ) {
     if ($initialContext instanceof FortissimoExecutionContext) {
       $this->data = $initialContext->toArray();
     }
@@ -1753,9 +1776,9 @@ class FortissimoExecutionContext implements IteratorAggregate {
       $this->data = $initialContext;
     }
     
-    if (isset($logger)) {
-      $this->logger = $logger;
-    }
+    // Store logger and datasources managers if they are set.
+    if (isset($logger)) $this->logger = $logger;
+    if (isset($datasources)) $this->datasources = $datasources;
   }
   
   /**
@@ -1776,6 +1799,28 @@ class FortissimoExecutionContext implements IteratorAggregate {
     if (isset($this->logger)) {
       $this->logger->log($msg, $category);
     }
+  }
+  
+  /**
+   * Retrieve a named datasource.
+   *
+   * If no name is passed, this will try to retrieve the default datasource.
+   *
+   * @param string $name
+   *  The name of the datasource to retrieve. If no name is given, the default
+   *  datasource will be used.
+   * @return FortissimoDatasource
+   *  The requested datasource, or NULL if none is found.
+   */
+  public function datasource($name = NULL) {
+    return $this->datasources->datasource($name);
+  }
+  
+  /**
+   * Convenience function for {@link datasource()}.
+   */
+  public function ds($name = NULL) {
+    return $this->datasource($name);
   }
   
   /**
@@ -2040,6 +2085,7 @@ class FortissimoCacheManager {
 class FortissimoDatasourceManager {
   
   protected $datasources = NULL;
+  protected $initMap = array();
   
   /**
    * Build a new datasource manager.
@@ -2067,10 +2113,11 @@ class FortissimoDatasourceManager {
   /**
    * Scan the datasources and return the first one marked default.
    *
+   * Note that this does not make sure that datasources have been initialized.
    * @return FortissimoDatasource
    *  An initialized FortissimoDatasource, or NULL if no default is found.
    */
-  public function getDefaultDatasource() {
+  protected function getDefaultDatasource() {
     foreach ($this->datasources as $k => $o) if ($o->isDefault()) return $o;
   }
   
@@ -2086,12 +2133,51 @@ class FortissimoDatasourceManager {
    *  The datasource.
    */
   public function datasource($name = NULL) {
+    $ds = NULL;
     if (empty($name)) {
-      return $this->getDefaultDatasource();
+      $ds = $this->getDefaultDatasource();
     }
-    return $this->getDatasourceByName($name);
+    else {
+      $ds = $this->getDatasourceByName($name);
+    }
+    
+    // We initialize lazily so that datasources do not
+    // have resources allocated until necessary.
+    if (!empty($ds) && !isset($this->initMap[$name])) {
+      $ds->init();
+      $this->initMap[$name] = TRUE;
+    }
+    
   }
   
+  /**
+   * Initialize all datasources managed by this manager instance.
+   *
+   * By default, datasource initialization is delayed as long as possible so that
+   * resources are not allocated needlessly. On some occasions, you may want to
+   * initialize all of the datasources at once. Use this function to do so.
+   *
+   * Keep in mind that if there are a lot of datasources, this may consume many 
+   * system resources.
+   */
+  public function initializeAllDatasources() {
+    foreach ($this->datasources as $name => $ds) {
+      if (!isset($this->initMap[$name])) {
+        $ds->init();
+        $this->initMap[$name] = TRUE;
+      }
+    }
+  }
+  
+  /**
+   * Get all datasources.
+   * 
+   * This does not initialize resources automatically. If you need all datasources
+   * to be initialized first, call initializeAllDatasources() before calling this.
+   *
+   * @return array
+   *  Returns an associative array of datasource name=>object pairs.
+   */
   public function datasources() {
     return $this->datasources;
   }
