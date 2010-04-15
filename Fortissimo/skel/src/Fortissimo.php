@@ -1936,6 +1936,24 @@ class FortissimoExecutionContext implements IteratorAggregate {
   public function getLoggerManager() {
     return $this->logger;
   }
+  
+  /**
+   * Get the datasource manager.
+   *
+   * The datasource manager is manages all of the datasources defined in 
+   * this Fortissimo instance (typically defined in commands.xml).
+   *
+   * Often, you will want to get datasources with the {@link datasource()} function
+   * defined in this class. Sometimes, though, you may need more control over 
+   * the datasource. This method provides direct access to the manager, which 
+   * will give you a higher degree of control.
+   *
+   * @return FortissimoDatasourceManager
+   *  An initialized datasource manager.
+   */
+  public function getDatasourceManager() {
+    
+  }
 }
 
 /**
