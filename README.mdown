@@ -22,17 +22,32 @@ package. For now, though, it must be installed manually.
 
 ### Prerequisites ###
 
-Install Phing, PHPDocumentor, and PHPUnit. All three of these are PEAR packages.
+Install Phing, PHPDocumentor, and PHPUnit. For template support, install Twig. All of these are PEAR packages.
 
 * [Phing](http://phing.info)
 * [PHPDocumentor](http://phpdoc.org)
 * [PHPUnit](http://phpunit.de)
+* [Twig Template engine](http://www.twig-project.org)
 
-Phing is absolutely required. The other two are good to have, but are not strictly
-necessary. They may become required later.
+Phing is absolutely required. PhpDocumentor and PHPUnit are good to have, but are not strictly necessary. They may become required later.
 
-When you *deploy* a Fortissimo application, *none* of these are required. Fortissimo
-is self-contained.
+Twig is a template engine, and the FortissimoTemplate command requires Twig. See 
+the next section for more.
+
+When you *deploy* a Fortissimo application, only Twig is required (and it is only required if you are using Fortissimo's built-in template support). Thus, on a production environment, you will probably only need Twig.
+
+### Installing Twig ###
+
+[Twig](http://www.twig-project.org) is a template engine for PHP, and is similar to Django's template engine, as well as the Java Velocity engine. However, it adds many speed, internationalization, and security features, which makes it a better alternative for Fortissimo than plain PHP templates.
+
+To install Twig, you should run the following commands:
+
+  $ pear channel-discover pear.twig-project.org
+  $ pear install twig/Twig
+  
+(At the time of this writing, one must install twig/Twig-beta, as it has not yet reached its final release.)
+  
+If you do not have PEAR, you can find alternate installation instructions [in the Twig documentation](http://www.twig-project.org/installation). Make sure that Twig is in the PHP library path, though, if you installed manually.
 
 ### Installing Fortissimo ###
 

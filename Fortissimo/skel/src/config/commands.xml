@@ -23,7 +23,7 @@
   name.
   
   -->
-  <datasource name="db" invoke="FortissimoMongoDB">
+  <datasource name="db" invoke="FortissimoMongoDatasource">
     <param name="server">mongodb://localhost:27017</param>
     <param name="defaultDB">%%PROJECT%%</param>
     
