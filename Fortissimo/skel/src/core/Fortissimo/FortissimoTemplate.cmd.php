@@ -20,6 +20,12 @@ require_once 'Twig/Autoloader.php';
  * The command accepts a large number of parameters, most of which are passed
  * directly to the Twig template engine. You may find it useful to 
  * browse the Twig documentation (http://www.twig-project.org).
+ *
+ * <b>Why not send data directly to the client?</b>
+ * This command returns a string instead of writing directly to the client. It
+ * does this for one very important reason: It makes it possible for other 
+ * commands to intercept the output and manipulate it before passing it on.
+ * This is highly desirable when apps need to cache output.
  * 
  * @see http://www.twig-project.org
  */
@@ -28,22 +34,32 @@ class FortissimoTemplate extends BaseFortissimoCommand {
   public function expects() {
     return $this
     ->description('Renders variables into a Twig template.')
+    
     ->usesParam('variables', 'Variables to be passed to the template. These should be an associative array or a FortissimoExecutionContext (i.e. a context).')
+    
     ->usesParam('template', 'The template to use. This name is appended to the template directory (if supplied) and then loaded from the file system.')
     ->withFilter('string')
     ->whichIsRequired()
+    
     ->usesParam('templateDir', 'The main directory for templates. Paths to templates are created by adding base path to (optional) template dir, and then appending the template. No leading or trailing slashes! To search multiple directories, separate the directories by a comma, and order from most to least important.')
     ->withFilter('string')
+    
     ->usesParam('templateCache', 'The location for cached compiled templates. Must be writable by application.')
+    
     ->usesParam('disableCache', 'If this is true, the template cache will be disabled.')
     ->withFilter('boolean')
+    
     ->usesParam('debug', 'A flag indicating whether debugging output should be enabled.')
     ->withFilter('boolean')
+    
     ->usesParam('trim_blocks', 'Mimicks the behavior of PHP by removing the newline that follows instructions if present (default to false).')
     ->withFilter('boolean')
+    
     ->usesParam('base_template_class', 'Base class for templates (Default: Twig_Template)')
+    
     ->usesParam('charset', 'Character set to use. Default: utf-8')
     ->withFilter('string')
+    
     ->usesParam('auto_reload', 'If this is true, templates will be automatically rebuilt each time the source code is updated.')
     ->withFilter('boolean')
     
