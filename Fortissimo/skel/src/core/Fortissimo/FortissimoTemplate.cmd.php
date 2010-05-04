@@ -71,7 +71,7 @@ class FortissimoTemplate extends BaseFortissimoCommand {
     
     $baseDir = $this->param('templateDir', '');
     $template = $this->param('template');
-    $variables = $this->param('variables');
+    $variables = $this->param('variables', $this->context);
     $cache = $this->param('templateCache', './cache');
     
     if (!is_array($variables)) {
@@ -79,7 +79,7 @@ class FortissimoTemplate extends BaseFortissimoCommand {
         $variables = $variables->toArray();
       }
       else {
-        throw new FortissimoInterruptException('Variable data was not passed to the command.')
+        throw new FortissimoInterruptException('Variable data was not passed to the command.');
       }
     }
     
@@ -129,10 +129,9 @@ class FortissimoTemplate extends BaseFortissimoCommand {
 
     $loader = new Twig_Loader_Filesystem($templateDir);
     $twig = new Twig_Environment($loader, $twigConfig);
+    $tpl = $twig->loadTemplate($template);
     
-    $twig->loadTemplate($template);
-    
-    return $twig->render($variables);
+    return $tpl->render($variables);
     
   }
 }

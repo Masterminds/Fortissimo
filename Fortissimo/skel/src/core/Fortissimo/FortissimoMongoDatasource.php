@@ -47,7 +47,7 @@ class FortissimoMongoDatasource extends FortissimoDatasource {
     
     $this->dbName = $this->params['defaultDB'];
     
-    $this->mongoInstance = new Mongo($this->dbName);
+    $this->mongoInstance = new Mongo($this->server);
     $this->mongoDB = $this->mongoInstance->selectDB($this->dbName);
   }
   

@@ -14,7 +14,8 @@ class FortissimoEcho extends BaseFortissimoCommand {
     return $this
       ->description('Echo the contents of the "text" parameter to standard output.')
       ->usesParam('text', 'The text to echo.')
-      ->withFilter('string');
+      //->withFilter('string')
+      ;
   }
   
   public function doCommand() {
