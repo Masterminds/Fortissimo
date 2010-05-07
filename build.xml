@@ -5,11 +5,11 @@
   default="main"
 >
 <!--
-This is the Phing build file for QueryPath.
+This is the Phing build file for Fortissimo.
 
 Phing is a build tool. Learn more about it at http://phing.info.
 
-Copyright (c) 2009, Matt Butcher, some rights reserved.
+Copyright (c) 2010, Matt Butcher, some rights reserved.
 -->
 
   <!-- Global properties -->
