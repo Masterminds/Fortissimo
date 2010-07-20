@@ -2286,8 +2286,13 @@ class FortissimoLoggerManager {
    *  Your application may use whatever values are
    *  fit. However, underlying loggers may interpret
    *  these differently. 
+   * @param string $details
+   *   Additional information. When $msg is an exception,
+   *   this will automatically be populated with stack trace 
+   *   information UNLESS explicit string information is passed
+   *   here.
    */
-  public function log($msg, $category) {
+  public function log($msg, $category, $details = '') {
     foreach ($this->loggers as $name => $logger) {
       $logger->rawLog($msg, $category);
     }
@@ -2312,16 +2317,16 @@ class FortissimoOutputInjectionLogger extends FortissimoLogger {
     $this->isHTML = isset($this->params['html']) ? filter_var($this->params['html'], FILTER_VALIDATE_BOOLEAN) : FALSE;
     $this->filter = empty($this->params['html']) ? '%s %s %s' : '<div class="log-item %s"><strong>%s</strong> %s</div>';
   }
-  public function log($message, $category) {
+  public function log($message, $category, $details) {
     
     if ($this->isHTML) {
       $severity = strtr($category, ' ', '-');
       $message = strtr($message, array("\n" => '<br/>'));
-      $filter = '<div class="log-item %s"><strong>%s</strong> %s</div>';
-      printf($filter, $severity, $category, $message);
+      $filter = '<div class="log-item %s"><strong>%s</strong> %s <pre class="log-details">%s</pre></div>';
+      printf($filter, $severity, $category, $message, $details);
     }
     else {
-      printf('%s: %s', $category, $message);
+      printf('%s: %s -- %s', $category, $message, $details);
     }
   }
 }
@@ -2341,7 +2346,7 @@ class FortissimoArrayInjectionLogger extends FortissimoLogger {
   protected $filter;
   
   public function init() {
-    $this->filter = empty($this->params['html']) ? '%s: %s' : '<div class="log-item %s">%s</div>';
+    $this->filter = empty($this->params['html']) ? '%s: %s' : '<div class="log-item %s">%s<pre class="log-details">%s</pre></div>';
   }
   
   public function getMessages() {
@@ -2352,9 +2357,9 @@ class FortissimoArrayInjectionLogger extends FortissimoLogger {
     print implode('', $this->logItems);
   }
   
-  public function log($message, $category) {
+  public function log($message, $category, $details) {
     $severity = str_replace(' ', '-', $category);
-    $this->logItems[] = sprintf($this->filter, $severity, $message);
+    $this->logItems[] = sprintf($this->filter, $severity, $message, $details);
   }
 }
 
@@ -2363,7 +2368,7 @@ class FortissimoArrayInjectionLogger extends FortissimoLogger {
  * @see FortissimoArrayInjectionLogger
  */
 class SimpleArrayInjectionLogger extends FortissimoArrayInjectionLogger {
-  public function log($message, $category) {
+  public function log($message, $category, $details) {
     $severity = str_replace(' ', '-', $category);
     $filter = '<div class="log-item %s"><strong>%s</strong> %s</div>';
     switch ($category) {
@@ -2383,7 +2388,7 @@ class SimpleArrayInjectionLogger extends FortissimoArrayInjectionLogger {
  */
 class SimpleOutputInjectionLogger extends FortissimoOutputInjectionLogger {
   
-  public function log($message, $category) {
+  public function log($message, $category, $details) {
     $severity = strtr($category, ' ', '-');
     $filter = '<div class="log-item %s"><strong>%s</strong> %s</div>';
     switch ($category) {
@@ -2578,12 +2583,20 @@ abstract class FortissimoLogger {
    *  before handing it off to the {@link log()} function.
    * @param string $category
    *  This message is passed on to the logger.
+   * @param string $details
+   *  A detail for the given message. If $message is an Exception, then 
+   *  details will be automatically filled with stack trace information.
    */
-  public function rawLog($message, $category = 'General Error') {
+  public function rawLog($message, $category = 'General Error', $details = '') {
     if ($message instanceof Exception) {
-      $buffer = get_class($message) . PHP_EOL;
-      $buffer .= $message->getMessage() . PHP_EOL;
-      $buffer .= $message->getTraceAsString();
+      $buffer = $message->getMessage();
+      
+      if (empty($details)) {
+        $details = get_class($message) . PHP_EOL;
+        $details .= $message->getMessage() . PHP_EOL;
+        $details .= $message->getTraceAsString();
+      }
+      
     }
     elseif (is_object($message)) {
       $buffer = $mesage->toString();
@@ -2591,7 +2604,7 @@ abstract class FortissimoLogger {
     else {
       $buffer = $message;
     }
-    $this->log($buffer, $category);
+    $this->log($buffer, $category, $details);
     return;
   }
   
@@ -2614,8 +2627,10 @@ abstract class FortissimoLogger {
    *  - error
    *  - info
    *  - debug
+   * @param string $details
+   *  Further text information about the logged event.
    */
-  public abstract function log($msg, $severity);
+  public abstract function log($msg, $severity, $details);
   
 }
 

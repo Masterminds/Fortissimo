@@ -267,4 +267,32 @@ class FortissimoFileLoader extends BaseFortissimoCommand {
     return 'An unknown error occured while processing the file.';
   }
   
+  
+  /**
+   * Utility function to get the original file name.
+   * This is useful for error reporting.
+   *
+   * @param string $filename
+   *  The name of the current filename.
+   * @return array
+   *  An array with the following keys:
+   *  - found: TRUE if the item was successfully located
+   *  - name: The name. If the lookup was unsuccessful, $filename is used.
+   *  - param: The name of the param used to upload. This can be useful for error reporting.
+   */
+  public static function originalName($filename) {
+    foreach ($_FILES as $param_name => $info) {
+      if ($info['name'] == $filename || $info['tmp_name'] == $filename) {
+        return array(
+          'param' => $param_name,
+          'name' => $info['name'],
+          'found' => TRUE,
+        );
+      }
+    }
+    return array(
+      'name' => $filename,
+      'found' => FALSE,
+    );
+  }
 }
