@@ -1,0 +1,54 @@
+# Command Examples
+
+This document provides a few examples of using and writing commands.
+
+## Uploading files
+
+Fortissimo comes with a built-in file loader.
+
+Consider some HTML that contains a form that posts a file:
+~~~
+<form method="post" action="upload-file" enctype="multipart/form-data">
+  <input type="file" name="some_file"/>
+  <input type="submit" value="Load file onto server"/>
+</form>
+~~~
+
+The above can be handled by this command configuration:
+
+~~~
+<request name="upload-file">
+  <cmd name="upload_file" invoke="FortissimoFileLoader">
+    <param name="inputName" from="file:some_file"/>
+    <param name="types">application/csv,text/csv</param>
+    <param name="extensions">csv,txt</param>
+    <param name="rewriteExtensions">txt</param>
+    <param name="rewriteExtensionRule">%s.csv</param>
+    <param name="moveTo">./files</param>
+  </cmd>
+  <!-- Do some other command using upload_file -->
+  <cmd name="reader" invoke="FictitiousFileReader">
+    <param name="filename" from="cxt:upload_file"/>  
+  </cmd>
+</request>
+~~~
+
+The FortissimoFileLoader will load the file onto the server and make it available for 
+other commands (via the context).
+
+Here's what's going on:
+
+- The `inputName` field is used to figure out what to upload. In this case, `file:some_file` 
+  basically equates to `$_FILES['some_file']`,
+- `types` is a list of MIME types that this will accept.
+- `extensions` is a list of extensions that this will accept.
+- `rewriteExtensions` is a list of extensions that will be rewritten before the file is moved
+  from a temp location to a permanent location. This is only necessary if `moveTo` is specified.
+- `rewriteExtensionRule` is a rule specifying how extensions will be rewritten. In the example above,
+  some file foo.txt would be rewritten to foo.txt.csv.
+- `moveTo` indicates what directory the uploaded file should be written to. It will be removed 
+  from the temporary location and written to the permanent directory specified in moveTo. If this
+  is omitted, the uploaded file will be kept in temp file space and deleted at the end of the 
+  request.
+
+This will put a filename into the context. So some subsequent command can use fopen, file_get_contents, etc. to access the file.

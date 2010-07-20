@@ -495,6 +495,7 @@ class Fortissimo {
    *  - session:last_page
    *  - cmd:lastCmd
    *  - env:cwd
+   *  - file:uploadedFile
    *  Known sources:
    *  - get
    *  - post
@@ -505,6 +506,7 @@ class Fortissimo {
    *  - server
    *  - request
    *  - argv (From $argv, assumes that the format of from is argv:N, where N is an integer)
+   *  - files
    * @param FortissimoExecutionContext $cxt
    *  The current working context. This is used to retrieve data from cmd: 
    *  sources.
@@ -548,6 +550,10 @@ class Fortissimo {
       case 'argv':
         $i = (int)$paramName;
         return isset($argv[$i]) ? $argv[$i] : NULL;
+      case 'f':
+      case 'file':
+      case 'files':
+        return isset($_FILES[$paramName]) ? $_FILES[$paramName] : NULL;
     }
   }
 }
