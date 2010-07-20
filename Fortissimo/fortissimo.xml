@@ -7,7 +7,7 @@
 <!--
 This is the master fortissimo builder.
 
-Copyright (c) 2009, Matt Butcher, some rights reserved.
+Copyright (c) 2009, 2010, Matt Butcher, some rights reserved.
 -->
 
   <property name="project" value="FORTISSIMO"/>
@@ -87,7 +87,13 @@ Copyright (c) 2009, Matt Butcher, some rights reserved.
     <move file="${basepath}/${project}/src/_htaccess" 
       toFile="${basepath}/${project}/src/.htaccess" overwrite="false"/>
     <!-- Safely copy commands.xml -->
-    <move file="${basepath}/${project}/src/config/commands-update.xml"
-      toFile="${basepath}/${project}/src/config/commands.xml" overwrite="false"/>
+    <available file="${basepath}/${project}/src/config/commands.xml" property="commands_exists"/>
+    <if>
+      <isfalse value="commands_exists"/>
+      <then>
+        <move file="${basepath}/${project}/src/config/commands-update.xml"
+          toFile="${basepath}/${project}/src/config/commands.xml" overwrite="false"/>
+      </then>
+    </if>
   </target>
 </project>

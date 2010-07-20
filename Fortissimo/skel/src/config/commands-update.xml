@@ -69,7 +69,7 @@
       <param name="disableCache">FALSE</param>
       
       <!--
-      <param name="disableCache">FALSE</param>
+      <param name="disableCache">TRUE</param>
       <param name="debug">FALSE</param>
       <param name="trimBlocks">FALSE</param>
       <param name="auto_reload">FALSE</param>
@@ -83,17 +83,16 @@
   </request>
   
   <!-- This is an example that would map to 
-  http://example.com/this_app/item or http://example.com/this_app.php?c=item
+  http://example.com/this_app/item or http://example.com/this_app.php?ff=item
   
   <request name="item">
-    <cmd name="echo" invoke="FFEchoCommand">
+    <cmd name="echo" invoke="FortissimoEchoCommand">
       <param name="message">Test</param>
     </cmd>
-    <cmd name="dump" invoke="FFVarDumper">
-      <param name="variable" from="cmd:echo"/>
+    <cmd name="dump" invoke="FortissimoContextDump">
+      <param name="item" from="cmd:echo"/>
     </cmd>
   </request>
-  
   -->
   
   <!-- Logs directly into STDOUT (the browser, the console). -->

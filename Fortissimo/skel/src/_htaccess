@@ -1,5 +1,5 @@
 # Configuration directives for Apache 2.
-<FilesMatch "\.(inc|sh|.*sql|)$">
+<FilesMatch "\.(inc|sh|.*sql|cache)$">
   Order allow,deny
 </FilesMatch>
 
@@ -15,12 +15,12 @@ DirectoryIndex index.php
   php_value mbstring.encoding_translation   0
 </IfModule>
 <IfModule mod_rewrite.c>
-  # Rewrite URLs of the form 'x' to the form 'index.php?q=x'.
+  # Rewrite URLs of the form 'x' to the form 'index.php?ff=x'.
   RewriteEngine on
   RewriteCond %{REQUEST_FILENAME} !-f
   RewriteCond %{REQUEST_FILENAME} !-d
   RewriteCond %{REQUEST_URI} !=/favicon.ico
-  RewriteRule ^(.*)$ index.php?q=$1 [L,QSA]
+  RewriteRule ^(.*)$ index.php?ff=$1 [L,QSA]
 </IfModule>
 
 # Based on the .htaccess file from Drupal 6.

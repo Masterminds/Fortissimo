@@ -1337,9 +1337,9 @@ abstract class BaseFortissimoCommand implements FortissimoCommand, Explainable {
    * public function expects() {
    *  return $this
    *   ->description('This command sends a name to an email address.')
-   *   ->param('name', 'The name to echo back')
+   *   ->usesParam('name', 'The name to echo back')
    *    ->withFilter('string')
-   *   ->param('email', 'An email address to echo data to.')
+   *   ->usesParam('email', 'An email address to echo data to.')
    *    ->withFilter('email')
    *    ->withFilter('validate_email')
    *   ->andReturns('A copy of the sent message.');
