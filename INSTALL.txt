@@ -1,17 +1,32 @@
 This is the Fortissimo Framework developers package.
 
+## Install Tools
+
 To build this package, you will need the following tools:
 
 - PHPDocumentor (For documentation)
 - PHPUnit (For unit testing)
 - Phing (For build management)
+- Twig (For templates)
 
-To create a new project:
-========================
+All four of those can be installed from `pear`.
+
+  $ pear install phpDocumentor
+  $ pear channel-discover pear.phpunit.de
+  $ pear channel-discover pear.symfony-project.com
+  $ pear install phpunit/PHPUnit
+  $ pear channel-discover pear.twig-project.org
+  $ pear install twig/Twig
+  $ pear channel-discover pear.phing.info
+  $ pear install phing/phing
+  
+See the bin/install.sh script.
+
+## To create a new project:
 
 1. Run the fff command
 
-$ ./fff.php MyProject
+  $ ./fff.php MyProject
 
 This will create the directory MyProject, initialized and ready for you 
 to begin development.
@@ -29,8 +44,10 @@ available to you. phing provides build management for Fortissimo in much
 the same way that rake provides this for Rails and ant provides this for
 Java.
 
-To build Fortissimo Framework
-=============================
+(Read on at Fortissimo/skel/doc/QUICKSTART.mdown. This is also available
+at MyProject/doc/QUICKSTART.mdown)
+
+# To build Fortissimo Framework
 
 These instructions are for developers who are actively working on 
 Fortissimo itself.
@@ -40,3 +57,7 @@ Fortissimo itself.
   
 2. If you are using TextMate, you can use the TextMate Fortissimo
   bundle to run various Phing tasks.
+  
+# Where To Go From Here
+
+Start by reading Fortissimo/skel/doc/QUICKSTART.mdown

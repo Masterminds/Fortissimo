@@ -10,26 +10,26 @@ software developers quickly build websites that will scale.
 
 A Fortissimo application has the following directory structure:
 
-PROJECT
- |
- |- build: Destination for Phing build commands
- |- doc: Destination for documentation
- |  |- Fortissimo: Documentation (included) about Fortissimo
- |     |- api: Complete API reference for Fortissimo.
- |
- |- test: Destination for PHPUnit unit tests
- |- src
-    |- build.xml: The Phing make file
-    |- config : All configuration files
-    |   |- commands.xml: The Fortissimo command configuration file
-    |
-    |- core: Core files. DO NOT EDIT
-    |   |- Fortissimo: Fortissimo library. Built-in commands live here.
-    |   |- QueryPath: QueryPath library.
-    |
-    |- includes: Destination for application-specific code
-    |- index.php: Bootstrap script
-    |- .htaccess: Apache configuration directives.
+  PROJECT
+   |
+   |- build: Destination for Phing build commands
+   |- doc: Destination for documentation
+   |  |- Fortissimo: Documentation (included) about Fortissimo
+   |     |- api: Complete API reference for Fortissimo.
+   |
+   |- test: Destination for PHPUnit unit tests
+   |- src
+      |- build.xml: The Phing make file
+      |- config : All configuration files
+      |   |- commands.xml: The Fortissimo command configuration file
+      |
+      |- core: Core files. DO NOT EDIT
+      |   |- Fortissimo: Fortissimo library. Built-in commands live here.
+      |   |- QueryPath: QueryPath library.
+      |
+      |- includes: Destination for application-specific code
+      |- index.php: Bootstrap script
+      |- .htaccess: Apache configuration directives.
 
 The primary configuration system for Fortissimo is the commands.xml file.
 
@@ -40,7 +40,8 @@ you may need to add paths in the commands.xml file using the <include/> tag.
 Core files, which should *never* be altered, can be found in src/core. These files
 are part of the Fortissimo framework, and will be overwritten during a framework
 upgrade. The main server, Fortissimo.php, is typically compressed. It, too, should
-not be altered.
+not be altered. (If you need to modify a file in src/core, just copy it to src/include
+and do your modification there. The autoloader will load yours first.)
 
 Typically, a Fortissimo application is constructed by creating custom commands, 
 each of which performs a single task, and then chaining the commands together using

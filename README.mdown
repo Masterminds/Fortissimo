@@ -36,6 +36,8 @@ the next section for more.
 
 When you *deploy* a Fortissimo application, only Twig is required (and it is only required if you are using Fortissimo's built-in template support). Thus, on a production environment, you will probably only need Twig.
 
+You can install all of these using the bin/install.sh script that comes with Fortissimo. You may need to be root or use 'sudo' on some systems.
+
 ### Installing Twig ###
 
 [Twig](http://www.twig-project.org) is a template engine for PHP, and is similar to Django's template engine, as well as the Java Velocity engine. However, it adds many speed, internationalization, and security features, which makes it a better alternative for Fortissimo than plain PHP templates.
@@ -89,7 +91,14 @@ and execute the following:
     $ phing doc
 
 This will generate robust HTML-formatted API documentation, which will be available in 
-`doc/api/`. 
+`doc/api/`.
+
+### Getting Started ###
+
+Get started here: Fortissimo/skel/doc/QUICKSTART.mdown
+
+If you have already created a project, the above will be available in your project's
+doc/ directory.
 
 ## ABOUT THE LICENSE ##
 Fortissimo is licensed under the MIT license. The version of QueryPath that is

@@ -1,0 +1,216 @@
+# Fortissimo Quickstart
+
+This short document describes how to quickly create a Fortissimo application.
+
+## Install Fortissimo
+
+See the main installation documents or visit http://github.com/technosophos/Fortissimo.
+
+## Run the Generator
+
+Run the Fortissimo generator to create a new application.
+
+  $ Fortissimo/fff.php MyProject
+  
+This will create a new project directory called MyProject. Inside of that project
+you will have the Fortissimo runtime and all of the tools you need to build a 
+new Fortissimo app.
+
+## Configure Your Webserver
+
+Make sure that your webserver can see the src directory of your project. Often this can be
+accomplished with something like this command:
+
+  $ ln -s MyProject/src /var/www/html/MyProject
+
+On a Mac, you can very easily make this visible on your local host by linking to your Sites
+directory:
+
+  $ ln -s MyProject/src ~/Sites/MyProject
+  
+This will allow you to access it via the URL: http://localhost/~yourusername/MyProject
+
+## Create a Command
+
+Create a new Fortissimo command by adding a new file in the `src/includes`
+directory.
+
+### A Hello World Command
+
+Here is a simple Hello World command, stored in `src/includes/HelloWorld.cmd.php`:
+
+  class HelloWorld extends BaseFortissimoCommand {
+    
+    public function expects() {
+      return $this->description('A simple hello world script.');
+    }
+    
+    public function doCommand() {
+      print '<h1>Hello World</h1>';
+    }
+  }
+
+This is a simple command that prints `Hello World` to the client. Typically, a 
+command extends `BaseFortissimoCommand` and implements the two required methods:
+
+ * expects(): This is a documentation function, and is absolutely required. The 
+   example above is the bare minimum allowed by Fortissimo. It teaches Fortissimo
+   about your app, and also provides developer documentation.
+ * doCommand(): This method is the workhorse. It handles all of the command processing.
+   If it returns a value, the value will be placed into the application's context, which 
+   means other commands can access and use that value.
+   
+Now that we have a command, we can map it to a request.
+   
+## Creating a Request
+ 
+Clients (browsers) make requests. We map a request to a chain of commands. The process looks something like this:
+
+  browser -> 
+            request->
+                     command1
+                        |
+                     command2
+                        |
+                   <-command3
+          <-request
+  browser          
+
+In the above, the request runs three commands before returning to the client. We'll look at 
+a much simpler example here. In this example, we will create a simple request that has 
+only one command.
+
+We will use the HelloWorld command we created above.
+
+The commands.xml file is located in `src/config/commands.xml`. Edit this file.
+
+To create a new request, we add a simple section to the XML:
+
+  <request name="hello">
+    <cmd name="helloworld" invoke="HelloWorld"/>
+  </request>
+
+This tells Fortissimo that when a browser requests `http://yoursite.com/hello` (or `http://yoursite.com/index.php?ff=hello`) then it should execute the `helloworld` command. This
+is accomplished by Fortissimo invoking `HelloWorld`. Essentially, what that means is that it
+will call `HelloWorld::doCommand()`. Using our stick diagram, then, this looks like this:
+
+  browser -> 
+            hello->
+                  <-helloworld (HelloWorld::doCommand())
+          <-hello
+  browser
+
+We can easily add lots of commands to a single request. In fact, we could very easily modify the 
+above to emit 'Hello World' twice:
+
+  <request name="hello">
+    <cmd name="helloworld" invoke="HelloWorld"/>
+    <cmd name="helloworld2" invoke="HelloWorld"/>
+  </request>
+  
+All we did is copy the command again, changing the name of the second one to 'helloworld2'. It must
+have a different name because Fortissimo uses names to keep track of what commands are executed 
+inside of a request.
+
+Again with the stick diagram:
+
+  browser -> 
+            hello->
+                   helloworld (HelloWorld::doCommand())
+                       |
+                 <-helloworld2 (HelloWorld::doCommand())
+          <-hello
+  browser
+
+Fortissimo's hello request executes two commands (helloworld and helloworld2) and then returns.
+
+### Using the Built-in Echo Command
+
+We could have done the entire Hello World script with even less work. We could have just used
+the `FortissimoEcho` command (located in `src/core/Fortissimo/FortissimoEcho.cmd.php`):
+
+  <request name="hello">
+    <cmd name="helloworld" invoke="HelloWorld"/>
+    <cmd name="more" invoke="FortissimoEcho">
+      <param name="text">Hello Again</param>
+    </cmd>
+  </request>
+
+The above request will print output something like this:
+
+  <h1>Hello World</h1>
+  Hello Again
+  
+The first line comes from our HelloWorld class, and the second from the FortissimoEcho class,
+which provides a great example of how to write Fortissimo commands. Here's the source:
+
+  class FortissimoEcho extends BaseFortissimoCommand {
+
+    public function expects() {
+      return $this
+        ->description('Echo the contents of the "text" parameter to standard output.')
+        ->usesParam('text', 'The text to echo.')
+        ;
+    }
+
+    public function doCommand() {
+      print $this->param('text');
+    }
+  }
+  
+This class implements the same two functions, expects() and doCommand(). But it uses a parameter,
+so it is slightly more complicated.
+
+In the expects() function, it declares its parameter with `->usesParam()`. This tells Fortissimo
+what the name of the parameter is, and provides a one-sentence description for humans. (Run 
+`phing explain` to see the documentation).
+
+The `doCommand()` function accesses that parameter (`#this->param()`), and prints it to the output.
+
+Note that no escaping or filtering is done on the text. We could very simply filter the text 
+parameter to allow only plain text:
+
+  class FortissimoEcho extends BaseFortissimoCommand {
+
+    public function expects() {
+      return $this
+        ->description('Echo the contents of the "text" parameter to standard output.')
+        ->usesParam('text', 'The text to echo.')
+        ->withFilter('string')
+        ;
+    }
+
+    public function doCommand() {
+      print $this->param('text');
+    }
+  }
+
+The `->withFilter()` function says that the text param should be filtered using the 'string' filter.
+This takes advantage of PHP's built-in filtering system, and you can read more about it in the 
+API documentation. But in a nutshell, it will strip markup and non-printing characters out of the
+`text` before `doCommand()` executes.
+
+Filters, then, are a good way of adding some security to your application.
+
+## Moving On
+
+So far, you have seen some light coding samples. Here are some good next steps:
+
+  * Look at the built-in commands provided with Fortissimo. FortissimoContextDump is a good
+    example of a simple command. FortissimoFileLoader is a good example of a complex command.
+  * Read the API docs. In particular, look at BaseFortissimoCommand. That's the class that gets
+    it done for you.
+  * Use Phing (http://phing.info) to find out what you can do. Try 'phing -l' from inside of the
+    project's main directory. It reads the build.xml file and displays useful information.
+  * Look at the Twig template engine (http://www.twig-project.org). This is the template engine
+    for Fortissimo, and it is pretty darn cool. You can use the `FortissimoTemplate` command
+    to run Twig.
+
+### Databases and Stuff
+
+Most applications uses databases or data storage of one type or another. Fortissimo uses a concept
+of Datasources to handle this sort of thing. And the default datasource provided by Fortissimo
+is a Mongo database. To learn more about this, see `FortissimoMongoDatasource.php`.
+
+You can, of course, use any existing database library. If you write a MySQL datasource 
+implementation, I'd love to hear about it. It'd make a great contribution to Fortissimo.
