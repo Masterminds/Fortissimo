@@ -100,8 +100,18 @@ set_include_path($path);
 
 // Prepare the autoloader.
 spl_autoload_extensions('.php,.cmd.php,.inc');
+
+
 // For performance, use the default loader.
-spl_autoload_register();
+// XXX: This does not work well because the default autoloader 
+// downcases all classnames before checking the FS. Thus, FooBar 
+// becomes foobar.
+//spl_autoload_register();
+
+// Keep this in global scope to allow modifications.
+$loader = new FortissimoAutoloader();
+spl_autoload_register(array($loader, 'load'));
+
 
 /**
  * QueryPath is a core Fortissimo utility.
@@ -109,6 +119,93 @@ spl_autoload_register();
  */ 
 require_once('QueryPath/QueryPath.php');
 // ^^ This is explicitly loaded because of the factory function.
+
+/**
+ * A broad autoloader that should load data from expected places.
+ *
+ * This autoloader is designed to load classes within the includes, core, and phar
+ * directories inside of Fortissimo. Its include path can be augmented using the 
+ * {@link addIncludePaths()} member function. Internally, {@link Fortissimo} does this
+ * as it is parsing the commands.xml file (See {@link Fortissimo::addIncludePaths}).
+ *
+ * This loader does the following:
+ *  - Uses the class name for the base file name.
+ *  - Checks in includes/, core/, and phar/ for the named file
+ *  - Tests using three different extensions: .php. .cmd.php, and .inc
+ * 
+ * So to load class Foo_Bar, it will check the following (in order):
+ *  - includes/Foo_Bar.php
+ *  - includes/Foo_Bar.cmd.php
+ *  - includes/Foo_Bar.inc
+ *  - core/Foo_Bar.php
+ *  - core/Foo_Bar.cmd.php
+ *  - core/Foo_Bar.inc
+ *  - core/Fortissimo/Foo_Bar.php
+ *  - core/Fortissimo/Foo_Bar.cmd.php
+ *  - core/Fortissimo/Foo_Bar.inc
+ *  - phar/Foo_Bar.php
+ *  - phar/Foo_Bar.cmd.php
+ *  - phar/Foo_Bar.inc
+ *
+ * Then it will search any other included paths using the same 
+ * algorithm as exhibited above. (We search includes/ first because 
+ * that is where implementors are supposed to put their classes! That means
+ * that with a little trickery, you can override Fortissimo base commands simply
+ * by putting your own copy in includes/)
+ *
+ * <b>Note that phar is experimental, and may be removed in future releases.</b>
+ */
+class FortissimoAutoloader {
+  
+  protected $extensions = array('.php', '.cmd.php', '.inc');
+  protected $include_paths = array();
+  
+  public function __construct() {
+    //$full_path = get_include_path();
+    //$include_paths = explode(PATH_SEPARATOR, $full_path);
+    $basePath = dirname(__FILE__); 
+    $this->include_paths[] = $basePath . '/includes';
+    $this->include_paths[] = $basePath . '/core';
+    $this->include_paths[] = $basePath . '/core/Fortissimo';
+    $this->include_paths[] = $basePath . '/phar';
+  }
+  
+  /**
+   * Add an array of paths to the include path used by the autoloader.
+   *
+   * @param array $paths 
+   *  Indexed array of paths.
+   */
+  public function addIncludePaths($paths) {
+    $this->include_paths = array_merge($this->include_paths, $paths);
+  }
+  
+  /**
+   * Attempt to load the file containing the given class.
+   *
+   * @param string $class
+   *  The name of the class to load.
+   * @see spl_autoload_register()
+   */
+  public function load($class) {
+    
+    // Micro-optimization for Twig, which supplies
+    // its own classloader.
+    if (strpos($class, 'Twig_') === 0) return;
+    
+    foreach ($this->include_paths as $dir) {
+      $path = $dir . DIRECTORY_SEPARATOR . $class;
+      foreach ($this->extensions as $ext) {
+        if (file_exists($path . $ext)) {
+          //print 'Found ' . $path . $ext . '<br/>';
+          require $path . $ext;
+          return;
+        }
+      }
+    }
+  }
+  
+}
  
 /**
  * The Fortissimo front controller.
@@ -207,6 +304,9 @@ class Fortissimo {
    * @see get_include_path()
    */
   public function addIncludePaths($paths) {
+    global $loader;
+    $loader->addIncludePaths($paths);
+    
     array_unshift($paths, get_include_path());
     
     $path = implode(PATH_SEPARATOR, $paths);

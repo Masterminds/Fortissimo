@@ -19,8 +19,32 @@ elseif ($argv[1] == '--help') {
   exit(0);
 }
 
+// Try to find the commands file:
+
+$cwd = getcwd();
+$bases = array(
+  $cwd,
+  $cwd . '/src',
+  $cwd . '../src',
+);
+
+$config = NULL;
+foreach ($bases as $base) {
+  if (is_file($base . '/config/commands.xml')) {
+    $practicalBase = $base;
+    $config = $base . '/config/commands.xml';
+    break;
+  }
+}
+
+if (empty($config)) {
+  print 'No configuration file found. Quitting.' . PHP_EOL;
+  exit(1);
+}
+
 /*
  * Build a new Fortissimo server and execute the command. 
  */
-$ff = new Fortissimo();
+
+$ff = new Fortissimo($config);
 $ff->handleRequest($argc[1]);
