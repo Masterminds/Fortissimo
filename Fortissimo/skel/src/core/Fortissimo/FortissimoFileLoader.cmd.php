@@ -1,6 +1,8 @@
 <?php
 /**
  * This command provides support for loading a file from the $_FILES array.
+ * @package Fortissimo
+ * @subpackage Command
  */
 
 /**

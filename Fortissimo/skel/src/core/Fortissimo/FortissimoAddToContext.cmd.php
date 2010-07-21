@@ -2,6 +2,8 @@
 /**
  * Command to add arbitrary parameters to the {@link FortissimoExecutionContext}
  * of the current request.
+ * @package Fortissimo
+ * @subpackage Command
  */
 
 /**
