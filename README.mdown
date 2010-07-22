@@ -79,7 +79,7 @@ default request.
 Your project will contain its own documentation in MyProject/doc
 
 Projects are also self-documenting (assuming you write commands using 
-BaseFortissimoCommand). You can run `phing explain` in your project's root, and 
+`BaseFortissimoCommand`). You can run `phing explain` in your project's root, and 
 documentation on all requests (and their commands) will be automatically generated
 and displayed.
 
@@ -95,7 +95,7 @@ This will generate robust HTML-formatted API documentation, which will be availa
 
 ### Getting Started ###
 
-Get started here: Fortissimo/skel/doc/QUICKSTART.mdown
+Get started here: Fortissimo/skel/doc/QUICKSTART.mdown or [online](http://github.com/technosophos/Fortissimo/blob/master/Fortissimo/skel/doc/QUICKSTART.mdown)
 
 If you have already created a project, the above will be available in your project's
 doc/ directory.
