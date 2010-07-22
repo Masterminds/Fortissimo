@@ -63,7 +63,7 @@
     </cmd>
     
     <cmd name="tpl" invoke="FortissimoTemplate">
-      <param name="template">example.tpl.html</param>
+      <param name="template">example.twig</param>
       <param name="templateDir">theme/vanilla</param>
       <param name="templateCache">./cache</param>
       <param name="disableCache">FALSE</param>
