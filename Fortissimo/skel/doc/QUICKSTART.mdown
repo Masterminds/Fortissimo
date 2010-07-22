@@ -4,7 +4,7 @@ This short document describes how to quickly create a Fortissimo application.
 
 ## Install Fortissimo
 
-See the main installation documents or visit http://github.com/technosophos/Fortissimo.
+See the main installation documents or visit [the home page](http://github.com/technosophos/Fortissimo).
 
 ## Run the Generator
 
@@ -28,7 +28,7 @@ directory:
 
     $ ln -s MyProject/src ~/Sites/MyProject
   
-This will allow you to access it via the URL: http://localhost/~yourusername/MyProject
+This will allow you to access it via the URL: `http://localhost/~yourusername/MyProject`
 
 ## Create a Command
 
@@ -196,13 +196,15 @@ Filters, then, are a good way of adding some security to your application.
 
 So far, you have seen some light coding samples. Here are some good next steps:
 
-  * Look at the built-in commands provided with Fortissimo. FortissimoContextDump is a good
-    example of a simple command. FortissimoFileLoader is a good example of a complex command.
+  * Look at the [built-in commands](http://github.com/technosophos/Fortissimo/tree/master/Fortissimo/skel/src/core/Fortissimo/) provided with Fortissimo. 
+    * `FortissimoContextDump` is a good example of a simple command. 
+    * `FortissimoPHPInfo` shows some other good techniques, and is also very simple.
+    * `FortissimoFileLoader` is a good example of a complex command.
   * Read the API docs. In particular, look at BaseFortissimoCommand. That's the class that gets
     it done for you.
-  * Use (Phing)[http://phing.info] to find out what you can do. Try 'phing -l' from inside of the
+  * Use [Phing](http://phing.info) to find out what you can do. Try `phing -l` from inside of the
     project's main directory. It reads the build.xml file and displays useful information.
-  * Look at the (Twig template engine)[http://www.twig-project.org]. This is the template engine
+  * Look at the [Twig template engine](http://www.twig-project.org). This is the template engine
     for Fortissimo, and it is pretty darn cool. You can use the `FortissimoTemplate` command
     to run Twig.
 
