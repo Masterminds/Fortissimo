@@ -1,8 +1,17 @@
 <?php
 /**
  * Provides PHP info.
+ * @package Fortissimo
+ * @subpackage Command
  */
 
+/**
+ * A simple command for printing PHP information.
+ *
+ * This command provides a quick way of outputting {@link phpinfo()} information.
+ * @package Fortissimo
+ * @subpackage Command
+ */
 class FortissimoPHPInfo extends BaseFortissimoCommand {
   
   public function expects() {
@@ -21,6 +30,16 @@ class FortissimoPHPInfo extends BaseFortissimoCommand {
     phpinfo($category);
   }
   
+  /**
+   * Get the category ID, given a string name.
+   *
+   * @param string $category
+   *  The name of the category. One of general, credits, configuration, modules, 
+   *  environment, variables, license, or all.
+   * @return int
+   *  The associated code, defaulting to -1 (INFO_ALL).
+   * @see phpinfo()
+   */
   protected function getCategoryCode($category) {
     switch($category) {
       case 'general':
