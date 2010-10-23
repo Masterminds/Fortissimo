@@ -19,10 +19,12 @@ class FortissimoPHPInfo extends BaseFortissimoCommand {
       ->description('Provides debugging information about PHP.')
       ->usesParam('category', 'One of: general, credits, configuration, modules, environment, variables, license, or all.')
       ->withFilter('string')
+      // Can't use as a validator because it may return a legitimate 0.
+      //->withFilter('callback', array($this, 'getCategoryCode'))
       ->whichHasDefault('all')
       ->andReturns('Nothing. Prints data straight to output.');
   }
-  
+    
   public function doCommand() {
     $categoryName = $this->param('category');
     $category = $this->getCategoryCode($categoryName);
