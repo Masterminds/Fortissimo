@@ -1592,7 +1592,11 @@ class FortissimoConfig {
    * @see FortissimoLogger
    */
   public function getLoggers() {
-    return $this->getFacility('logger');
+    $loggers = $this->getFacility('logger');
+    
+    foreach ($loggers as $logger) $logger->init();
+    
+    return $loggers;
   }
   
   /**
@@ -1608,7 +1612,9 @@ class FortissimoConfig {
    * @see FortissimoRequestCache
    */
   public function getCaches() {
-    return $this->getFacility('cache');
+    $caches = $this->getFacility('cache');
+    foreach ($caches as $cache) $cache->init();
+    return $caches;
   }
   
   public function getDatasources() {
@@ -1633,7 +1639,7 @@ class FortissimoConfig {
       $params = $this->getParams($facility);
       
       $facility = new $klass($params);
-      $facility->init();
+      //$facility->init();
       
       $facilities[$name] = $facility;
     }
