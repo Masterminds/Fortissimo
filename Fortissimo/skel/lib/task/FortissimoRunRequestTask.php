@@ -16,7 +16,8 @@ class FortissimoRunRequestTask extends Task {
   public function init() {}
   
   public function main() {
-    $conf = qp('src/config/commands.xml');
+    chdir('./src'); // Change so that include path mirrors index.php'sx
+    $conf = qp('config/commands.xml');
     $ff = new Fortissimo($conf);
     $ff->handleRequest($this->requestName);
   }
