@@ -109,6 +109,7 @@ spl_autoload_extensions('.php,.cmd.php,.inc');
 //spl_autoload_register();
 
 // Keep this in global scope to allow modifications.
+global $loader;
 $loader = new FortissimoAutoloader();
 spl_autoload_register(array($loader, 'load'));
 
