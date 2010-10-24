@@ -87,13 +87,18 @@ Copyright (c) 2009, 2010, Matt Butcher, some rights reserved.
     <move file="${basepath}/${project}/src/_htaccess" 
       toFile="${basepath}/${project}/src/.htaccess" overwrite="false"/>
     <!-- Safely copy commands.xml -->
-    <available file="${basepath}/${project}/src/config/commands.xml" property="commands_exists"/>
+    <property name="commands_exists" value="false"/>
+    <available file="${basepath}/${project}/src/config/commands.xml" property="commands_exists" value="true"/>
     <if>
-      <isfalse value="commands_exists"/>
+      <isfalse value="${commands_exists}"/>
       <then>
+        <echo>Copying configuration file.</echo>
         <move file="${basepath}/${project}/src/config/commands-update.xml"
           toFile="${basepath}/${project}/src/config/commands.xml" overwrite="false"/>
       </then>
+      <else>
+        <echo>${basepath}/${project}/src/config/commands.xml exists.</echo>
+      </else>
     </if>
   </target>
 </project>
