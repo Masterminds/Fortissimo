@@ -39,23 +39,22 @@ fff MyProjectName
   GLOBAL PROPERTIES
   =============================================================================
   -->
-  <property name="project" value="%%PROJECT%%"/>
-  <property name="srcdir" value="./src"/>
-  <property name="testdir" value="./test"/>
-  <property name="builddir" value="./bin/build"/>
-  <property name="docsdir" value="./docs"/>
-  <property name="packagedir" value="./dist"/>
+  <property name="project" value="${phing.project.name}"/>
+  <property name="srcdir" value="${project.basedir}/src"/>
+  <property name="testdir" value="${project.basedir}/test"/>
+  <property name="builddir" value="${project.basedir}/bin/build"/>
+  <property name="docsdir" value="${project.basedir}/doc"/>
+  <property name="packagedir" value="${project.basedir}/dist"/>
   <property name="appdir" value="{$srcdir}/includes"/>
-  
-  <property name="o" value="default"/>
 
   <!--
   =============================================================================
   FORTISSIMO TASKS
   =============================================================================
   -->
-  <taskdef classname="lib.task.FortissimoExplainTask" name="fortissimoexplain"/>
-  <taskdef classname="lib.task.FortissimoRunRequestTask" name="fortissimorequest"/>
+  <includepath classpath="${project.basedir}/lib"/>
+  <taskdef classname="task.FortissimoExplainTask" name="fortissimoexplain"/>
+  <taskdef classname="task.FortissimoRunRequestTask" name="fortissimorequest"/>
 
   <!--
   =============================================================================
@@ -94,6 +93,7 @@ fff MyProjectName
     <fortissimoexplain/>
   </target>
   <target name="run" description="Run the default request">
+    <property name="o" value="default"/>
     <fortissimorequest request="${o}"/>
   </target>
   <target name="lint" description="Check syntax of source.">
