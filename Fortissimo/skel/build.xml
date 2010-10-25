@@ -47,7 +47,7 @@ fff MyProjectName
   <property name="packagedir" value="./dist"/>
   <property name="appdir" value="{$srcdir}/includes"/>
   
-  <property name="request" value="default"/>
+  <property name="o" value="default"/>
 
   <!--
   =============================================================================
@@ -94,7 +94,7 @@ fff MyProjectName
     <fortissimoexplain/>
   </target>
   <target name="run" description="Run the default request">
-    <fortissimorequest request="${request}"/>
+    <fortissimorequest request="${o}"/>
   </target>
   <target name="lint" description="Check syntax of source.">
     <phplint>
