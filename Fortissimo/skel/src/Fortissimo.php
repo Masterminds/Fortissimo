@@ -1247,8 +1247,8 @@ abstract class BaseFortissimoCommand implements FortissimoCommand, Explainable {
    * @see validate()
    */
   public function handleIllegalParameter($name, $filter, $payload, $options) {
-    $msg = "Filter %s failed for %s";
-    throw new FortissimoException(sprintf($msg, $filter, $name));
+    $msg = "Filter %s failed for %s (options: %s)";
+    throw new FortissimoException(sprintf($msg, $filter, $name, print_r($options, TRUE)));
   }
   
   /**
@@ -1439,7 +1439,8 @@ abstract class BaseFortissimoCommand implements FortissimoCommand, Explainable {
    * expedites the development of a Fortissimo application.
    *
    * An implementation of this function should look something like this:
-   * <code>
+   *
+   * @code
    * <?php
    * public function expects() {
    *  return $this
@@ -1452,12 +1453,18 @@ abstract class BaseFortissimoCommand implements FortissimoCommand, Explainable {
    *   ->andReturns('A copy of the sent message.');
    * }
    * ?>
-   * </code>
+   * @endcode
+   *
+   * For good examples of expects(), see the following classes:
+   *
+   *  - FortissimoEcho: Basic example
+   *  - FortissimoRedirect: Example using filters and regular expressions
+   *  - FortissimoTemplate: Sophisticated example with lots of parameters
    *
    * The above describes a command that expects two parameters: name and email.
    * The name command is validated with the string sanitizer, which makes sure
    * that the string doesn't have markup in it.
-   * The email command is first santized against the email sanitizer, then it
+   * The email command is first sanitized against the email sanitizer, then it
    * is checked against the email validator to make sure that it is a legitimate
    * email address.
    *
