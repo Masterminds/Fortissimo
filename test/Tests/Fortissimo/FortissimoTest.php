@@ -85,11 +85,14 @@ class FortissimoTest extends PHPUnit_Framework_TestCase {
     
   public function testRequestCache() {
     
-    // First, test to make sure values can be read from cache.
-    $config = qp(self::config);
-    // Add cache to config:
-    $config->append('<cache name="foo" invoke="MockAlwaysReturnFooCache"/>');
-    $ff = new FortissimoHarness($config);
+    // Munge the config.
+    include self::config;
+    $config = Config::getConfiguration();
+    $config[Config::CACHES]['foo']['class'] = 'MockAlwaysReturnFooCache';
+    Config::initialize($config);
+    
+    $ff = new FortissimoHarness();
+    
     ob_start();
     $ff->handleRequest('testRequestCache1');
     $res = ob_get_contents();
@@ -97,11 +100,13 @@ class FortissimoTest extends PHPUnit_Framework_TestCase {
     
     $this->assertEquals('foo', $res);
     
+    unset($config[Config::CACHES]['foo']);
+    
     // Second, test to see if values can be written to cache.
-    $config = qp(self::config);
-    // Add cache to config:
-    $config->append('<cache name="foo" invoke="MockAlwaysSetValueCache"/>');
-    $ff = new FortissimoHarness($config);
+    $config[Config::CACHES]['foo']['class'] = 'MockAlwaysSetValueCache';
+    Config::initialize($config);
+    
+    $ff = new FortissimoHarness();
     
     ob_start();
     $ff->handleRequest('testRequestCache2');
@@ -163,7 +168,10 @@ class MockAlwaysSetValueCache implements FortissimoRequestCache {
   public $cache = array();
   public function init(){}
   public function set($k, $v) {$this->cache[$k] = $v;}
-  public function get($key) {return $this->cache[$key];}
+  public function get($key) {
+    // Avoid E_STRICT warnings.
+    return isset($this->cache[$key]) ? $this->cache[$key] : NULL;
+  }
   public function delete($key) {}
   public function clear() {}
 }

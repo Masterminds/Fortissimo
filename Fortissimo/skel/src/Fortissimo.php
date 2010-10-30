@@ -1716,7 +1716,7 @@ class FortissimoConfig {
     }
     
     $isCaching = isset($request['#caching']) && filter_var($request['#caching'], FILTER_VALIDATE_BOOLEAN);
-    $isExplaining = isset($request['#caching']) && filter_var($request['#explaining'], FILTER_VALIDATE_BOOLEAN);
+    $isExplaining = isset($request['#explaining']) && filter_var($request['#explaining'], FILTER_VALIDATE_BOOLEAN);
     
     unset($request['#caching'], $request['#explaining']);
     
