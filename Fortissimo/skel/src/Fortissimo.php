@@ -1526,7 +1526,6 @@ class FortissimoConfig {
   public function __construct($configurationFile = NULL) {
     
     if (is_string($configurationFile)) {
-      // XXX: Should this be include_once?
       include $configurationFile;
     }
     
@@ -1545,12 +1544,6 @@ class FortissimoConfig {
    *  (commands.xml).
    */
   public function getIncludePaths() {
-    // $includes = $this->config->branch(':root>include');
-    //     $array = array();
-    //     foreach ($includes as $i) {
-    //       $array[] = $i->attr('path');
-    //     }
-    //     return $array;
     return $this->config[Config::PATHS];
   }
   
@@ -1564,7 +1557,6 @@ class FortissimoConfig {
     if (!self::isLegalRequestName($requestName))  {
       throw new FortissimoException('Illegal request name.');
     }
-    //return $this->config->top()->find('request[name="' . $requestName . '"]')->size() > 0;
     return isset($this->config[Config::REQUESTS][$requestName]);
   }
   
@@ -1642,19 +1634,6 @@ class FortissimoConfig {
       $params = isset($facility['params']) ? $this->getParams($facility['params']) : array();
       $facilities[$name] = new $klass($params);
     }
-    /*
-    $fqp = $this->config->branch()->top($type);
-    foreach ($fqp as $facility) {
-      $name = $facility->attr('name');
-      $klass = $facility->attr('invoke');
-      $params = $this->getParams($facility);
-      
-      $facility = new $klass($params);
-      //$facility->init();
-      
-      $facilities[$name] = $facility;
-    }
-    */
     return $facilities;
   }
   
@@ -1673,14 +1652,6 @@ class FortissimoConfig {
     foreach ($params as $name => $values) {
       $res[$name] = $values['value'];
     }
-    /*
-    $params = $facility->find('param');
-    if ($params->size() > 0) {
-      foreach ($params as $item) {
-        $res[$item->attr('name')] = $item->text();
-      }
-    }
-    */
     return $res;
   }
   
@@ -1725,25 +1696,6 @@ class FortissimoConfig {
     foreach ($request as $cmd => $cmdConfig) {
       $commands[] = $this->createCommandInstance($cmd, $cmdConfig);
     }
-    
-    /*
-    $chain = $request->branch()->children('cmd');
-    if ($chain->size() > 0) {
-      foreach ($chain as $cmd) {
-        if ($cmd->hasAttr('group')) {
-          $gr = $cmd->attr('group');
-          if (!self::isLegalRequestName($gr)) {
-            throw new FortissimoRequestNotFoundException('Illegal group name.');
-          }
-          // Handle group importing.
-          $this->importGroup($gr, $commands);
-        }
-        else {
-          $commands[] = $this->createCommandInstance($cmd);
-        }
-      }
-    }
-    */
     
     $request = new FortissimoRequest($requestName, $commands);
     $request->setCaching($isCaching);
@@ -1800,7 +1752,6 @@ class FortissimoConfig {
    *  The configuration information
    */
   public function getConfig() {
-    //return $this->config->top();
     return $this->config;
   }
 
@@ -3190,10 +3141,4 @@ class Config {
     return $this;
     
   }
-}
-
-class FortissimoConfiguration {
-  
-  //public static function 
-  
 }
