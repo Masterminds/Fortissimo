@@ -1527,6 +1527,8 @@ class FortissimoConfig {
   /**
    * Construct a new configuration object.
    *
+   * This loads a PHP file containing a configuration
+   *
    * @param mixed $commandsXMLFile
    *  A pointer to configuration information. Typically, this is a filename. 
    *  However, it may be any object that {@link qp()} can process.
@@ -2876,4 +2878,327 @@ class FortissimoForwardRequest extends FortissimoInterrupt {
   public function context() {
     return $this->cxt;
   }
+}
+
+/**
+ * This class is used for building configurations.
+ *
+ * 
+ * Typical usage looks something like this:
+ *
+ * @code
+ * <?php
+ * Config::request('foo')
+ *  ->doesCommand('command1')
+ *  ->whichInvokes('MyCommandClass')
+ *    ->withParam('arg1')
+ *    ->whoseValueIs('Some default value')
+ *  ->doesCommand('command2')
+ *  ->whichInvokes('SomeOtherCommandClass')
+ *    ->withParam('anArgument')
+ *    ->from('get:q') // <-- Use $_GET['q']
+ * ?>
+ * @endcode
+ *
+ * This class is used to add requests, loggers, datasources, and cache handlers to 
+ * a Fortissimo application. Typically, it is used in commands.php.
+ *
+ * - Config::request(): Add a new request with a chain of commands.
+ * - Config::includePath(): Add a new path that will be used by the autoloader.
+ * - Config::group(): Add a new group that can be referenced from within a request.
+ * - Config::datasource(): Add a new datasource, such as a database or document store.
+ * - Config::logger(): Add a new logging facility.
+ * - Config::cache(): Add a new cache.
+ *
+ * In Fortissimo, the data that Config creates may be used only at the beginning of a 
+ * request. Be careful of race conditions or other anomalies that might occur if you 
+ * attempt to use Config after Fortissimo has been bootstrapped.
+ */
+class Config {
+  
+  private static $instance = NULL;
+  
+  private $config = NULL;
+  private $currentCategory = NULL;
+  private $currentRequest = NULL;
+  private $currentName = NULL;
+  
+  const REQUESTS = 'requests';
+  const GROUPS = 'groups';
+  const PATHS = 'paths';
+  const DATASOURCES = 'datasources';
+  const CACHES = 'caches';
+  const LOGGERS = 'loggers';
+  
+  public static function request($name, $description = '') {
+    return self::set(self::REQUESTS, $name);
+  }
+  /**
+   * Add an include path.
+   *
+   * This will be added to the class loader's registry.
+   *
+   * @param string $path
+   *  The string path to add.
+   * @return Config
+   *  This object.
+   */
+  public static function includePath($path) {
+    $i = self::inst();
+    $i->config[self::PATHS][] = $path;
+    $i->currentCategory = self::PATHS;
+    $i->currentName = NULL;
+    return $i;
+  }
+  /**
+   * Declare a new group of commands.
+   *
+   * Entire groups of commands can be added to a request.
+   *
+   * @code
+   * <?php
+   * Config::group('myGroup')
+   *  ->doesCommand('a')->whichInvokes('MyA')
+   * ;
+   *
+   * Config::request('myRequest')
+   *  ->doesCommand('b')->whichInvokes('MyB')
+   *  ->usesGroup('myGroup')
+   * ;
+   * ?>
+   * @endcode
+   *
+   * The above is equivalent to declaring a request with two commands ('a' and 'b').
+   * You can re-use a group in multiple request, but you cannot use the same group
+   * multiple times in the same request.
+   *
+   * @param string $name
+   *  The name of the group.
+   */
+  public static function group($name) {
+    return self::set(self::GROUPS, $name);
+  }
+  
+  /**
+   * Declare a new datasource.
+   *
+   * @param string $name
+   *  The name of the datasource to add. The name can be referenced by other parts
+   *  of the application.
+   * @return Config
+   *  This object.
+   */
+  public static function datasource($name) {
+    return self::set(self::DATASOURCES, $name);
+  }
+  /**
+   * Declare a new logger.
+   *
+   * Fortissimo can use numerous loggers. You can declare
+   * one or more loggers in your configuration.
+   *
+   * @param string $name
+   *  The name of the logger. This is for other parts of the application
+   *  to reference.
+   * @return Config
+   *  The object.
+   */
+  public static function logger($name) {
+    return self::set(self::LOGGERS, $name);
+  }
+  /**
+   * Declare a new cache.
+   *
+   * @param string $name
+   *  The name of the cache. Caches can be referenced by name in other parts of
+   *  the application.
+   * @return Config
+   *  The object.
+   */
+  public static function cache($name) {
+    return self::set(self::CACHES, $name);
+  }
+  
+  private static function set($cat, $name) {
+    $i = self::inst();
+    $i->currentCategory = $cat;
+    $i->currentName = $name;
+    $i->config[$cat][$name] = array();
+    return $i;
+  }
+
+  /**
+   * Create a new configuration from the given array.
+   *
+   * EXPERTS: This provides a mechanism for passing in an array instead
+   * of executing a fluent chain. It overwrites the current configuration,
+   * and so should be used with extreme caution.
+   *
+   * @param array $config
+   *  A complete configuration array.
+   * @return Config
+   *  This object.
+   */
+  public static function initialize(array $config) {
+    $i = self::inst();
+    $i->config = $config;
+    return $i;
+  }
+  
+  /**
+   * Get the complete configuration array.
+   *
+   * This returns a datastructure that represents the configuration for the system.
+   *
+   * @return array
+   *  The configuration.
+   */
+  public static function getConfiguration() {
+    return self::inst()->config;
+  }
+  
+  /**
+   * Get an instance of the configuration Config object.
+   *
+   * This controls access to the singleton.
+   *
+   * @return Config
+   *  An instance of the Config object.
+   */
+  private static function inst() {
+    if (empty(self::$instance)) {
+      self::$instance = new Config();
+    }
+    return self::$instance;
+  }
+  
+  /**
+   * Config is a singleton.
+   */
+  private function __construct() {
+    $this->config = array(
+      self::REQUESTS => array(),
+      self::LOGGERS => array(),
+      self::CACHES => array(),
+      self::PATHS => array(),
+      self::GROUPS => array(),
+      self::DATASOURCES => array(),
+    );
+  }
+  public function usesGroup($name) {
+    if ($this->currentCategory = self::REQUESTS) {
+      // In PHP, ths will copy the array. But any objects in the array
+      // will not be cloned. Don't know if that is a problem.
+      $group = $this->config[self::GROUPS][$name];
+      $cat = $this->currentCategory;
+      $name = $this->currentName;
+      $this->config[$cat][$name] += $group;
+      /*
+      foreach ($group as $command => $desc) {
+        $this->config[$cat][$name][$command] = $desc;
+      }
+      */
+    }
+    return $this;
+  }
+  public function doesCommand($name) {
+    $this->commandName = $name;
+    $this->config[$this->currentCategory][$this->currentName][$this->commandName] = array();
+    return $this;
+  }
+  public function whichInvokes($className) {
+    switch ($this->currentCategory) {
+      case self::LOGGERS:
+      case self::CACHES:
+      case self::DATASOURCES:
+        $this->config[$this->currentCategory][$this->currentName]['class'] = $className;
+        break;
+      case self::REQUESTS:
+      case self::GROUPS:
+        $this->config[$this->currentCategory][$this->currentName][$this->commandName]['class'] = $className;
+        break;
+      default:
+        $msg = 'Tried to add a class to ' . $this->currentCategory;
+        throw new FortissimoConfigurationException($msg);
+    }
+    return $this;
+  }
+  /**
+   * Set a parameter for a class.
+   */
+  public function withParam($param) {
+    $this->currentParam = $param;
+    $cat = $this->currentCategory;
+    $name = $this->currentName;
+    switch ($this->currentCategory) {
+      case self::LOGGERS:
+      case self::CACHES:
+      case self::DATASOURCES:
+        $this->config[$cat][$name]['params'][$param] = NULL;
+        break;
+      case self::REQUESTS:
+      case self::GROUPS:
+        $this->config[$cat][$name][$this->commandName]['params'][$param] = NULL;
+        break;
+      default:
+        $msg = 'Tried to add a param to ' . $this->currentCategory;
+        throw new FortissimoConfigurationException($msg);
+    }
+    return $this;
+  }
+  /**
+   * Sets a default value for a param.
+   */
+  public function whoseValueIs($value) {
+    $param = $this->currentParam;
+    $cat = $this->currentCategory;
+    $name = $this->currentName;
+    switch ($this->currentCategory) {
+      case self::LOGGERS:
+      case self::CACHES:
+      case self::DATASOURCES:
+        $this->config[$cat][$name]['params'][$param]['value'] = $value;
+        break;
+      case self::REQUESTS:
+      case self::GROUPS:
+        $this->config[$cat][$name][$this->commandName]['params'][$param]['value'] = $value;
+        break;
+      default:
+        $msg = 'Tried to add a param value to ' . $this->currentCategory;
+        throw new FortissimoConfigurationException($msg);
+    }
+    return $this;
+  }
+  /**
+   * Indicates where Fortissimo should retrieve this param's value from.
+   *
+   * @param string $source
+   *  A string indicating where Fortissimo should look for parameter values.
+   */
+  public function from($source) {
+    $param = $this->currentParam;
+    $cat = $this->currentCategory;
+    $name = $this->currentName;
+    switch ($this->currentCategory) {
+      case self::LOGGERS:
+      case self::CACHES:
+      case self::DATASOURCES:
+        $this->config[$cat][$name]['params'][$param]['from'] = $source;
+        break;
+      case self::REQUESTS:
+      case self::GROUPS:
+        $this->config[$cat][$name][$this->commandName]['params'][$param]['from'] = $source;
+        break;
+      default:
+        $msg = 'Tried to add a param value to ' . $this->currentCategory;
+        throw new FortissimoConfigurationException($msg);
+    }
+    return $this;
+  }
+}
+
+class FortissimoConfiguration {
+  
+  //public static function 
+  
 }

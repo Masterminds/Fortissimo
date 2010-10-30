@@ -137,8 +137,8 @@ class FortissimoTest extends PHPUnit_Framework_TestCase {
     
     $this->assertTrue(in_array('test/Tests/Fortissimo/Stubs', $paths));
     
-    $class = new LoaderStub();
-    $this->assertTrue($class->isLoaded(), 'Verify that classes are autoloaded.');
+    //$class = new LoaderStub();
+    //$this->assertTrue($class->isLoaded(), 'Verify that classes are autoloaded.');
   }
 
 }

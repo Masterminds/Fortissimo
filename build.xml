@@ -13,11 +13,11 @@ Copyright (c) 2010, Matt Butcher, some rights reserved.
 -->
 
   <!-- Global properties -->
-  <property name="srcdir" value="./Fortissimo"/>
-  <property name="testdir" value="./test"/>
-  <property name="builddir" value="./bin/build"/>
-  <property name="docsdir" value="./doc/api"/>
-  <property name="packagedir" value="./dist"/>
+  <property name="srcdir" value="${project.basedir}/Fortissimo"/>
+  <property name="testdir" value="${project.basedir}/test"/>
+  <property name="builddir" value="${project.basedir}/bin/build"/>
+  <property name="docsdir" value="${project.basedir}/doc/api"/>
+  <property name="packagedir" value="${project.basedir}/dist"/>
 
   <!-- Files that must be included in the release -->
   <fileset id="licensefiles" dir=".">
@@ -85,15 +85,15 @@ Copyright (c) 2010, Matt Butcher, some rights reserved.
   <target name="tmtest" description="Run test, optimized for TextMate output.">
     <!-- Fast test. -->
     <phpunit>
-      <formatter todir="test/reports" type="xml" usefile="yes"/>
+      <formatter todir="${project.basedir}/test/reports" type="xml" usefile="yes"/>
       <batchtest>
         <fileset refid="unittests"/>
       </batchtest>
     </phpunit>
      <phpunitreport 
-        infile="test/reports/testsuites.xml" 
+        infile="${project.basedir}/test/reports/testsuites.xml" 
         format="noframes" 
-        todir="test/reports/html" 
+        todir="${project.basedir}/test/reports/html" 
         />
   </target>
   

@@ -1,45 +1,56 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <testsuites>
-  <testsuite name="BaseFortissimoCommandTest" file="/Users/mbutcher/Code/Fortissimo/test/Tests/Fortissimo/BaseFortissimoCommandTest.php" tests="2" assertions="13" failures="0" errors="0" time="0.051100">
-    <testcase name="testExpects" class="BaseFortissimoCommandTest" file="/Users/mbutcher/Code/Fortissimo/test/Tests/Fortissimo/BaseFortissimoCommandTest.php" line="12" assertions="12" time="0.002743"/>
-    <testcase name="testDoRequest" class="BaseFortissimoCommandTest" file="/Users/mbutcher/Code/Fortissimo/test/Tests/Fortissimo/BaseFortissimoCommandTest.php" line="51" assertions="1" time="0.048357"/>
-  </testsuite>
-  <testsuite name="FortissimoConfigTest" file="/Users/mbutcher/Code/Fortissimo/test/Tests/Fortissimo/FortissimoConfigTest.php" tests="6" assertions="28" failures="0" errors="0" time="0.024544">
-    <testcase name="testConstructor" class="FortissimoConfigTest" file="/Users/mbutcher/Code/Fortissimo/test/Tests/Fortissimo/FortissimoConfigTest.php" line="13" assertions="1" time="0.001533"/>
-    <testcase name="testConstructorParseError" class="FortissimoConfigTest" file="/Users/mbutcher/Code/Fortissimo/test/Tests/Fortissimo/FortissimoConfigTest.php" line="23" assertions="1" time="0.001580"/>
-    <testcase name="testGetConfig" class="FortissimoConfigTest" file="/Users/mbutcher/Code/Fortissimo/test/Tests/Fortissimo/FortissimoConfigTest.php" line="27" assertions="2" time="0.001464"/>
-    <testcase name="testIsLegalRequestName" class="FortissimoConfigTest" file="/Users/mbutcher/Code/Fortissimo/test/Tests/Fortissimo/FortissimoConfigTest.php" line="34" assertions="21" time="0.001462"/>
-    <testcase name="testHasRequest" class="FortissimoConfigTest" file="/Users/mbutcher/Code/Fortissimo/test/Tests/Fortissimo/FortissimoConfigTest.php" line="47" assertions="1" time="0.003660"/>
-    <testcase name="testGetRequest" class="FortissimoConfigTest" file="/Users/mbutcher/Code/Fortissimo/test/Tests/Fortissimo/FortissimoConfigTest.php" line="54" assertions="2" time="0.014845"/>
-  </testsuite>
-  <testsuite name="FortissimoContextDumpTest" file="/Users/mbutcher/Code/Fortissimo/test/Tests/Fortissimo/FortissimoContextDumpTest.php" tests="1" assertions="2" failures="0" errors="0" time="0.016557">
-    <testcase name="testDoCommand" class="FortissimoContextDumpTest" file="/Users/mbutcher/Code/Fortissimo/test/Tests/Fortissimo/FortissimoContextDumpTest.php" line="16" assertions="2" time="0.016557"/>
-  </testsuite>
-  <testsuite name="FortissimoEchoTest" file="/Users/mbutcher/Code/Fortissimo/test/Tests/Fortissimo/FortissimoEchoTest.php" tests="1" assertions="1" failures="0" errors="0" time="0.006221">
-    <testcase name="testDoCommand" class="FortissimoEchoTest" file="/Users/mbutcher/Code/Fortissimo/test/Tests/Fortissimo/FortissimoEchoTest.php" line="17" assertions="1" time="0.006221"/>
-  </testsuite>
-  <testsuite name="FortissimoExceptionsTest" file="/Users/mbutcher/Code/Fortissimo/test/Tests/Fortissimo/FortissimoExceptionsTest.php" tests="2" assertions="2" failures="0" errors="0" time="0.011467">
-    <testcase name="testException" class="FortissimoExceptionsTest" file="/Users/mbutcher/Code/Fortissimo/test/Tests/Fortissimo/FortissimoExceptionsTest.php" line="20" assertions="1" time="0.005856"/>
-    <testcase name="testErrorToException" class="FortissimoExceptionsTest" file="/Users/mbutcher/Code/Fortissimo/test/Tests/Fortissimo/FortissimoExceptionsTest.php" line="29" assertions="1" time="0.005611"/>
-  </testsuite>
-  <testsuite name="FortissimoExecutionContextTest" file="/Users/mbutcher/Code/Fortissimo/test/Tests/Fortissimo/FortissimoExecutionContextTest.php" tests="9" assertions="25" failures="0" errors="0" time="0.009594">
-    <testcase name="testConstructor" class="FortissimoExecutionContextTest" file="/Users/mbutcher/Code/Fortissimo/test/Tests/Fortissimo/FortissimoExecutionContextTest.php" line="11" assertions="2" time="0.001166"/>
-    <testcase name="testSize" class="FortissimoExecutionContextTest" file="/Users/mbutcher/Code/Fortissimo/test/Tests/Fortissimo/FortissimoExecutionContextTest.php" line="19" assertions="2" time="0.001087"/>
-    <testcase name="testHas" class="FortissimoExecutionContextTest" file="/Users/mbutcher/Code/Fortissimo/test/Tests/Fortissimo/FortissimoExecutionContextTest.php" line="29" assertions="2" time="0.000980"/>
-    <testcase name="testGet" class="FortissimoExecutionContextTest" file="/Users/mbutcher/Code/Fortissimo/test/Tests/Fortissimo/FortissimoExecutionContextTest.php" line="35" assertions="2" time="0.000970"/>
-    <testcase name="testAdd" class="FortissimoExecutionContextTest" file="/Users/mbutcher/Code/Fortissimo/test/Tests/Fortissimo/FortissimoExecutionContextTest.php" line="42" assertions="2" time="0.001072"/>
-    <testcase name="testRemove" class="FortissimoExecutionContextTest" file="/Users/mbutcher/Code/Fortissimo/test/Tests/Fortissimo/FortissimoExecutionContextTest.php" line="51" assertions="2" time="0.001123"/>
-    <testcase name="testToArray" class="FortissimoExecutionContextTest" file="/Users/mbutcher/Code/Fortissimo/test/Tests/Fortissimo/FortissimoExecutionContextTest.php" line="58" assertions="1" time="0.000988"/>
-    <testcase name="testFromArray" class="FortissimoExecutionContextTest" file="/Users/mbutcher/Code/Fortissimo/test/Tests/Fortissimo/FortissimoExecutionContextTest.php" line="64" assertions="3" time="0.001065"/>
-    <testcase name="testIterator" class="FortissimoExecutionContextTest" file="/Users/mbutcher/Code/Fortissimo/test/Tests/Fortissimo/FortissimoExecutionContextTest.php" line="73" assertions="9" time="0.001143"/>
-  </testsuite>
-  <testsuite name="FortissimoTest" file="/Users/mbutcher/Code/Fortissimo/test/Tests/Fortissimo/FortissimoTest.php" tests="7" assertions="23" failures="1" errors="0" time="0.075067">
-    <testcase name="testConstructor" class="FortissimoTest" file="/Users/mbutcher/Code/Fortissimo/test/Tests/Fortissimo/FortissimoTest.php" line="13" assertions="1" time="0.004433"/>
-    <testcase name="testFetchParams" class="FortissimoTest" file="/Users/mbutcher/Code/Fortissimo/test/Tests/Fortissimo/FortissimoTest.php" line="19" assertions="9" time="0.004815"/>
-    <testcase name="testHandleRequest" class="FortissimoTest" file="/Users/mbutcher/Code/Fortissimo/test/Tests/Fortissimo/FortissimoTest.php" line="57" assertions="3" time="0.013686"/>
-    <testcase name="testLogger" class="FortissimoTest" file="/Users/mbutcher/Code/Fortissimo/test/Tests/Fortissimo/FortissimoTest.php" line="73" assertions="3" time="0.004323"/>
-    <testcase name="testRequestCache" class="FortissimoTest" file="/Users/mbutcher/Code/Fortissimo/test/Tests/Fortissimo/FortissimoTest.php" line="82" assertions="3" time="0.016254">
-      <failure type="PHPUnit_Framework_ExpectationFailedException">FortissimoTest::testRequestCache
+  <testsuite name="Phing Batchtest" tests="36" assertions="113" failures="1" errors="0" time="0.052388">
+    <testsuite name="BaseFortissimoCommandTest" file="/Users/mbutcher/Code/Fortissimo/test/Tests/Fortissimo/BaseFortissimoCommandTest.php" tests="2" assertions="13" failures="0" errors="0" time="0.004719">
+      <testcase name="testExpects" class="BaseFortissimoCommandTest" file="/Users/mbutcher/Code/Fortissimo/test/Tests/Fortissimo/BaseFortissimoCommandTest.php" line="12" assertions="12" time="0.000769"/>
+      <testcase name="testDoRequest" class="BaseFortissimoCommandTest" file="/Users/mbutcher/Code/Fortissimo/test/Tests/Fortissimo/BaseFortissimoCommandTest.php" line="51" assertions="1" time="0.003950"/>
+    </testsuite>
+    <testsuite name="ConfigTest" file="/Users/mbutcher/Code/Fortissimo/test/Tests/Fortissimo/ConfigTest.php" tests="8" assertions="20" failures="0" errors="0" time="0.003405">
+      <testcase name="testGetConfiguration" class="ConfigTest" file="/Users/mbutcher/Code/Fortissimo/test/Tests/Fortissimo/ConfigTest.php" line="11" assertions="1" time="0.000375"/>
+      <testcase name="testIncludePath" class="ConfigTest" file="/Users/mbutcher/Code/Fortissimo/test/Tests/Fortissimo/ConfigTest.php" line="16" assertions="2" time="0.000398"/>
+      <testcase name="testRequest" class="ConfigTest" file="/Users/mbutcher/Code/Fortissimo/test/Tests/Fortissimo/ConfigTest.php" line="26" assertions="4" time="0.000429"/>
+      <testcase name="testGroup" class="ConfigTest" file="/Users/mbutcher/Code/Fortissimo/test/Tests/Fortissimo/ConfigTest.php" line="45" assertions="4" time="0.000410"/>
+      <testcase name="testGroupInRequest" class="ConfigTest" file="/Users/mbutcher/Code/Fortissimo/test/Tests/Fortissimo/ConfigTest.php" line="64" assertions="3" time="0.000412"/>
+      <testcase name="testDatasources" class="ConfigTest" file="/Users/mbutcher/Code/Fortissimo/test/Tests/Fortissimo/ConfigTest.php" line="80" assertions="4" time="0.000556"/>
+      <testcase name="testLoggers" class="ConfigTest" file="/Users/mbutcher/Code/Fortissimo/test/Tests/Fortissimo/ConfigTest.php" line="104" assertions="1" time="0.000431"/>
+      <testcase name="testCaches" class="ConfigTest" file="/Users/mbutcher/Code/Fortissimo/test/Tests/Fortissimo/ConfigTest.php" line="109" assertions="1" time="0.000395"/>
+    </testsuite>
+    <testsuite name="FortissimoConfigTest" file="/Users/mbutcher/Code/Fortissimo/test/Tests/Fortissimo/FortissimoConfigTest.php" tests="6" assertions="28" failures="0" errors="0" time="0.008262">
+      <testcase name="testConstructor" class="FortissimoConfigTest" file="/Users/mbutcher/Code/Fortissimo/test/Tests/Fortissimo/FortissimoConfigTest.php" line="13" assertions="1" time="0.000792"/>
+      <testcase name="testConstructorParseError" class="FortissimoConfigTest" file="/Users/mbutcher/Code/Fortissimo/test/Tests/Fortissimo/FortissimoConfigTest.php" line="23" assertions="1" time="0.000549"/>
+      <testcase name="testGetConfig" class="FortissimoConfigTest" file="/Users/mbutcher/Code/Fortissimo/test/Tests/Fortissimo/FortissimoConfigTest.php" line="27" assertions="2" time="0.000747"/>
+      <testcase name="testIsLegalRequestName" class="FortissimoConfigTest" file="/Users/mbutcher/Code/Fortissimo/test/Tests/Fortissimo/FortissimoConfigTest.php" line="34" assertions="21" time="0.000483"/>
+      <testcase name="testHasRequest" class="FortissimoConfigTest" file="/Users/mbutcher/Code/Fortissimo/test/Tests/Fortissimo/FortissimoConfigTest.php" line="47" assertions="1" time="0.001479"/>
+      <testcase name="testGetRequest" class="FortissimoConfigTest" file="/Users/mbutcher/Code/Fortissimo/test/Tests/Fortissimo/FortissimoConfigTest.php" line="54" assertions="2" time="0.004212"/>
+    </testsuite>
+    <testsuite name="FortissimoContextDumpTest" file="/Users/mbutcher/Code/Fortissimo/test/Tests/Fortissimo/FortissimoContextDumpTest.php" tests="1" assertions="2" failures="0" errors="0" time="0.002637">
+      <testcase name="testDoCommand" class="FortissimoContextDumpTest" file="/Users/mbutcher/Code/Fortissimo/test/Tests/Fortissimo/FortissimoContextDumpTest.php" line="16" assertions="2" time="0.002637"/>
+    </testsuite>
+    <testsuite name="FortissimoEchoTest" file="/Users/mbutcher/Code/Fortissimo/test/Tests/Fortissimo/FortissimoEchoTest.php" tests="1" assertions="1" failures="0" errors="0" time="0.002250">
+      <testcase name="testDoCommand" class="FortissimoEchoTest" file="/Users/mbutcher/Code/Fortissimo/test/Tests/Fortissimo/FortissimoEchoTest.php" line="17" assertions="1" time="0.002250"/>
+    </testsuite>
+    <testsuite name="FortissimoExceptionsTest" file="/Users/mbutcher/Code/Fortissimo/test/Tests/Fortissimo/FortissimoExceptionsTest.php" tests="2" assertions="2" failures="0" errors="0" time="0.003670">
+      <testcase name="testException" class="FortissimoExceptionsTest" file="/Users/mbutcher/Code/Fortissimo/test/Tests/Fortissimo/FortissimoExceptionsTest.php" line="20" assertions="1" time="0.001835"/>
+      <testcase name="testErrorToException" class="FortissimoExceptionsTest" file="/Users/mbutcher/Code/Fortissimo/test/Tests/Fortissimo/FortissimoExceptionsTest.php" line="29" assertions="1" time="0.001835"/>
+    </testsuite>
+    <testsuite name="FortissimoExecutionContextTest" file="/Users/mbutcher/Code/Fortissimo/test/Tests/Fortissimo/FortissimoExecutionContextTest.php" tests="9" assertions="25" failures="0" errors="0" time="0.004205">
+      <testcase name="testConstructor" class="FortissimoExecutionContextTest" file="/Users/mbutcher/Code/Fortissimo/test/Tests/Fortissimo/FortissimoExecutionContextTest.php" line="11" assertions="2" time="0.000706"/>
+      <testcase name="testSize" class="FortissimoExecutionContextTest" file="/Users/mbutcher/Code/Fortissimo/test/Tests/Fortissimo/FortissimoExecutionContextTest.php" line="19" assertions="2" time="0.000492"/>
+      <testcase name="testHas" class="FortissimoExecutionContextTest" file="/Users/mbutcher/Code/Fortissimo/test/Tests/Fortissimo/FortissimoExecutionContextTest.php" line="29" assertions="2" time="0.000387"/>
+      <testcase name="testGet" class="FortissimoExecutionContextTest" file="/Users/mbutcher/Code/Fortissimo/test/Tests/Fortissimo/FortissimoExecutionContextTest.php" line="35" assertions="2" time="0.000527"/>
+      <testcase name="testAdd" class="FortissimoExecutionContextTest" file="/Users/mbutcher/Code/Fortissimo/test/Tests/Fortissimo/FortissimoExecutionContextTest.php" line="42" assertions="2" time="0.000537"/>
+      <testcase name="testRemove" class="FortissimoExecutionContextTest" file="/Users/mbutcher/Code/Fortissimo/test/Tests/Fortissimo/FortissimoExecutionContextTest.php" line="51" assertions="2" time="0.000394"/>
+      <testcase name="testToArray" class="FortissimoExecutionContextTest" file="/Users/mbutcher/Code/Fortissimo/test/Tests/Fortissimo/FortissimoExecutionContextTest.php" line="58" assertions="1" time="0.000369"/>
+      <testcase name="testFromArray" class="FortissimoExecutionContextTest" file="/Users/mbutcher/Code/Fortissimo/test/Tests/Fortissimo/FortissimoExecutionContextTest.php" line="64" assertions="3" time="0.000381"/>
+      <testcase name="testIterator" class="FortissimoExecutionContextTest" file="/Users/mbutcher/Code/Fortissimo/test/Tests/Fortissimo/FortissimoExecutionContextTest.php" line="73" assertions="9" time="0.000412"/>
+    </testsuite>
+    <testsuite name="FortissimoTest" file="/Users/mbutcher/Code/Fortissimo/test/Tests/Fortissimo/FortissimoTest.php" tests="7" assertions="22" failures="1" errors="0" time="0.023240">
+      <testcase name="testConstructor" class="FortissimoTest" file="/Users/mbutcher/Code/Fortissimo/test/Tests/Fortissimo/FortissimoTest.php" line="13" assertions="1" time="0.002294"/>
+      <testcase name="testFetchParams" class="FortissimoTest" file="/Users/mbutcher/Code/Fortissimo/test/Tests/Fortissimo/FortissimoTest.php" line="19" assertions="9" time="0.002131"/>
+      <testcase name="testHandleRequest" class="FortissimoTest" file="/Users/mbutcher/Code/Fortissimo/test/Tests/Fortissimo/FortissimoTest.php" line="57" assertions="3" time="0.005410"/>
+      <testcase name="testLogger" class="FortissimoTest" file="/Users/mbutcher/Code/Fortissimo/test/Tests/Fortissimo/FortissimoTest.php" line="73" assertions="3" time="0.002148"/>
+      <testcase name="testRequestCache" class="FortissimoTest" file="/Users/mbutcher/Code/Fortissimo/test/Tests/Fortissimo/FortissimoTest.php" line="82" assertions="3" time="0.006565">
+        <failure type="PHPUnit_Framework_ExpectationFailedException">FortissimoTest::testRequestCache
 Output was passed through correctly.
 Failed asserting that two strings are equal.
 --- Expected
@@ -47,50 +58,14 @@ Failed asserting that two strings are equal.
 @@ @@
 +
 +Notice: Undefined index: request-testRequestCache2 in /Users/mbutcher/Code/Fortissimo/test/Tests/Fortissimo/FortissimoTest.php on line 162
-+
-+Call Stack:
-+    0.0008     644040   1. {main}() /usr/lib/php/phing.php:0
-+    0.0699    6552128   2. Phing::fire() /usr/lib/php/phing.php:37
-+    0.0699    6552176   3. Phing::start() /usr/lib/php/phing/Phing.php:270
-+    0.0708    6654824   4. Phing-&gt;runBuild() /usr/lib/php/phing/Phing.php:170
-+    0.8990   32115512   5. Project-&gt;executeTargets() /usr/lib/php/phing/Phing.php:541
-+    0.8990   32115816   6. Project-&gt;executeTarget() /usr/lib/php/phing/Project.php:675
-+    0.8994   32116520   7. Target-&gt;performTasks() /usr/lib/php/phing/Project.php:702
-+    0.8995   32116520   8. Target-&gt;main() /usr/lib/php/phing/Target.php:263
-+    0.8995   32116520   9. Task-&gt;perform() /usr/lib/php/phing/Target.php:240
-+    0.9733   32386048  10. PHPUnitTask-&gt;main() /usr/lib/php/phing/Task.php:253
-+    1.6315   35813064  11. PHPUnitTask-&gt;execute() /usr/lib/php/phing/tasks/ext/phpunit/PHPUnitTask.php:302
-+    1.6316   35814616  12. PHPUnitTestRunner-&gt;run() /usr/lib/php/phing/tasks/ext/phpunit/PHPUnitTask.php:333
-+    1.6317   35817032  13. PHPUnit_Framework_TestSuite-&gt;run() /usr/lib/php/phing/tasks/ext/phpunit/PHPUnitTestRunner.php:98
-+    1.6607   35823328  14. PHPUnit_Framework_TestSuite-&gt;runTest() /usr/lib/php/PHPUnit/Framework/TestSuite.php:732
-+    1.6607   35823328  15. PHPUnit_Framework_TestCase-&gt;run() /usr/lib/php/PHPUnit/Framework/TestSuite.php:756
-+    1.6608   35823328  16. PHPUnit_Framework_TestResult-&gt;run() /usr/lib/php/PHPUnit/Framework/TestCase.php:653
-+    1.6609   35824328  17. PHPUnit_Framework_TestCase-&gt;runBare() /usr/lib/php/PHPUnit/Framework/TestResult.php:687
-+    1.6613   35852672  18. PHPUnit_Framework_TestCase-&gt;runTest() /usr/lib/php/PHPUnit/Framework/TestCase.php:706
-+    1.6614   35854048  19. ReflectionMethod-&gt;invokeArgs() /usr/lib/php/PHPUnit/Framework/TestCase.php:822
-+    1.6614   35854080  20. FortissimoTest-&gt;testRequestCache() /Users/mbutcher/Code/Fortissimo/test/Tests/Fortissimo/FortissimoTest.php:0
-+    1.6721   35905000  21. Fortissimo-&gt;handleRequest() /Users/mbutcher/Code/Fortissimo/test/Tests/Fortissimo/FortissimoTest.php:103
-+    1.6747   35909920  22. FortissimoCacheManager-&gt;get() /Users/mbutcher/Code/Fortissimo/Fortissimo/skel/src/Fortissimo.php:280
-+    1.6747   35910000  23. MockAlwaysSetValueCache-&gt;get() /Users/mbutcher/Code/Fortissimo/Fortissimo/skel/src/Fortissimo.php:1937
-+
  bar
 
 /Users/mbutcher/Code/Fortissimo/test/Tests/Fortissimo/FortissimoTest.php:112
-/usr/lib/php/phing/tasks/ext/phpunit/PHPUnitTestRunner.php:98
-/usr/lib/php/phing/tasks/ext/phpunit/PHPUnitTask.php:333
-/usr/lib/php/phing/tasks/ext/phpunit/PHPUnitTask.php:302
-/usr/lib/php/phing/Task.php:253
-/usr/lib/php/phing/Target.php:240
-/usr/lib/php/phing/Target.php:263
-/usr/lib/php/phing/Project.php:702
-/usr/lib/php/phing/Project.php:675
-/usr/lib/php/phing/Phing.php:541
-/usr/lib/php/phing/Phing.php:170
-/usr/lib/php/phing/Phing.php:270
 /usr/lib/php/phing.php:37
 </failure>
-    </testcase>
-    <testcase name="testForwardRequest" class="FortissimoTest" file="/Users/mbutcher/Code/Fortissimo/test/Tests/Fortissimo/FortissimoTest.php" line="124" assertions="2" time="0.010574"/>
-    <testcase name="testAutoloader" class="FortissimoTest" file="/Users/mbutcher/Code/Fortissimo/test/Tests/Fortissimo/FortissimoTest.php" line="134" assertions="2" time="0.020982"/>
+      </testcase>
+      <testcase name="testForwardRequest" class="FortissimoTest" file="/Users/mbutcher/Code/Fortissimo/test/Tests/Fortissimo/FortissimoTest.php" line="124" assertions="2" time="0.004325"/>
+      <testcase name="testAutoloader" class="FortissimoTest" file="/Users/mbutcher/Code/Fortissimo/test/Tests/Fortissimo/FortissimoTest.php" line="134" assertions="1" time="0.000367"/>
+    </testsuite>
   </testsuite>
 </testsuites>
