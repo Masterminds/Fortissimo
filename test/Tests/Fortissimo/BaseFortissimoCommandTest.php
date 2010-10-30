@@ -9,6 +9,8 @@ require_once 'Fortissimo/skel/src/Fortissimo.php';
 class BaseFortissimoCommandTest extends PHPUnit_Framework_TestCase {
   const config = './test/test_commands.php';
   
+  public function setUp() { Config::initialize(); }
+  
   public function testExpects() {
     //$ff = new FortissimoHarness(self::config);
     $cmd = new SimpleCommandTest('test');

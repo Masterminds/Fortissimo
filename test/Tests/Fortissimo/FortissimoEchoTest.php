@@ -4,18 +4,19 @@ require_once 'PHPUnit/Framework.php';
 require_once 'Fortissimo/skel/src/Fortissimo.php';
 
 class FortissimoEchoTest extends PHPUnit_Framework_TestCase {
-  public $xml ='<?xml version="1.0"?>
-<commands xmlns="http://technosophos.com/2009/1.1/commands.xml">
-<request name="testDoCommand">
-  <cmd name="echo" invoke="FortissimoEcho">
-    <param name="text">Echo</param>
-  </cmd>
-</request>
-</commands>
-';
+
+  public function setUp() {
+    Config::initialize();
+    Config::request('testDoCommand')
+      ->doesCommand('echo')
+        ->whichInvokes('FortissimoEcho')
+        ->withParam('text')->whoseValueIs('Echo')
+    ;
+  }
+  
     
   public function testDoCommand() {
-    $ff = new FortissimoHarness($this->xml);
+    $ff = new FortissimoHarness();
     ob_start();
     $ff->handleRequest('testDoCommand');
     $c = ob_get_contents();

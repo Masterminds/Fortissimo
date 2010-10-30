@@ -8,6 +8,10 @@ require_once 'Fortissimo/skel/src/Fortissimo.php';
 
 class ConfigTest extends PHPUnit_Framework_TestCase {
   
+  public function setUp() {
+    Config::initialize();
+  }
+  
   public function testGetConfiguration() {
     $cfg = Config::getConfiguration();
     $this->assertEquals(6, count($cfg));

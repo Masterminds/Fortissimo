@@ -10,6 +10,10 @@ class FortissimoTest extends PHPUnit_Framework_TestCase {
   
   const config = './test/test_commands.php';
   
+  public function setUp() {
+    Config::initialize();
+  }
+  
   public function testConstructor() {
     $ff = new Fortissimo(self::config);
     
@@ -227,7 +231,9 @@ class CommandForward implements FortissimoCommand {
 class FortissimoHarness extends Fortissimo {
   
   public function __construct($file) {
-    Config::initialize();
+    if (isset($file)) {
+      Config::initialize();
+    }
     parent::__construct($file);
   }
   
