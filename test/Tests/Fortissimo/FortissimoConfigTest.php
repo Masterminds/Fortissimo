@@ -8,7 +8,7 @@ require_once 'Fortissimo/skel/src/Fortissimo.php';
 
 class FortissimoConfigTest extends PHPUnit_Framework_TestCase {
   
-  const command = './test/test_commands.xml';
+  const command = './test/test_commands.php';
   
   public function testConstructor() {
     
@@ -17,18 +17,11 @@ class FortissimoConfigTest extends PHPUnit_Framework_TestCase {
     $this->assertTrue($fc instanceof FortissimoConfig);
   }
   
-  /**
-   * @expectedException QueryPathException
-   */
-  public function testConstructorParseError() {
-    $fc = new FortissimoConfig('<?xml version="1.0"?><foo><bar></foo>');
-  }
-  
   public function testGetConfig() {
     $fc = new FortissimoConfig(self::command);
-    $qp = $fc->getConfig();
-    $this->assertTrue($qp instanceof QueryPath, 'Returned a QueryPath.');
-    $this->assertEquals(1, $qp->size(), 'Has one root element.');
+    $array = $fc->getConfig();
+    $this->assertTrue(is_array($array), 'Returned a configuration array.');
+    $this->assertEquals(6, count($array), 'Has six categories.');
   }
   
   public function testIsLegalRequestName() {

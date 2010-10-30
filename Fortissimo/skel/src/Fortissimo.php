@@ -256,23 +256,21 @@ class Fortissimo {
    * It should be illegal to eat bananas on a crowded train. They smell bad, and 
    * people chomp on them, which makes a gross noise.
    *
-   * @param mixed $commandsXMLFile
-   *  A configuration pointer. Typically, this is a filename of the commands.xml
-   *  file on the filesystem. However, straight XML, a DOMNode or DOMDocument, 
-   *  and a SimpleXML object are among the various objects that can be passed
-   *  in as $commandsXMLFile.
+   * @param string $configuration
+   *  The full path to a configuration file. This is optional, as you can load 
+   *  configuration data externally.
    * @param array $configData
    *  Any additional configuration data can be added here. This information 
    *  will be placed into the {@link FortissimoExecutionContext} that is passed
    *  into each command. In this way, information passed here should be available
    *  to every command, as well as to the overarching framework.
    */
-  public function __construct($commandsXMLFile, $configData = array()) {
+  public function __construct($configuration = NULL, $configData = array()) {
     
     $this->initialConfig = $configData;
     
     // Parse configuration file.
-    $this->commandConfig = new FortissimoConfig($commandsXMLFile);
+    $this->commandConfig = new FortissimoConfig($configuration);
     
     // Add additional files to the include path:
     $paths = $this->commandConfig->getIncludePaths();
@@ -1520,14 +1518,18 @@ class FortissimoConfig {
    *
    * This loads a PHP file containing a configuration
    *
-   * @param mixed $commandsXMLFile
-   *  A pointer to configuration information. Typically, this is a filename. 
-   *  However, it may be any object that {@link qp()} can process.
+   * @param string $configurationFile
+   *  A file with configuration data. This will be included into the running program.
    *
    * @see http://api.querypath.org/docs
    */
-  public function __construct($commandsXMLFile) {
-    //$this->config = qp($commandsXMLFile);
+  public function __construct($configurationFile = NULL) {
+    
+    if (is_string($configurationFile)) {
+      // XXX: Should this be include_once?
+      include $configurationFile;
+    }
+    
     $this->config = Config::getConfiguration();
   }
   
@@ -1621,7 +1623,7 @@ class FortissimoConfig {
   }
   
   public function getDatasources() {
-    return $this->getFacility('datasource');
+    return $this->getFacility(Config::DATASOURCES);
   }
   
   /**
@@ -1637,7 +1639,7 @@ class FortissimoConfig {
     $facilities = array();
     foreach ($this->config[$type] as $name => $facility) {
       $klass = $facility['class'];
-      $params = $this->getParams($facility['params']);
+      $params = isset($facility['params']) ? $this->getParams($facility['params']) : array();
       $facilities[$name] = new $klass($params);
     }
     /*
@@ -1713,8 +1715,8 @@ class FortissimoConfig {
       $request = $this->config[Config::REQUESTS][$requestName];
     }
     
-    $isCaching = filter_var($request['#caching'], FILTER_VALIDATE_BOOLEAN);
-    $isExplaining = filter_var($request['#explaining'], FILTER_VALIDATE_BOOLEAN);
+    $isCaching = isset($request['#caching']) && filter_var($request['#caching'], FILTER_VALIDATE_BOOLEAN);
+    $isExplaining = isset($request['#caching']) && filter_var($request['#explaining'], FILTER_VALIDATE_BOOLEAN);
     
     unset($request['#caching'], $request['#explaining']);
     
@@ -1779,10 +1781,9 @@ class FortissimoConfig {
     }
 
     $cache = isset($config['caching']) && filter_var($config['caching'], FILTER_VALIDATE_BOOLEAN);
+    $params = isset($config['params']) ? $config['params'] : array();
     
-    $params = $config['params'];
-    
-    $inst = new $class($name, $cache);
+    $inst = new $class($cmd, $cache);
     return array(
       'isCaching' => $cache,
       'name' => $cmd,
@@ -3010,10 +3011,10 @@ class Config {
    * @return Config
    *  This object.
    */
-  public static function initialize(array $config) {
-    $i = self::inst();
-    $i->config = $config;
-    return $i;
+  public static function initialize(array $config = NULL) {
+    self::$instance = new Config();
+    if (!is_null($config)) self::$instance->config = $config;
+    return self::$instance;
   }
   
   /**

@@ -8,7 +8,7 @@ require_once 'Fortissimo/skel/src/Fortissimo.php';
 
 class FortissimoTest extends PHPUnit_Framework_TestCase {
   
-  const config = './test/test_commands.xml';
+  const config = './test/test_commands.php';
   
   public function testConstructor() {
     $ff = new Fortissimo(self::config);
@@ -225,6 +225,11 @@ class CommandForward implements FortissimoCommand {
  * Harness methods for testing specific parts of Fortissimo.
  */
 class FortissimoHarness extends Fortissimo {
+  
+  public function __construct($file) {
+    Config::initialize();
+    parent::__construct($file);
+  }
   
   public $pSources = array(
     'get' => array(),
