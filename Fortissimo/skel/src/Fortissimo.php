@@ -1701,6 +1701,7 @@ class FortissimoConfig {
     if ($request->size() == 0) {
       // This should be treated as a 404.
       throw new FortissimoRequestNotFoundException(sprintf('Request %s not found', $requestName));
+      //$request = $this->config->top()->find('commands>request[name="default"]');
     }
     
     // Determine whether the request supports caching.
