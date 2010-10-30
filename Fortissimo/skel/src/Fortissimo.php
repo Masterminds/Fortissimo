@@ -1510,15 +1510,6 @@ abstract class BaseFortissimoCommand implements FortissimoCommand, Explainable {
 /**
  * Stores information about Fortissimo commands.
  *
- * This is used when bootstrapping to map a request to a series of commands.
- * Note that this does not provide an object represenation of the configuration
- * file. Instead, it interprets the configuration file, and assembles the 
- * information as the application needs it. To get directly at the configuration
- * information, use {@link getConfig()}.
- *
- * @package Fortissimo
- * @subpackage Core
- * @see Fortissimo
  */
 class FortissimoConfig {
   
@@ -1536,7 +1527,8 @@ class FortissimoConfig {
    * @see http://api.querypath.org/docs
    */
   public function __construct($commandsXMLFile) {
-    $this->config = qp($commandsXMLFile);
+    //$this->config = qp($commandsXMLFile);
+    $this->config = Config::getConfiguration();
   }
   
   /**
@@ -1551,12 +1543,13 @@ class FortissimoConfig {
    *  (commands.xml).
    */
   public function getIncludePaths() {
-    $includes = $this->config->branch(':root>include');
-    $array = array();
-    foreach ($includes as $i) {
-      $array[] = $i->attr('path');
-    }
-    return $array;
+    // $includes = $this->config->branch(':root>include');
+    //     $array = array();
+    //     foreach ($includes as $i) {
+    //       $array[] = $i->attr('path');
+    //     }
+    //     return $array;
+    return $this->config[Config::PATHS];
   }
   
   /**
@@ -1569,7 +1562,8 @@ class FortissimoConfig {
     if (!self::isLegalRequestName($requestName))  {
       throw new FortissimoException('Illegal request name.');
     }
-    return $this->config->top()->find('request[name="' . $requestName . '"]')->size() > 0;
+    //return $this->config->top()->find('request[name="' . $requestName . '"]')->size() > 0;
+    return isset($this->config[Config::REQUESTS][$requestName]);
   }
   
   /**
@@ -1601,7 +1595,7 @@ class FortissimoConfig {
    * @see FortissimoLogger
    */
   public function getLoggers() {
-    $loggers = $this->getFacility('logger');
+    $loggers = $this->getFacility(Config::LOGGERS);
     
     foreach ($loggers as $logger) $logger->init();
     
@@ -1621,7 +1615,7 @@ class FortissimoConfig {
    * @see FortissimoRequestCache
    */
   public function getCaches() {
-    $caches = $this->getFacility('cache');
+    $caches = $this->getFacility(Config::CACHES);
     foreach ($caches as $cache) $cache->init();
     return $caches;
   }
@@ -1634,13 +1628,19 @@ class FortissimoConfig {
    * Internal helper function.
    *
    * @param string $type
-   *  The type of item to retrieve. Essentially, this is treated like a selector.
+   *  The type of item to retrieve. Use the Config class constants.
    * @param array 
    *  An associative array of the form <code>array('name' => object)</code>, where
    *  the object is an instance of the respective 'invoke' class.
    */
-  protected function getFacility($type = 'logger') {
+  protected function getFacility($type = Config::LOGGERS) {
     $facilities = array();
+    foreach ($this->config[$type] as $name => $facility) {
+      $klass = $facility['class'];
+      $params = $this->getParams($facility['params']);
+      $facilities[$name] = new $klass($params);
+    }
+    /*
     $fqp = $this->config->branch()->top($type);
     foreach ($fqp as $facility) {
       $name = $facility->attr('name');
@@ -1652,26 +1652,33 @@ class FortissimoConfig {
       
       $facilities[$name] = $facility;
     }
+    */
     return $facilities;
   }
   
   /**
    * Get the parameters for a facility such as a logger or a cache.
    *
-   * @param QueryPath $logger
+   * @param array $facility
    *  Configuration for the given facility.
    * @return array
    *  An associative array of param name/values. <param name="foo">bar</param>
    *  becomes array('foo' => 'bar').
    */
-  protected function getParams(QueryPath $facility) {
+  protected function getParams(array $params) {
     $res = array();
+    // Basically, for facility params we just collapse the array.
+    foreach ($params as $name => $values) {
+      $res[$name] = $values['value'];
+    }
+    /*
     $params = $facility->find('param');
     if ($params->size() > 0) {
       foreach ($params as $item) {
         $res[$item->attr('name')] = $item->text();
       }
     }
+    */
     return $res;
   }
   
@@ -1697,25 +1704,27 @@ class FortissimoConfig {
       throw new FortissimoRequestNotFoundException('Illegal request name.');
     }
     
-    // We know that per request, we only need to find one request, so we 
-    // defer request lookups until we know the specific request we are after.
-    $request = $this->config->top()->find('commands>request[name="' . $requestName . '"]');
-    if ($request->size() == 0) {
+    if (empty($this->config[Config::REQUESTS][$requestName])) {
       // This should be treated as a 404.
       throw new FortissimoRequestNotFoundException(sprintf('Request %s not found', $requestName));
-      //$request = $this->config->top()->find('commands>request[name="default"]');
+      //$request = $this->config[Config::REQUESTS]['default'];
+    }
+    else {
+      $request = $this->config[Config::REQUESTS][$requestName];
     }
     
-    // Determine whether the request supports caching.
-    $cache = $request->attr('cache');
-    $explain = $request->attr('explain');
-    // FIXME: This should support true, t, yes, y.
-    //$isCaching = isset($cache) && strtolower($cache) == 'true';
-    $isCaching = filter_var($cache, FILTER_VALIDATE_BOOLEAN);
-    $isExplaining = filter_var($explain, FILTER_VALIDATE_BOOLEAN);
+    $isCaching = filter_var($request['#caching'], FILTER_VALIDATE_BOOLEAN);
+    $isExplaining = filter_var($request['#explaining'], FILTER_VALIDATE_BOOLEAN);
+    
+    unset($request['#caching'], $request['#explaining']);
     
     // Once we have the request, find out what commands we need to execute.
     $commands = array();
+    foreach ($request as $cmd => $cmdConfig) {
+      $commands[] = $this->createCommandInstance($cmd, $cmdConfig);
+    }
+    
+    /*
     $chain = $request->branch()->children('cmd');
     if ($chain->size() > 0) {
       foreach ($chain as $cmd) {
@@ -1732,6 +1741,7 @@ class FortissimoConfig {
         }
       }
     }
+    */
     
     $request = new FortissimoRequest($requestName, $commands);
     $request->setCaching($isCaching);
@@ -1741,43 +1751,15 @@ class FortissimoConfig {
   }
   
   /**
-   * Import a group into the current request context.
-   *
-   * @param string $groupName
-   *  Name of the group to import.
-   * @param array &$commands
-   *  Reference to an array of commands. The group commands will be appended to 
-   *  this array.
-   */
-  protected function importGroup($groupName, &$commands) {
-    //$group = $this->config->branch()->top()->find('group[name=' . $groupName . ']');
-    $groups = $this->config->branch()->top()->find('commands>group');
-    $group = NULL;
-    foreach ($groups as $g) {
-      if ($g->attr('name') == $groupName) {
-        $group = $g;
-        break;
-      }
-    }
-
-    if (!isset($group)) {
-      throw new FortissimoException(sprintf('No group found with name %s.', $groupName));
-    }
-    
-    foreach ($group->children('cmd') as $cmd) {
-      $commands[] = $this->createCommandInstance($cmd);
-      
-    }
-  }
-  
-  /**
    * Create a command instance.
    *
    * Retrieve command information from the configuration file and transform these
    * into an internal data structure.
    *
-   * @param QueryPath $cmd
-   *  QueryPath object wrapping the command.
+   * @param string $cmd
+   *  Name of the command
+   * @param array $config
+   *  Command configuration
    * @return array
    *  An array with the following keys:
    *  - name: Name of the command
@@ -1790,32 +1772,20 @@ class FortissimoConfig {
    * @throws FortissimoException
    *  In the event that a paramter does not have a name, an exception is thrown.
    */
-  protected function createCommandInstance(QueryPath $cmd) {
-    $class = $cmd->attr('invoke');
-    $cache = strtolower($cmd->attr('cache'));
-    $caching =  (isset($cache) && $cache == 'true');
-    
-    if (empty($class))
-      throw new FortissimoConfigException('Command is missing its "invoke" attribute.');
-    
-    $name = $cmd->hasAttr('name') ? $cmd->attr('name') : $class;
-    
-    $params = array();
-    foreach ($cmd->branch()->children('param') as $param) {
-      $pname = $param->attr('name');
-      if (empty($pname)) {
-        throw new FortissimoException('Parameter is missing name attribute.');
-      }
-      $params[$pname] = array(
-        'from' => $param->attr('from'), // May be NULL.
-        'value' => $param->text(), // May be empty.
-      );
+  protected function createCommandInstance($cmd, $config) {
+    $class = $config['class'];
+    if (empty($class)) {
+      throw new FortissimoConfigException('No class specified for ' . $cmd);
     }
+
+    $cache = isset($config['caching']) && filter_var($config['caching'], FILTER_VALIDATE_BOOLEAN);
     
-    $inst = new $class($name, $caching);
+    $params = $config['params'];
+    
+    $inst = new $class($name, $cache);
     return array(
-      'isCaching' => $caching,
-      'name' => $name,
+      'isCaching' => $cache,
+      'name' => $cmd,
       'class' => $class,
       'instance' => $inst,
       'params' => $params,
@@ -1823,13 +1793,14 @@ class FortissimoConfig {
   }
   
   /**
-   * Get the configuration information as a QueryPath object.
+   * Get the configuration information.
    *
-   * @return QueryPath
-   *  The configuration information wrapped in a QueryPath object.
+   * @return array
+   *  The configuration information
    */
   public function getConfig() {
-    return $this->config->top();
+    //return $this->config->top();
+    return $this->config;
   }
 
 }
@@ -3194,6 +3165,29 @@ class Config {
         throw new FortissimoConfigurationException($msg);
     }
     return $this;
+  }
+  /**
+   * 
+   */
+  public function isExplaining($boolean = FALSE) {
+    if ($this->currentCategory == self::REQUESTS) {
+      $cat = $this->currentCategory;
+      $name = $this->currentName;
+      $this->config[$cat][$name]['#explaining'] = $boolean;
+    }
+    return $this;
+  }
+  /**
+   * 
+   */
+  public function isCaching($boolean = TRUE) {
+    if ($this->currentCategory == self::REQUESTS) {
+      $cat = $this->currentCategory;
+      $name = $this->currentName;
+      $this->config[$cat][$name]['#caching'] = $boolean;
+    }
+    return $this;
+    
   }
 }
 
