@@ -18,7 +18,7 @@ class FortissimoExplainTask extends Task {
   
   public function init() {}
   public function main() {
-    $conf = qp('src/config/commands.xml');
+    $conf = qp('src/config/commands.php');
     $requests = $conf->branch('request');
     
     // Turn explain on.
