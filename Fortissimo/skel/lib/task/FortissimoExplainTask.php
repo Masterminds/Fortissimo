@@ -18,14 +18,21 @@ class FortissimoExplainTask extends Task {
   
   public function init() {}
   public function main() {
-    $conf = qp('src/config/commands.php');
-    $requests = $conf->branch('request');
+    // $conf = qp('src/config/commands.php');
+    // $requests = $conf->branch('request');
+    // 
+    // // Turn explain on.
+    // foreach ($requests as $req) $req->attr('explain', 'true');
     
-    // Turn explain on.
-    foreach ($requests as $req) $req->attr('explain', 'true');
+    include 'src/config/commands.php';
+    $config = Config::getConfigiration();
+    foreach ($config[Config::REQUESTS] as $request) {
+      $request['#explaining'] = TRUE;
+    }
+    Config::configuration($config);
     
     
-    $ff = new Fortissimo($conf);
+    $ff = new Fortissimo();
     
     // Invoke explain on each item.
     foreach ($requests as $req) {

@@ -1998,7 +1998,7 @@ class FortissimoExecutionContext implements IteratorAggregate {
    *  An initialized datasource manager.
    */
   public function getDatasourceManager() {
-    
+    throw new Exception('Not implemented.');
   }
 }
 
@@ -2211,7 +2211,7 @@ class FortissimoDatasourceManager {
       $ds->init();
       $this->initMap[$name] = TRUE;
     }
-    
+    return $ds;
   }
   
   /**
