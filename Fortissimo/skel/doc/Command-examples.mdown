@@ -1,8 +1,225 @@
 # Command Examples
 
-This document provides a few examples of using and writing commands.
+This document provides an intro to writing request configurations. It also provides a few examples of using commands in practical situations.
 
-## Uploading files
+Beginning in Fortissimo 2.0, commands are no longer configured in an XML format, but are now written using a Fluent API in PHP. This provides several distinct advantages, with these three being the most notable:
+
+- No special file configuration means no additional parsing overhead.
+- Native PHP means that data can be cached by the opcode cache.
+- Fewer external libraries means (a) faster startup time and (b) less code weight.
+
+## A Basic Introduction to Requests and Chains of Commands
+
+Here is a simple illustration of how requests can be defined in `commands.php`.
+
+~~~
+<?php
+Config::request('my-request')
+  ->doesCommand('myCommand')
+    ->whichInvokes('MyClass')
+;
+?>
+~~~
+
+This tells Fortissimo that if it receives a request for `my-request`, it should handle it by executing the chain of commands defined above. Our chain is only one item long:
+
+- myCommand
+
+And `myCommand` functions simply by loading and executing some class `MyClass`. `MyClass` must be an instance of a `FortissimoCommand`. Typically, commands extend `BaseFortissimoCommand`, which provides many utility constructs for commands.
+
+Since Fortissimo works by chaining commands, we could refine the example above and execute multiple commands in a sequence.
+
+~~~
+<?php
+Config::request('my-request')
+  ->doesCommand('myCommand')
+    ->whichInvokes('MyClass')
+  ->doesCommand('anotherCommand')
+    ->whichInvokes('MyOtherClass')
+  ->doesCommand('yetAnotherCommand')
+    ->whichInvokes('YetAnotherClass')
+;
+?>
+~~~
+
+Now a request for `my-request` will execute three commands in order:
+
+- myCommand, which executes MyClass
+- anotherCommand, which executes MyOtherClass
+- yetAnotherCommand, which executes YetAnotherClass
+
+This illustrates one of the basic design patterns of Fortissimo: Chain of Command. A request is processed as a series of steps, or commands, each of which handles a particular step of the process.
+
+Of course, to be effective, commands must be able to take input. This is done by passing `params` into commands:
+
+~~~
+<?php
+Config::request('echo-text')
+  ->doesCommand('echo')
+    ->whichInvokes('FortissimoEcho')
+    ->withParam('text')
+      ->whoseValueIs('Hello World')
+;
+?>
+~~~
+
+The above is a working command. It takes the request 'echo-text' and performs one command: `echo`, which uses the built-in `FortissimoEcho` class to print text to standard out (e.g. your web browser).
+
+One thing to note about this is that we pass in a parameter, `text`, which has the value `Hello World`. The `FortissimoEcho` command class accepts one parameter. That is the `text` parameter, which is a string that it will write with `print` or some similar facility. Any time a command accepts a parameter, we can pass data to that command through `withParam`.
+
+We don't have to pass a static value. We can also simply tell Fortissimo where to get the information that should be used for the parameter. This is done with the `from` method. This time, let's perform and admittedly dangerous modification. Let's have the request echo back some text that the user supplied in GET parameters:
+
+~~~
+<?php
+Config::request('echo-text')
+  ->doesCommand('echo')
+    ->whichInvokes('FortissimoEcho')
+    ->withParam('text')
+      ->from('get:text')
+;
+?>
+~~~
+
+Say we called this request with a URL like http://example.com/echo-text?text=Hello+World. Our code above will examine the `from()` method and see that it should analyze `$_GET` for a parameter named `text`.
+
+Get is not the only supported method. Here's a short list:
+
+- get: Retrieve a GET parameter
+- post: Retrive POST data
+- session: Get data from the session
+- cookie: Get data from a browser cookie
+- environment: Get data from the server's environment variables
+- context: Get data from another command that has already been executed
+
+  You can provide a prioritized list of sources into `from()`. So `from('get:a post:b session:c')`  
+  will first check for `$_GET['a']`, then `$_POST['b']`, and finally `$_SESSION['c']`. It will use
+  the first one it finds.
+
+This last part is important. A huge advantage to a chain-of-commands approach is that we can have early commands to data crunching, and then configure later commands to use that data to accomplish something more sophisticated.
+
+Here, let's modify our previous example:
+
+~~~
+<?php
+Config::request('echo-text')
+  ->doesCommand('lookup_username')
+    ->whichInvokes('UserLookup')
+    ->withParam('user_id')
+      ->whoseValueIs('1234')
+  ->doesCommand('echo')
+    ->whichInvokes('FortissimoEcho')
+    ->withParam('text')
+      ->from('context:lookup_username')
+;
+?>
+~~~
+
+In this example we are executing two commands. The first one, `lookup_user`, uses a fictitious `UserLookup` command to retrieve a username for the user whose `user_id` is `1234`.
+
+For the sake of the example, let's assume that `UserLookup` returned the value 'jsmith'.
+
+So where does `jsmith` go? Fortissimo commands store their results inside of a _context_. A _context_ is a data structure that stores information about the request. As the request processes command after command, the context stores information about the current request process.
+
+To be more accurate, each command typically returns a single object which is then stored in the context, keyed using the name of the command. So, to put it simplistically, the context now has a key/value pair for `lookup_user` (the command name is the key) whose value is `jsmith`.
+
+    Note that a command can only access values from commands that have run before it.
+
+Commands can access the data in the context, including the output of other commands. To pass this output into a command, we simply tell Fortissimo which context key we want to use. That's what `from('context:lookup_username)` does. It passes the output of the `lookup_username` command into the `echo` command.
+
+In a nutshell, that is how Fortissimo can pass data from one request to another. With this tool, you can build sophisticated chains of commands that, say, begin by looking up data, then use that data to perform some additional computation, and then finally format that data for output.
+
+### Review
+
+- Fortissimo maps *requests* to a *chain of commands*
+- Each *command* invokes one *command class* (see FortissimoEcho.cmd.php for an example)
+- When a *command class* defines parameters, you can *pass parameters* using `param()`
+- Parameter values can be static values (like strings) using `whoseValueIs()`.
+- Parameter values can be passed in dynamically using `from()`.
+- You can use `from()` to pass GET, POST, COOKIE, and SESSION data into your commands.
+- You can use `from()` to pass the output of other commands in the chain.
+
+## Retrieving Get/Post/Cookie/Session data
+
+In Fortissimo, the preferred way of working with data from GET, POST, cookies and sessions is to pass the data into a command using `param()`. This has several distinct advantages:
+
+- It allows Fortissimo to do some security auditing
+- It makes your code more extensible
+- It makes debugging automated testing substantially easier
+
+In fact, there is rarely any good reason to access GET, POST, or cookies directly at all. Using Fortissimo's system will save you headaches in the future.
+
+### Security and Get/Post/Cookie data
+
+Regarding security, one may wonder how Fortissimo handles sanitizing or filtering data. This is handled by commands. When writing a class that extends `BaseFortissimoCommand`, one of the steps for writing a command is declaring which parameters it accepts. Part and parcel of this is declaring which *input filters* should be run over those parameters to verify that they are correctly sanitized.
+
+For example, the FortissimoPHPInfo command defines itself thus:
+
+~~~
+<?php
+class FortissimoPHPInfo extends BaseFortissimoCommand {
+  public function expects() {
+    return $this
+      ->description('Provides debugging information about PHP.')
+      ->usesParam('category', 'One of: general, credits, configuration, modules, environment, variables, license, or all.')
+      ->withFilter('string')
+      ->whichHasDefault('all')
+      ->andReturns('Nothing. Prints data straight to output.');
+  }
+  
+  // ... More code
+}
+?>
+~~~
+
+From the `expects()` function, which tells us about what the command expects from its environment, we can see that it uses one param, `category`. Beneath `usesParam`, we see `withFilter()` being called. This tells Fortissimo that before the `category` parameter is handed off to `FortissimoPHPInfo`, it should be filtered to make sure that it is a sanitized string. (There are numerous filters defined in Fortissimo, and you can easily write your own.)
+
+This filtering system in Fortissimo's primary tool for filtering data before the application must deal with it.
+
+## Using databases and other data stores
+
+It will not take a newcomer long to see that there is no massive database layer in Fortissimo. Part of the reason for this is that there are plenty out there already. Part of it is because we want the framework to be as flexible as possible. So we let you make the decisions about data storage.
+
+But Fortissimo does provide a very thin abstraction layer for data sources. It's the aptly named `datasource` tool. In a nutshell, it provides your application with four things:
+
+- Commands gain access to all defined datasources
+- Datasources are kept in a pool that lasts for the duration of the request
+- Datasources can be defined in one place, but accessed anywhere in the application
+- Initialization of datasources can be deferred until needed, but are automatically initialized just in time.
+
+Like commands, datasources are defined in very simple PHP classes. Fortissimo comes with one built-in datasource: `FortissimoMongoDatasource`. This is used to connect to a MongoDB server.
+
+Datasources are declared in configuration like this:
+
+~~~
+<?php
+Config::datasource('db')
+  ->whichInvokes('FortissimoMongoDatasource')
+  ->withParam('server')
+    ->whoseValueIs('mongodb://localhost:27017</param>')
+  ->withParam('defaultDB')
+    ->whoseValueIs('my_db')
+  // Only one database can be set as the default.
+  ->withParam('isDefault')
+    ->whoseValueIs(TRUE)
+;
+?>
+~~~
+
+Note that the structure is very similar to a `request()` declaration. It provides the following information:
+
+- A name of the datasource
+- A datasource class to invoke for performing datasource operations
+- The parameters needed by the datasource class
+
+So in the example above, we are creating..
+
+- A database named 'db'
+- that uses the `FortissimoMongoDatasource` driver
+- and sends that driver the parameters `server`, `defaultDB`, and `isDefault`
+
+One datasource can be declared the default datasource. When a command sends a request to an unnamed datasource, that request will be handled by the default datasource. (I suppose it goes without saying that using the default datasource should be done with great caution.)
+
+## A Real Example: Uploading files
 
 Fortissimo comes with a built-in file loader.
 
@@ -17,20 +234,28 @@ Consider some HTML that contains a form that posts a file:
 The above can be handled by this command configuration:
 
 ~~~
-<request name="upload-file">
-  <cmd name="upload_file" invoke="FortissimoFileLoader">
-    <param name="inputName" from="file:some_file"/>
-    <param name="types">application/csv,text/csv</param>
-    <param name="extensions">csv,txt</param>
-    <param name="rewriteExtensions">txt</param>
-    <param name="rewriteExtensionRule">%s.csv</param>
-    <param name="moveTo">./files</param>
-  </cmd>
-  <!-- Do some other command using upload_file -->
-  <cmd name="reader" invoke="FictitiousFileReader">
-    <param name="filename" from="cxt:upload_file"/>  
-  </cmd>
-</request>
+<?php
+Config::request('upload-file')
+  ->doesCommand('upload_file')
+    ->whichInvokes('FortissimoFileLoader')
+    ->withParam('inputName')
+      ->from('file:some_file')
+    ->withParam('types')
+      ->whoseValyeIs('application/csv,text/csv')
+    ->withParam('extensions')
+      ->whoseValueIs('csv,txt')
+    ->withParam('rewriteExtensions')
+      ->whoseValueIs('txt')
+    ->withParam('rewriteExtensionRule')
+      ->whoseValueIs('%s.csv')
+    ->withParam('moveTo')
+      ->whoseValueIs('./files')
+  ->doesCommand('reader')
+    ->whichInvokes('FictitiousFileReader')
+    ->withParam('filename')
+      ->from('context:upload_file')
+;
+?>
 ~~~
 
 The FortissimoFileLoader will load the file onto the server and make it available for 

@@ -125,7 +125,7 @@ Copyright (c) 2010, Matt Butcher, some rights reserved.
     <reflexive>
       <fileset refid="docs"/>
       <filterchain>
-        <replacetokens begintoken="@" endtoken="@">
+        <replacetokens begintoken="%" endtoken="-">
           <token key="UNSTABLE" value="${version}"/>
         </replacetokens>
       </filterchain>

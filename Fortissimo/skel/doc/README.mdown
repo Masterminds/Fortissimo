@@ -20,7 +20,7 @@ A Fortissimo application has the following directory structure:
      |- src
         |- build.xml: The Phing make file
         |- config : All configuration files
-        |   |- commands.xml: The Fortissimo command configuration file
+        |   |- commands.php: The Fortissimo command configuration file
         |
         |- core: Core files. DO NOT EDIT
         |   |- Fortissimo: Fortissimo library. Built-in commands live here.
@@ -34,7 +34,7 @@ The primary configuration system for Fortissimo is the commands.xml file.
 
 All application-specific code should be stored in src/includes. The structure of that
 directory should reflect your application. To get all files to autoload correctly,
-you may need to add paths in the commands.xml file using the <include/> tag.
+you may need to add paths in the commands.php file using the `Config::includePath()` function.
 
 Core files, which should *never* be altered, can be found in src/core. These files
 are part of the Fortissimo framework, and will be overwritten during a framework
@@ -76,6 +76,8 @@ is available from anywhere in Fortissimo. You can use it in your applications to
 process XML and HTML.
 
 Learn more about QueryPath at http://querypath.org
+
+**QueryPath is not required for Fortissimo 2.0.**
 
 # About the License
 

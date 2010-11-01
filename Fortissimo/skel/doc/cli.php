@@ -30,9 +30,9 @@ $bases = array(
 
 $config = NULL;
 foreach ($bases as $base) {
-  if (is_file($base . '/config/commands.xml')) {
+  if (is_file($base . '/config/commands.php')) {
     $practicalBase = $base;
-    $config = $base . '/config/commands.xml';
+    $config = $base . '/config/commands.php';
     break;
   }
 }

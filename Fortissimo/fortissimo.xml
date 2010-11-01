@@ -88,16 +88,16 @@ Copyright (c) 2009, 2010, Matt Butcher, some rights reserved.
       toFile="${basepath}/${project}/src/.htaccess" overwrite="false"/>
     <!-- Safely copy commands.xml -->
     <property name="commands_exists" value="false"/>
-    <available file="${basepath}/${project}/src/config/commands.xml" property="commands_exists" value="true"/>
+    <available file="${basepath}/${project}/src/config/commands.php" property="commands_exists" value="true"/>
     <if>
       <isfalse value="${commands_exists}"/>
       <then>
         <echo>Copying configuration file.</echo>
-        <move file="${basepath}/${project}/src/config/commands-update.xml"
-          toFile="${basepath}/${project}/src/config/commands.xml" overwrite="false"/>
+        <move file="${basepath}/${project}/src/config/commands-update.php"
+          toFile="${basepath}/${project}/src/config/commands.php" overwrite="false"/>
       </then>
       <else>
-        <echo>${basepath}/${project}/src/config/commands.xml exists.</echo>
+        <echo>${basepath}/${project}/src/config/commands.php exists.</echo>
       </else>
     </if>
   </target>

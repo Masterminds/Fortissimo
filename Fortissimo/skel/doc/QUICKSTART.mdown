@@ -82,13 +82,13 @@ only one command.
 
 We will use the HelloWorld command we created above.
 
-The commands.xml file is located in `src/config/commands.xml`. Edit this file.
+The commands.php file is located in `src/config/commands.php`. Edit this file.
 
-To create a new request, we add a simple section to the XML:
+To create a new request, we add a simple section to the PHP configuration file:
 
-    <request name="hello">
-      <cmd name="helloworld" invoke="HelloWorld"/>
-    </request>
+    <?php
+    Config::request('hello')->usesCommand('helloworld')->whichInvokes('HelloWorld');
+    ?>
 
 This tells Fortissimo that when a browser requests `http://yoursite.com/hello` (or `http://yoursite.com/index.php?ff=hello`) then it should execute the `helloworld` command. This
 is accomplished by Fortissimo invoking `HelloWorld`. Essentially, what that means is that it
@@ -103,10 +103,11 @@ will call `HelloWorld::doCommand()`. Using our stick diagram, then, this looks l
 We can easily add lots of commands to a single request. In fact, we could very easily modify the 
 above to emit 'Hello World' twice:
 
-    <request name="hello">
-      <cmd name="helloworld" invoke="HelloWorld"/>
-      <cmd name="helloworld2" invoke="HelloWorld"/>
-    </request>
+    <?php
+    Config::request('hello')
+      ->usesCommand('helloworld')->whichInvokes('HelloWorld')
+      ->usesCommand('helloworld2')->whichInvokes('HelloWorld');
+    ?>
   
 All we did is copy the command again, changing the name of the second one to 'helloworld2'. It must
 have a different name because Fortissimo uses names to keep track of what commands are executed 
@@ -129,12 +130,17 @@ Fortissimo's hello request executes two commands (helloworld and helloworld2) an
 We could have done the entire Hello World script with even less work. We could have just used
 the `FortissimoEcho` command (located in `src/core/Fortissimo/FortissimoEcho.cmd.php`):
 
-    <request name="hello">
-      <cmd name="helloworld" invoke="HelloWorld"/>
-      <cmd name="more" invoke="FortissimoEcho">
-        <param name="text">Hello Again</param>
-      </cmd>
-    </request>
+    <?php
+    Config::request('hello')
+      // Our command that we created above:
+      ->usesCommand('helloworld')
+        ->whichInvokes('HelloWorld')
+      // The built-in FortissimoEcho command:
+      ->usesCommand('more')
+        ->whichInvokes('FortissimoEcho')
+        ->withParam('text')->whoseValueIs('Hello Again')
+    ;
+    ?>
 
 The above request will print output something like this:
 
