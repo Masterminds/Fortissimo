@@ -37,8 +37,6 @@ foreach ($bases as $base) {
   }
 }
 
-
-
 if (empty($basedir)) {
   print 'No configuration file found. Quitting.' . PHP_EOL;
   exit(1);
