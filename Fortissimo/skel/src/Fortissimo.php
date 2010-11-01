@@ -647,6 +647,7 @@ class Fortissimo {
       case 'a':
       case 'arg':
       case 'argv':
+        global $argv;
         $i = (int)$paramName;
         return isset($argv[$i]) ? $argv[$i] : NULL;
       case 'f':
