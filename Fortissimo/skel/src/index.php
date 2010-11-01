@@ -42,5 +42,5 @@ if (empty($cmd)) {
 }
 
 $base = dirname(__FILE__);
-$ff = new Fortissimo($base . '/config/commands.xml');
+$ff = new Fortissimo($base . '/config/commands.php');
 $ff->handleRequest($cmd);
