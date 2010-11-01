@@ -578,7 +578,7 @@ class Fortissimo {
       }
             
       // Set the default value if necessary.
-      if (!isset($params[$name])) $params[$name] = $config['value'];
+      if (!isset($params[$name]) && isset($config['value'])) $params[$name] = $config['value'];
     }
     return $params;
   }

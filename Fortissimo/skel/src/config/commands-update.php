@@ -50,7 +50,7 @@
  *
  * @code
  * Config::datasource('db') // Name of datasource
- *   ->invokes('FortissimoMongoDatasource') // The class it uses
+ *   ->whichInvokes('FortissimoMongoDatasource') // The class it uses
  *   // Parameters for the FortissimoMongoDatasource:
  *   ->withParam('server')->whoseValueIs('mongodb://localhost:27017')
  *   ->withParam('defaultDB')->whoseValueIs('my_db_name')
@@ -62,7 +62,7 @@
  * name.
  */
 Config::datasource('db') // Name of datasource
-  ->invokes('FortissimoMongoDatasource') // The class it uses
+  ->whichInvokes('FortissimoMongoDatasource') // The class it uses
   ->withParam('server')->whoseValueIs('mongodb://localhost:27017')
   ->withParam('defaultDB')->whoseValueIs('my_db_name')
   ->withParam('isDefault')->whoseValueIs(TRUE) // Only datasource one can be default.
@@ -125,7 +125,7 @@ Config::group('bootstrap')
  *     ->withParam('templateDir')
  *       ->whoseValueIs('theme/vanilla')
  *     ->withParam('templateCache')
- *       ->whoseValueIs('.cache')
+ *       ->whoseValueIs('./cache')
  *     ->withParam('disableCache')
  *       ->whoseValueIs(FALSE)
  *     // ->withParam('debug')->whoseValueIs(FALSE)
@@ -159,7 +159,7 @@ Config::request('default')
     ->withParam('templateDir')
       ->whoseValueIs('theme/vanilla')
     ->withParam('templateCache')
-      ->whoseValueIs('.cache')
+      ->whoseValueIs('./cache')
     ->withParam('disableCache')
       ->whoseValueIs(FALSE)
     // ->withParam('debug')->whoseValueIs(FALSE)
@@ -169,7 +169,8 @@ Config::request('default')
   // Send the rendered welcome page to the browser.
   ->doesCommand('echo')
     ->whichInvokes('FortissimoEcho')
-    ->from('context:tpl')
+    ->usesParam('text')
+      ->from('context:tpl')
 ;
 
 /**
