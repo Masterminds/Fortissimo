@@ -161,7 +161,7 @@ Config::request('default')
     ->withParam('templateCache')
       ->whoseValueIs('./cache')
     ->withParam('disableCache')
-      ->whoseValueIs(FALSE)
+      ->whoseValueIs(TRUE) // This should be FALSE on production.
     // ->withParam('debug')->whoseValueIs(FALSE)
     // ->withParam('trimBlocks')->whoseValueIs(TRUE)
     // ->withParam('auto_reload')->whoseValueIs(FALSE)
@@ -169,7 +169,7 @@ Config::request('default')
   // Send the rendered welcome page to the browser.
   ->doesCommand('echo')
     ->whichInvokes('FortissimoEcho')
-    ->usesParam('text')
+    ->withParam('text')
       ->from('context:tpl')
 ;
 
