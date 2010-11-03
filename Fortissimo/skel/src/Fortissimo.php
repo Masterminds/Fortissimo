@@ -1,5 +1,5 @@
 <?php
-/**
+/** @file
  * The Fortissimo core.
  *
  * This file contains the core classes necessary to bootstrap and run an
@@ -22,8 +22,8 @@
  *
  * Each request will kick off a chain of zero or more commands, which are 
  * executed in sequence. A command is simply a class that implements the 
- * {@link FortissimoCommand} class. Most commands will extend the abstract
- * {@link BaseFortissimoCommand} class, which provides a baseline of 
+ * FortissimoCommand class. Most commands will extend the abstract
+ * BaseFortissimoCommand class, which provides a baseline of 
  * functionality.
  *
  * A command can take zero or more parameters. Parameters can be retrieved from
@@ -54,12 +54,11 @@
  * config object).
  *
  * The code in the Fortissimo project is released under an MIT-style license.
- * @package Fortissimo
- * @subpackage Core
+ *
  * @author M Butcher <matt@aleph-null.tv>
  * @license http://opensource.org/licenses/mit.php An MIT-style License (See LICENSE.txt)
  * @see Fortissimo
- * @copyright Copyright (c) 2009, Matt Butcher.
+ * @copyright Copyright (c) 2009, 2010 Matt Butcher.
  * @version @UNSTABLE@
  */
 
@@ -112,14 +111,6 @@ spl_autoload_extensions('.php,.cmd.php,.inc');
 global $loader;
 $loader = new FortissimoAutoloader();
 spl_autoload_register(array($loader, 'load'));
-
-
-/**
- * QueryPath is a core Fortissimo utility.
- * @see http://querypath.org
- */ 
-require_once('QueryPath/QueryPath.php');
-// ^^ This is explicitly loaded because of the factory function.
 
 /**
  * A broad autoloader that should load data from expected places.
@@ -224,8 +215,6 @@ class FortissimoAutoloader {
  * For more details, see {@link __construct()}.
  *
  * @see Fortissimo.php
- * @package Fortissimo
- * @subpackage Core
  */
 class Fortissimo {
   
@@ -2338,113 +2327,7 @@ class FortissimoLoggerManager {
       $logger->rawLog($msg, $category);
     }
   }
-  
 }
-
-/**
- * The FOIL logger sends messages directly to STDOUT.
- *
- * Log messages will be emitted to STDOUT as soon as they are logged.
- *
- * @package Fortissimo
- * @subpackage Core
- */
-class FortissimoOutputInjectionLogger extends FortissimoLogger {
-  protected $filter;
-  protected $isHTML = FALSE;
-  
-  public function init() {
-    
-    $this->isHTML = isset($this->params['html']) ? filter_var($this->params['html'], FILTER_VALIDATE_BOOLEAN) : FALSE;
-    $this->filter = empty($this->params['html']) ? '%s %s %s' : '<div class="log-item %s"><strong>%s</strong> %s</div>';
-  }
-  public function log($message, $category, $details) {
-    
-    if ($this->isHTML) {
-      $severity = strtr($category, ' ', '-');
-      $message = strtr($message, array("\n" => '<br/>'));
-      $filter = '<div class="log-item %s"><strong>%s</strong> %s <pre class="log-details">%s</pre></div>';
-      printf($filter, $severity, $category, $message, $details);
-    }
-    else {
-      printf('%s: %s -- %s', $category, $message, $details);
-    }
-  }
-}
-
-/**
- * The FAIL logger maintains an array of messages to be retrieved later.
- * 
- * Log entries can be injected into the output by retrieving a list
- * of log messages with {@link getMessages()}, and then displaying them,
- * or by simply calling {@link printMessages()}.
- *
- * @package Fortissimo
- * @subpackage Core
- */
-class FortissimoArrayInjectionLogger extends FortissimoLogger {
-  protected $logItems = array();
-  protected $filter;
-  
-  public function init() {
-    $this->filter = empty($this->params['html']) ? '%s: %s' : '<div class="log-item %s">%s<pre class="log-details">%s</pre></div>';
-  }
-  
-  public function getMessages() {
-    return $this->logItems;
-  }
-  
-  public function printMessages() {
-    print implode('', $this->logItems);
-  }
-  
-  public function log($message, $category, $details) {
-    $severity = str_replace(' ', '-', $category);
-    $this->logItems[] = sprintf($this->filter, $severity, $message, $details);
-  }
-}
-
-/**
- * Provide a simple user-friendly (non-trace) error message.
- * @see FortissimoArrayInjectionLogger
- */
-class SimpleArrayInjectionLogger extends FortissimoArrayInjectionLogger {
-  public function log($message, $category, $details) {
-    $severity = str_replace(' ', '-', $category);
-    $filter = '<div class="log-item %s"><strong>%s</strong> %s</div>';
-    switch ($category) {
-      case 'Fatal Error':
-        $msg = 'An unrecoverable error occurred. Your request could not be completed.';
-      case 'Recoverable Error':
-        $msg = 'An error occurred. Some data may be lost or incomplete.';
-      default:
-        $msg = 'An unexpected error occurred. Some data may be lost or incomplete.';
-    }
-    $this->logItems[] = sprintf($filter, $severity, 'Error', $msg);
-  }
-}
-
-/**
- * Provide a simple user-friendly (non-trace) error message.
- */
-class SimpleOutputInjectionLogger extends FortissimoOutputInjectionLogger {
-  
-  public function log($message, $category, $details) {
-    $severity = strtr($category, ' ', '-');
-    $filter = '<div class="log-item %s"><strong>%s</strong> %s</div>';
-    switch ($category) {
-      case 'Fatal Error':
-        $msg = 'An unrecoverable error occurred. Your request could not be completed.';
-      case 'Recoverable Error':
-        $msg = 'An error occurred. Some data may be lost or incomplete.';
-      default:
-        $msg = 'An unexpected error occurred. Some data may be lost or incomplete.';
-    }
-    printf($filter, $severity, 'Error', $msg);
-  }
-}
-
-
 
 /**
  * A cache for command or request output.
