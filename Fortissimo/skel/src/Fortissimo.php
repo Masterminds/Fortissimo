@@ -399,7 +399,8 @@ class Fortissimo {
       $this->cxt = new FortissimoExecutionContext(
         $this->initialConfig, 
         $this->logManager, 
-        $this->datasourceManager
+        $this->datasourceManager,
+        $this->cacheManager
       );
     }
     
@@ -1096,6 +1097,38 @@ interface Explainable {
 }
 
 /**
+ * Classes that implement this advertise that their output can be cached.
+ *
+ * Simply implementing this in no way results in the results being cached. There must be a
+ * caching mechanism that receives the data and caches it.
+ *
+ * For example, BaseFortissimoCommand is capable of understanding Cacheable objects. When 
+ * a BaseFortissimCommand::doCommand() result is returned, if a cache key can be generated
+ * for it, then its results will be cached.
+ */
+interface Cacheable {
+  
+  /**
+   * Return a cache key.
+   *
+   * The key is assumed to uniquely describe a specific piece of data. Prefixes may be added
+   * to the key according to the caching manager.
+   *
+   * If a Cacheable object returns a cache key from this function, the underlying system is
+   * considered to be allowed to cache the object's output.
+   *
+   * Note that the exact data that is cached will be based not on this interface, but on the 
+   * caching mechanism used. For example, BaseFortissimoCommand caches the output of the 
+   * BaseFortissimoCommand::doCommand() method.
+   *
+   * @return string
+   *  Cache key or NULL if (a) no key can be generated, or (b) this object should not be cached.
+   *  
+   */
+  public function cacheKey();
+}
+
+/**
  * This is a base class that can be extended to add new commands.
  *
  * The class provides several basic services. 
@@ -1216,7 +1249,14 @@ abstract class BaseFortissimoCommand implements FortissimoCommand, Explainable {
   public function execute($params, FortissimoExecutionContext $cxt) {
     $this->context = $cxt;
     $this->prepareParameters($params);
-    $this->context->add($this->name, $this->doCommand());
+    
+    $result = $this->doCommand();
+    
+    if ($this instanceof Cacheable && ($key = $this->cacheKey()) != NULL) {
+      $this->cacheManager->set($key, serialize($result),)
+    }
+    
+    $this->context->add($this->name, $result);
   }
   
   /**
@@ -1789,6 +1829,7 @@ class FortissimoExecutionContext implements IteratorAggregate {
   protected $data = NULL;
   protected $logger = NULL;
   protected $datasources = NULL;
+  protected $cacheManager = NULL;
   /** Command cache. */
   protected $cache = array();
   protected $caching = FALSE;
@@ -1802,8 +1843,10 @@ class FortissimoExecutionContext implements IteratorAggregate {
    *  The logger.
    * @param FortissimoDatasourceManager $datasources
    *  The manager for all datasources declared for this request.
+   * @param FortissimoCacheManager $cacheManager
+   *  The manager for all caches. Commands may use this to store or retrieve cached content.
    */
-  public function __construct($initialContext = array(), FortissimoLoggerManager $logger = NULL, FortissimoDatasourceManager $datasources = NULL ) {
+  public function __construct($initialContext = array(), FortissimoLoggerManager $logger = NULL, FortissimoDatasourceManager $datasources = NULL, FortissimoCacheManager $cacheManager = NULL) {
     if ($initialContext instanceof FortissimoExecutionContext) {
       $this->data = $initialContext->toArray();
     }
@@ -1814,6 +1857,7 @@ class FortissimoExecutionContext implements IteratorAggregate {
     // Store logger and datasources managers if they are set.
     if (isset($logger)) $this->logger = $logger;
     if (isset($datasources)) $this->datasources = $datasources;
+    if (isset($cacheManager)) $this->cacheManager = $cacheManager;
   }
   
   /**
@@ -1987,7 +2031,22 @@ class FortissimoExecutionContext implements IteratorAggregate {
    *  An initialized datasource manager.
    */
   public function getDatasourceManager() {
-    throw new Exception('Not implemented.');
+    //throw new Exception('Not implemented.');
+    return $this->datasourceManager;
+  }
+  
+  /**
+   * Get the FortissimoCacheManager for this request.
+   *
+   * Fortissimo provides facilities for providing any number of caches. All of the caches are
+   * managed by a FortissimoCacheManager instance. This returns a handle to the manager, from
+   * which tools can operate on caches.
+   *
+   * @return FortissimoCacheManager
+   *  The current cache manager.
+   */
+  public function getCacheManager() {
+    return $this->cacheManager;
   }
 }
 
@@ -2062,18 +2121,23 @@ class FortissimoCacheManager {
    * @param string $cache
    *  The name of the cache to store the value in. If not given, the cache 
    *  manager will store the item wherever it is most convenient.
+   * @param int $expires_after
+   *  An integer indicating how many seconds this item should live in the cache. Some
+   *  caching backends may choose to ignore this. Some (like pecl/memcache, pecl/memcached) may 
+   *  have an upper limit (30 days). Setting this to NULL will invoke the caching backend's
+   *  default.
    */
-  public function set($key, $value, $cache = NULL) {
+  public function set($key, $value, $expires_after = NULL, $cache = NULL) {
     
     // If a named cache key is found, set:
     if (isset($cache) && isset($this->caches[$cache])) {
-      return $this->caches[$cache]->set($key, $value);
+      return $this->caches[$cache]->set($key, $value, $expires_after);
     }
     
     // XXX: Right now, we just use the first item in the cache:
     $keys = array_keys($this->caches);
     if (count($keys) > 0) {
-      return $this->caches[$keys[0]]->set($key, $value);
+      return $this->caches[$keys[0]]->set($key, $value, $expires_after);
     }
   }
   
@@ -2356,8 +2420,11 @@ interface FortissimoRequestCache {
    *  text fields.
    * @param string $value
    *  The string that will be stored as the value.
+   * @param integer $expires_after
+   *  The number of seconds that should be considered the max age of the cached item. The 
+   *  details of how this is interpreted are cache dependent.
    */
-  public function set($key, $value);
+  public function set($key, $value, $expires_after = NULL);
   /**
    * Clear the entire cache.
    */
@@ -2981,6 +3048,19 @@ class Config {
     }
     return $this;
   }
+  /*
+  public function andCachesInto($name) {
+    switch ($this->currentCategory) {
+      case self::REQUESTS:
+      case self::GROUPS:
+        $this->config[$cat][$name][$this->commandName]['cache'] = $name;
+        break;
+      default:
+        $msg = 'Tried to add a cache handler to ' . $this->currentCategory;
+        throw new FortissimoConfigurationException($msg);
+    }
+  }
+  */
   /**
    * Turn on or off explaining for a request.
    */
