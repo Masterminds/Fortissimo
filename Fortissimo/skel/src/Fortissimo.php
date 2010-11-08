@@ -2052,7 +2052,7 @@ class FortissimoCacheManager {
    *
    * If no cache is named, the value will be stored in the first available cache.
    *
-   * If no cahce is found, this will silently continue. If a name is given, but the
+   * If no cache is found, this will silently continue. If a name is given, but the
    * named cache is not found, the next available cache will be used.
    *
    * @param string $key
