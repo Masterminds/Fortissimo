@@ -1126,6 +1126,32 @@ interface Cacheable {
    *  
    */
   public function cacheKey();
+  
+  /**
+   * Indicates how long the item should be stored.
+   *
+   * Implementations of this method return an integer value that indicates how long an item
+   * should live in the cache before it is expired.
+   *
+   * @return int
+   *  The duration (in seconds) that this item should be cached. Note that different cache backends
+   *  may interpret edge values (0, -1) differently. Returning NULL will result in Fortissimo
+   *  using the default for the underlying cache mechanism.
+   */
+  public function cacheLifetime();
+  
+  /**
+   * Indicates which cache to use.
+   *
+   * Fortissimo supports multiple caches, all of which are managed by the FortissimoCacheManager.
+   * This method allows a Cacheable object to declare which cache it uses.
+   *
+   * Returning NULL will allow the default behavior to take effect.
+   *
+   * @return string
+   *  The name of the cache. If this is NULL, then the default cache will be used.
+   */
+  public function cacheBackend();
 }
 
 /**
@@ -1246,16 +1272,54 @@ abstract class BaseFortissimoCommand implements FortissimoCommand, Explainable {
     return isset($val) ? $val : $default;
   }
   
+  /**
+   * Helper function for handling cache lookups.
+   *
+   * @param string $key
+   *  The key to use with the cache.
+   */
+  protected function executeWithCache($key) {
+    
+    // Figure out which cache we're using.
+    if (($be = $this->cacheBackend()) == NULL) {
+      $cache = $this->cacheManager->getDefaultCache();
+    }
+    else {
+      $cache = $this->cacheManager->getCacheByName($be);
+    }
+    
+    // Bail here if we don't have a cache.
+    if (empty($cache)) {
+      return;
+    }
+    
+    // Try to get from cache.
+    if (($result = $this->cacheManager->get($key)) != NULL) {
+      return $result;
+    }
+    
+    // We have a cache miss, so we need to do the command and set the cache entry.
+    $result = $this->doCommand();
+    $this->cacheManager->set($key, $result, $this->cacheLifetime());
+    
+    // Return the result to execute().
+    return $result;
+  }
+  
   public function execute($params, FortissimoExecutionContext $cxt) {
     $this->context = $cxt;
     $this->prepareParameters($params);
+    $result = NULL;
     
-    $result = $this->doCommand();
-    
+    // If this looks like a cache can handle it, use a cache.
     if ($this instanceof Cacheable && ($key = $this->cacheKey()) != NULL) {
-      $this->cacheManager->set($key, serialize($result),)
+      $result = $this->executeWithCache($key);
     }
     
+    // If no result has been set, execute the command.
+    if (is_null($result)) $result = $this->doCommand();
+    
+    // Add the results to the context.
     $this->context->add($this->name, $result);
   }
   
@@ -2088,6 +2152,15 @@ class FortissimoCacheManager {
   }
   
   /**
+   * Get the default cache.
+   */
+  public function getDefaultCache() {
+    foreach ($this->caches as $name => $cache) {
+      if ($cache->isDefault()) return $cache;
+    }
+  }
+  
+  /**
    * Get a value from the caches.
    *
    * This will read sequentially through each defined cache until it
@@ -2135,10 +2208,13 @@ class FortissimoCacheManager {
     }
     
     // XXX: Right now, we just use the first item in the cache:
+    /*
     $keys = array_keys($this->caches);
     if (count($keys) > 0) {
       return $this->caches[$keys[0]]->set($key, $value, $expires_after);
     }
+    */
+    $this->getDefaultCache()->set($key, $value, $expires_after);
   }
   
   /**
@@ -2386,6 +2462,75 @@ class FortissimoLoggerManager {
   }
 }
 
+abstract class FortissimoCache {
+  /**
+   * The parameters for this data source
+   */
+  protected $params = NULL;
+  protected $default = FALSE;
+  
+  /**
+   * Construct a new datasource.
+   */
+  public function __construct($params = array()) {
+    $this->params = $params;
+    $this->default = isset($params['isDefault']) && filter_var($params['isDefault'], FILTER_VALIDATE_BOOLEAN);
+  }
+  
+  /**
+   * Determine whether this is the default cache.
+   *
+   * Note that this may be called *before* init().
+   *
+   * @return boolean
+   *  Returns TRUE if this is the default. Typically the default status is 
+   *  assigned in the commands.xml file.
+   */
+  public function isDefault() {
+    return $this->default;
+  }
+  
+  /**
+   * Perform any necessary initialization.
+   */
+  public abstract function init();
+  
+  /**
+   * Add an item to the cache.
+   *
+   * @param string $key
+   *  A short (<255 character) string that will be used as the key. This is short
+   *  so that database-based caches can optimize for varchar fields instead of 
+   *  text fields.
+   * @param string $value
+   *  The string that will be stored as the value.
+   * @param integer $expires_after
+   *  The number of seconds that should be considered the max age of the cached item. The 
+   *  details of how this is interpreted are cache dependent.
+   */
+  public abstract function set($key, $value, $expires_after = NULL);
+  /**
+   * Clear the entire cache.
+   */
+  public abstract function clear();
+  /**
+   * Delete an item from the cache.
+   *
+   * @param string $key
+   *  The key to remove from the cache.
+   */
+  public abstract function delete($key);
+  /**
+   * Retrieve an item from the cache.
+   *
+   * @param string $key
+   *  The key to return.
+   * @return mixed
+   *  The string found in the cache, or NULL if nothing was found.
+   */
+  public abstract function get($key);
+}
+
 /**
  * A cache for command or request output.
  *
@@ -2403,6 +2548,8 @@ class FortissimoLoggerManager {
  * External caches, like Varnish or Squid, tend not to use this mechanism. Internal
  * mechanisms like APC or custom database caches would use this mechanism. Memcached
  * would also use this mechanism, if appropriate.
+ *
+ * @deprecated
  */
 interface FortissimoRequestCache {
   

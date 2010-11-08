@@ -200,3 +200,28 @@ Config::request('default')
 Config::logger('foil')
   ->whichInvokes('FortissimoOutputInjectionLogger')
 ;
+
+/**
+ * @section cache_config Caches
+ *
+ * Fortissimo has built-in support for multiple caching backends. For example, applications could
+ * strategically cache some data in memcache and some in APC. Fortissimo includes a simple 
+ * implementation of a Memcached caching layer (FortissimoMemcacheCache). 
+ *@code
+ * <?php
+ * Config::cache('memcache')
+ *   ->whichInvokes('FortissimoMemcacheCache')
+ *   ->withParam('servers')
+ *     ->whoseValueIs(array('example.com:11211', 'example.com:11212'))
+ *   ->withParam('persistent')
+ *     ->whoseValueIs(FALSE)
+ *   ->withParam('compress')
+ *     ->whoseValueIs(FALSE)
+ * ;
+ * ?>
+ * @endcode
+ *
+ * If you want commands to cache (as opposed to just entire requests), your classes will need
+ * to implement Cacheable and extend BaseFortissimoCommand (or you can handle caching yourself
+ * in FortissimoCommand::execute()).
+ */

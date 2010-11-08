@@ -156,18 +156,18 @@ class FortissimoTest extends PHPUnit_Framework_TestCase {
 // MOCKS
 // //////////////////////////// //
 
-class MockAlwaysReturnFooCache implements FortissimoRequestCache {
+class MockAlwaysReturnFooCache extends FortissimoCache /* implements FortissimoRequestCache */ {
   public function init(){}
-  public function set($k, $v) {}
+  public function set($k, $v, $t = NULL) {}
   public function get($key) { return 'foo'; }
   public function delete($key) {}
   public function clear() {}
 }
 
-class MockAlwaysSetValueCache implements FortissimoRequestCache {
+class MockAlwaysSetValueCache extends FortissimoCache /* implements FortissimoRequestCache */ {
   public $cache = array();
   public function init(){}
-  public function set($k, $v) {$this->cache[$k] = $v;}
+  public function set($k, $v, $t = NULL) {$this->cache[$k] = $v;}
   public function get($key) {
     // Avoid E_STRICT warnings.
     return isset($this->cache[$key]) ? $this->cache[$key] : NULL;
