@@ -5,6 +5,9 @@
 
 /**
  * Provide a simple user-friendly (non-trace) error message.
+ * 
+ * Params:
+ * - categories: An indexed array or comma-separated list of categories that this logger should log.
  * @see FortissimoArrayInjectionLogger
  */
 class SimpleArrayInjectionLogger extends FortissimoArrayInjectionLogger {

@@ -191,11 +191,21 @@ Config::request('default')
  * @code
  * Config::logger('fail')
  *   ->whichInvokes('ForitissimoArrayInjectionLogger')
+ *   // Use this only if you want to restrict what is logged by this logger:
+ *   ->withParam('categories')
+ *     ->whoseValueIs('Fatal Error,Recoverable Error')
  * ;
  * @endcode
  *
  * New loggers can be created very easily. See the FortissimoOutputInjectionLogger code for an 
  * example.
+ *
+ * Loggers that ship with Fortissimo:
+ *  - FortissimoOutputInjectionLogger (aka FOIL)
+ *  - FortissimoArrayInjectionLogger (aka FAIL)
+ *  - SimpleOutputInjectionLogger (aka SOIL)
+ *  - SimpleArrayInjectionLogger (aka SAIL)
+ *  - FortissimoSyslogLogger (aka... Fizzle?)
  */
 Config::logger('foil')
   ->whichInvokes('FortissimoOutputInjectionLogger')

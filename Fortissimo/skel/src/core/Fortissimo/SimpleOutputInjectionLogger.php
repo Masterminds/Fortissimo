@@ -9,6 +9,9 @@
  * This is similar to FortissimoOutputInjectionLogger in design, but with 
  * focus on sending trivial error messages to users (as opposed to technical
  * log message intended for developers).
+ *
+ * Params:
+ * - categories: An indexed array or comma-separated list of categories that this logger should log.
  */
 class SimpleOutputInjectionLogger extends FortissimoOutputInjectionLogger {
   

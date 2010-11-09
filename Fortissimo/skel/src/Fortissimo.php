@@ -228,6 +228,29 @@ class Fortissimo {
    */
   const ERROR_TO_EXCEPTION = 771; // 257 will catch only errors; 771 is errors and warnings.
   
+  /**
+   * Fatal error.
+   * Used by Fortissimo when logging failures.
+   * Fatal errors are those that should not be caught by anything other than the request
+   * handler. Or, to phrase it another way, these are errors that should rightly stop the
+   * execution of the app. Typically, FortissimoInterruptException
+   * exceptions represent this category.
+   */
+  const LOG_FATAL = 'Fatal Error';
+  /**
+   * Error that does not have to be fatal.
+   * Used by Fortissimo when logging failures. A Recoverable
+   * error means that something *could have caught* this, but nothing did.
+   */
+  const LOG_RECOVERABLE = 'Recoverable Error';
+  /**
+   * Error designed for the user to see.
+   * 
+   * Errors like this are generally user-friendly, and are designed to give 
+   * feedback to the user. Example: Failed form submission.
+   */
+  const LOG_USER = 'User Error';
+  
   protected $commandConfig = NULL;
   protected $initialConfig = NULL;
   protected $logManager = NULL;
@@ -2667,6 +2690,13 @@ abstract class FortissimoDatasource {
 /**
  * A logger responsible for logging messages to a particular destination.
  *
+ * The FortissimoLogger abstract class does recognize one parameter.
+ *
+ *  - 'categories': An array or comma-separated list of categories that this logger listens for.
+ *     If no categories are set, this logs ALL categories.
+ *
+ * Category logic is encapsulated in the method FortissimoLogger::isLoggingThisCategory(). 
+ *
  * @abstract
  */
 abstract class FortissimoLogger {
@@ -2675,6 +2705,7 @@ abstract class FortissimoLogger {
    * The parameters for this logger.
    */
   protected $params = NULL;
+  protected $facilities = NULL;
   
   /**
    * Construct a new logger instance.
@@ -2684,6 +2715,17 @@ abstract class FortissimoLogger {
    */
   public function __construct($params = array()) {
     $this->params = $params;
+    
+    // Add support for facility declarations.
+    if (isset($params['categories'])) {
+      $fac = $params['categories'];
+      if (!is_array($fac)) {
+        $fac = explode(',', $fac);
+      }
+      // Assoc arrays provide faster lookups on keys.
+      $this->facilities = array_combine($fac, $fac);
+    }
+    
   }
   
   /**
@@ -2698,6 +2740,16 @@ abstract class FortissimoLogger {
    */
   public function getMessages() {
     return array();
+  }
+  
+  /**
+   * Check whether this category is being logged.
+   *
+   * In general, this check is run from rawLog(), and so does not need to be 
+   * directly called elsewhere.
+   */
+  public function isLoggingThisCategory($category) {
+    return empty($this->facility) || isset($this->facility[$category]);
   }
   
   /**
@@ -2717,6 +2769,10 @@ abstract class FortissimoLogger {
    *  details will be automatically filled with stack trace information.
    */
   public function rawLog($message, $category = 'General Error', $details = '') {
+    
+    // If we shouldn't log this category, skip this step.
+    if (!$this->isLoggingThisCategory($category)) return;
+    
     if ($message instanceof Exception) {
       $buffer = $message->getMessage();
       

@@ -10,6 +10,7 @@
  *
  * Configuration Parameters:
  *  - html: If TRUE, HTML output will be generated. If FALSE, plain text.
+ *  - categories: An indexed array or comma-separated list of categories that this logger should log.
  * @todo This class needs some cleanup.
  */
 class FortissimoOutputInjectionLogger extends FortissimoLogger {
