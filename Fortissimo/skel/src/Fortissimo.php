@@ -1280,7 +1280,7 @@ abstract class BaseFortissimoCommand implements FortissimoCommand, Explainable {
    */
   protected function executeWithCache($key) {
     
-    $cacheManager = $this->context->cacheManager;
+    $cacheManager = $this->context->getCacheManager();
     
     // Figure out which cache we're using.
     if (($be = $this->cacheBackend()) == NULL) {
