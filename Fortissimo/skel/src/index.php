@@ -24,7 +24,7 @@ if(version_compare(phpversion(), '5.2', '>') === FALSE) {
 
 // Idiotic things you just have to do...
 if (get_magic_quotes_gpc()) {
-  print 'Magic quotes, a deprecated PHP feature, are enabled. Please turn them off.';
+  print '"Magic quotes", a deprecated PHP feature, is enabled. Please turn it off.';
   exit;
 }
 if (get_magic_quotes_runtime()) {

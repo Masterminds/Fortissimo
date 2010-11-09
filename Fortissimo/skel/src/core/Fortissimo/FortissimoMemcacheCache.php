@@ -53,7 +53,7 @@ class FortissimoMemcacheCache extends FortissimoCache {
        throw FortissimoInterruptException('No memcache server was specified, but init was attempted.');
     }
     
-    $this->memcache = new Memache();
+    $this->memcache = new Memcache();
     $this->compress = isset($this->params['compress']) 
       && filter_var($this->params['compress'], FILTER_VALIDATE_BOOLEAN);
     
@@ -78,8 +78,7 @@ class FortissimoMemcacheCache extends FortissimoCache {
   public function delete($key) {
     $this->memcache->delete($key);
   }
-  
-  public function set($key, $value, $expires_after) {
+  public function set($key, $value, $expires_after = NULL) {
     $value = serialize($value);
     $this->memcache->set($key, $value, $this->compress, $expires_after);
   }

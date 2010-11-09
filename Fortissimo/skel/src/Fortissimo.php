@@ -1352,7 +1352,7 @@ abstract class BaseFortissimoCommand implements FortissimoCommand, Explainable {
    *  The name of the parameter. This is used for error reporting.
    * @param string $filter
    *  The name (AS A STRING) of the filter to run. See 
-   *  {@link BaseFortissimoCommandParameter::addFilter()} for a list of names,
+   *  BaseFortissimoCommandParameter::addFilter() for a list of names,
    *  or consult the PHP documentation for filters.
    * @param mixed $payload
    *  The value to be validated.
