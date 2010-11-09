@@ -433,7 +433,7 @@ class Fortissimo {
       }
       // Kill the request and log an error.
       catch (FortissimoInterruptException $ie) {
-        $this->logManager->log($ie, 'Fatal Error');
+        $this->logManager->log($ie, self::LOG_FATAL);
         $this->stopCaching();
         return;
       }
@@ -456,13 +456,13 @@ class Fortissimo {
       catch (FortissimoException $e) {
         // Note that we don't cache if a recoverable error occurs.
         $this->stopCaching();
-        $this->logManager->log($e, 'Recoverable Error');
+        $this->logManager->log($e, self::LOG_RECOVERABLE);
         continue;
       }
       catch (Exception $e) {
         $this->stopCaching();
         // Assume that a non-caught exception is fatal.
-        $this->logManager->log($e, 'Fatal Error');
+        $this->logManager->log($e, self::LOG_FATAL);
         //print "Fatal error";
         return;
       }
@@ -2749,7 +2749,7 @@ abstract class FortissimoLogger {
    * directly called elsewhere.
    */
   public function isLoggingThisCategory($category) {
-    return empty($this->facility) || isset($this->facility[$category]);
+    return empty($this->facilities) || isset($this->facilities[$category]);
   }
   
   /**
