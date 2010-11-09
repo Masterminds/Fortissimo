@@ -1280,12 +1280,14 @@ abstract class BaseFortissimoCommand implements FortissimoCommand, Explainable {
    */
   protected function executeWithCache($key) {
     
+    $cacheManager = $this->context->cacheManager;
+    
     // Figure out which cache we're using.
     if (($be = $this->cacheBackend()) == NULL) {
-      $cache = $this->cacheManager->getDefaultCache();
+      $cache = $cacheManager->getDefaultCache();
     }
     else {
-      $cache = $this->cacheManager->getCacheByName($be);
+      $cache = $cacheManager->getCacheByName($be);
     }
     
     // Bail here if we don't have a cache.
@@ -1294,13 +1296,13 @@ abstract class BaseFortissimoCommand implements FortissimoCommand, Explainable {
     }
     
     // Try to get from cache.
-    if (($result = $this->cacheManager->get($key)) != NULL) {
+    if (($result = $cacheManager->get($key)) != NULL) {
       return $result;
     }
     
     // We have a cache miss, so we need to do the command and set the cache entry.
     $result = $this->doCommand();
-    $this->cacheManager->set($key, $result, $this->cacheLifetime());
+    $cacheManager->set($key, $result, $this->cacheLifetime());
     
     // Return the result to execute().
     return $result;
