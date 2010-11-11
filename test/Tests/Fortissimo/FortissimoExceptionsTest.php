@@ -12,6 +12,17 @@ class FortissimoExceptionsTest extends PHPUnit_Framework_TestCase {
     Config::logger('fail')->whichInvokes('FortissimoArrayInjectionLogger');
   }
   
+  public function test404 () {
+    $ff = new FortissimoHarness();
+    $this->assertFalse($ff->hasRequest('NOREQUEST'), 'Request NOREQUEST should not exist');
+    
+    $ff->handleRequest('NOREQUEST');
+    $log = $ff->loggerManager()->getLoggerbyName('fail');
+    $msgs = $log->getMessages();
+    
+    $this->assertEquals(1, count($msgs));
+  }
+  
   /**
    * @   expectedException FortissimoException
    */
