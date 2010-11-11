@@ -106,7 +106,7 @@ class FortissimoTest extends PHPUnit_Framework_TestCase {
     $config[Config::CACHES]['foo']['class'] = 'MockAlwaysSetValueCache';
     Config::initialize($config);
     
-    $ff = new FortissimoHarness();
+    $ff = new FortissimoHarness(self::config);
     
     ob_start();
     $ff->handleRequest('testRequestCache2');
@@ -148,6 +148,13 @@ class FortissimoTest extends PHPUnit_Framework_TestCase {
     
     //$class = new LoaderStub();
     //$this->assertTrue($class->isLoaded(), 'Verify that classes are autoloaded.');
+  }
+  
+  public function testRequestMapper() {
+    $ff = new FortissimoHarness(self::config);
+    
+    $ff->handleRequest('NonExistentRequestName');
+    $this->assertEquals('From Default', $ff->getContext()->get('mockCommand2'));
   }
 
 }
@@ -203,6 +210,17 @@ class MockPrintBarCommand implements FortissimoCommand {
   public function isCacheable() {return TRUE;}
 }
 
+/**
+ * re-maps all requests to 'default'.
+ */
+class MockRequestMapper extends FortissimoRequestMapper {
+  public function mapRequest($string) {
+    if ($string == 'NonExistentRequestName') return 'testHandleRequest2';
+    
+    return parent::mapRequest($string);
+  }
+}
+
 class CommandRepeater implements FortissimoCommand {
   public $name = NULL;
   public function __construct($name) {
@@ -232,13 +250,12 @@ class CommandForward implements FortissimoCommand {
   
 }
 
-
 /**
  * Harness methods for testing specific parts of Fortissimo.
  */
 class FortissimoHarness extends Fortissimo {
   
-  public function __construct($file) {
+  public function __construct($file = NULL) {
     if (isset($file)) {
       Config::initialize();
     }

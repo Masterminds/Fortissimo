@@ -301,6 +301,15 @@ class Fortissimo {
     
     // Create the datasource manager.
     $this->datasourceManager = new FortissimoDatasourceManager($this->commandConfig->getDatasources());
+    
+    // Create a request mapper. We do this last so that it can access the other facilities.
+    $mapperClass = $this->commandConfig->getRequestMapper();
+    if (!is_string($mapperClass) && !is_object($mapperClass)) {
+      throw new FortissimoInterruptException('Could not find a valid command mapper.');
+    }
+      
+    $this->requestMapper = 
+        new $mapperClass($this->logManager, $this->cacheManager, $this->datasourceManager);
   }
   
   /**
@@ -380,16 +389,21 @@ class Fortissimo {
    * the cache, thereby avoiding all overhead associated with loading and 
    * executing commands.
    *
-   * @param string $requestName
-   *  The name of the request to execute.
+   * @param string $identifier
+   *  A named identifier, typically a URI. By default (assuming ForitissimoRequestMapper has not 
+   *  been overridden) the $identifier should be a request name.
    * @param FortissimoExecutionContext $initialContext
    *  If an initialized context is necessary, it can be passed in here.
    */
-  public function handleRequest($requestName = 'default', FortissimoExecutionContext $initialCxt = NULL) {
+  public function handleRequest($identifier = 'default', FortissimoExecutionContext $initialCxt = NULL) {
     
     // Experimental: Convert errors (E_ERROR | E_USER_ERROR) to exceptions.
     set_error_handler(array('FortissimoErrorException', 'initializeFromError'), 257);
     
+    // Use the mapper to determine what the real request name is.
+    $requestName = $this->requestMapper->mapRequest($identifier);
+    
+    // Load the request.
     $request = $this->commandConfig->getRequest($requestName);
     $cacheKey = NULL; // This is set only if necessary.
     
@@ -427,6 +441,8 @@ class Fortissimo {
       );
     }
     
+    // Loop through requests and execute each command. Most of the logic in this
+    // loop deals with exception handling.
     foreach ($request as $command) {
       try {
         $this->execCommand($command);
@@ -468,7 +484,7 @@ class Fortissimo {
       }
     }
     
-    // If caching is on, place this entry into the cache.
+    // If output caching is on, place this entry into the cache.
     if ($request->isCaching() && isset($this->cacheManager)) {
       $contents = $this->stopCaching();
       // Add entry to cache.
@@ -1648,6 +1664,12 @@ class FortissimoConfig {
     if (is_string($configurationFile)) {
       include $configurationFile;
     }
+    // This is useful for embedded Fortissimo instances and for unit testing.
+    /* Also, it's unnecessary.
+    elseif (is_array($configurationFile)) {
+      Config::initialize($configurationFile);
+    }
+    */
     
     $this->config = Config::getConfiguration();
   }
@@ -1665,6 +1687,13 @@ class FortissimoConfig {
    */
   public function getIncludePaths() {
     return $this->config[Config::PATHS];
+  }
+  
+  public function getRequestMapper($default = 'FortissimoRequestMapper') {
+    if (isset($this->config[Config::REQUEST_MAPPER])) {
+      return $this->config[Config::REQUEST_MAPPER];
+    }
+    return $default;
   }
   
   /**
@@ -2239,7 +2268,8 @@ class FortissimoCacheManager {
       return $this->caches[$keys[0]]->set($key, $value, $expires_after);
     }
     */
-    $this->getDefaultCache()->set($key, $value, $expires_after);
+    $cache = $this->getDefaultCache();
+    if (!empty($cache)) $cache->set($key, $value, $expires_after);
   }
   
   /**
@@ -2985,6 +3015,7 @@ class Config {
   const DATASOURCES = 'datasources';
   const CACHES = 'caches';
   const LOGGERS = 'loggers';
+  const REQUEST_MAPPER = 'requestMapper';
   
   public static function request($name, $description = '') {
     return self::set(self::REQUESTS, $name);
@@ -3003,6 +3034,35 @@ class Config {
     $i = self::inst();
     $i->config[self::PATHS][] = $path;
     $i->currentCategory = self::PATHS;
+    $i->currentName = NULL;
+    return $i;
+  }
+  
+  /**
+   * Request mappers determine how input is mapped to internal request names.
+   *
+   * Fortissimo provides a default request mapper that assumes that the incoming identifier
+   * string is actually a request name. Thus http://example.com/?ff=foo is treated as if 
+   * it was trying to execute the request named 'foo'.
+   *
+   * For some common website features (like Search Engine Friendly URLs, aka SEFs), a more
+   * robust mapper would be desirable. This allows developers to write a custom mapper and 
+   * use that instead.
+   *
+   * Example:
+   *
+   * @code
+   * <?php
+   * Config::useRequestMapper('MyMapperClass');
+   * ?>
+   * @endcode
+   *
+   * For implementation details, see FortissimoRequestMapper and Fortissimo::handleRequest().
+   */
+  public static function useRequestMapper($class) {
+    $i = self::inst();
+    $i->config[self::REQUEST_MAPPER] = $class;
+    $i->currentCategory = self::REQUEST_MAPPER;
     $i->currentName = NULL;
     return $i;
   }
@@ -3139,6 +3199,7 @@ class Config {
       self::PATHS => array(),
       self::GROUPS => array(),
       self::DATASOURCES => array(),
+      self::REQUEST_MAPPER => NULL,
     );
   }
   public function usesGroup($name) {
@@ -3290,5 +3351,60 @@ class Config {
     
   }
 }
+/**
+ * The request mapper receives some part of a string or URI and maps it to a Fortissimo request.
+ *
+ * Mapping happens immediately before request handling (see Fortissimo::handleRequest()). 
+ * Typically, datasources and loggers are available by this point.
+ *
+ * Custom request mappers can be created by extending this one and then configuring commands.php
+ * accordingly. 
+ *
+ * @code
+ * <?php 
+ * Config::useRequestMapper('ClassName');
+ * ?>
+ * @endcode
+ *
+ * For a user-oriented description, see Config::useRequestMapper().
+ */
+class FortissimoRequestMapper {
+  
+  protected $loggerManager;
+  protected $cacheManager;
+  protected $datasourceManager;
+  
+  /**
+   * Construct a new request mapper.
+   *
+   * 
+   *
+   * @param FortissimoLoggerManager $loggerManager
+   *  The logger manager.
+   * @param FortissimoCacheManager $cacheManager
+   *  The cache manager.
+   * @param FortissimoDatasourceManager $datasourceManager
+   *  The datasource manager
+   */
+  public function __construct($loggerManager, $cacheManager, $datasourceManager) {
+    $this->loggerManager = $loggerManager;
+    $this->cacheManager = $cacheManager;
+    $this->datasourceManager = $datasourceManager;
+  }
+  
+  /**
+   * Map a given string to a request name.
+   *
+   * @param string $uri
+   *  For web apps, this is a URI passed from index.php. A commandline app may pass the request
+   *  name directly.
+   * @return string
+   *  The name of the request to execute.
+   */
+  public function mapRequest($uri) {
+    return $uri;
+  }
+}
+
 // End defgroup.
 /** @} */

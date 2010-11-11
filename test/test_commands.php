@@ -7,6 +7,8 @@ Config::includePath("test/Tests/Fortissimo");
 
 Config::logger('fail')->whichInvokes('FortissimoArrayInjectionLogger');
 
+Config::useRequestMapper('MockRequestMapper');
+
 Config::group('bootstrap')
   ->doesCommand('database')
     ->whichInvokes('SimpleDatabaseAccess')

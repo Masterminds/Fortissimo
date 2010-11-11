@@ -3,6 +3,7 @@ require_once 'PHPUnit/Framework.php';
 require_once 'Fortissimo/skel/src/Fortissimo.php';
 
 class FortissimoExceptionsTest extends PHPUnit_Framework_TestCase {
+  const config = './test/test_commands.php';
   
   public function setUp() {
     Config::initialize();
@@ -15,7 +16,7 @@ class FortissimoExceptionsTest extends PHPUnit_Framework_TestCase {
    * @   expectedException FortissimoException
    */
   public function testException () {
-    $ff = new FortissimoHarness();
+    $ff = new FortissimoHarness(self::config);
     $ff->handleRequest('foo');
     $log = $ff->getContext()->getLoggerManager()->getLoggerbyName('fail');
     $msgs = $log->getMessages();
@@ -24,7 +25,7 @@ class FortissimoExceptionsTest extends PHPUnit_Framework_TestCase {
   }
   
   public function testErrorToException() {
-    $ff = new FortissimoHarness();
+    $ff = new FortissimoHarness(self::config);
     $ff->handleRequest('div');
     $log = $ff->getContext()->getLoggerManager()->getLoggerbyName('fail');
     $msgs = $log->getMessages();

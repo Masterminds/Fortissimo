@@ -14,7 +14,7 @@ class ConfigTest extends PHPUnit_Framework_TestCase {
   
   public function testGetConfiguration() {
     $cfg = Config::getConfiguration();
-    $this->assertEquals(6, count($cfg));
+    $this->assertEquals(7, count($cfg));
   }
   
   public function testIncludePath() {
@@ -113,6 +113,11 @@ class ConfigTest extends PHPUnit_Framework_TestCase {
   public function testCaches() {
     $cfg = Config::cache('memcache')->whichInvokes('Memcachier')->getConfiguration();
     $this->assertEquals('Memcachier', $cfg[Config::CACHES]['memcache']['class']);
+  }
+  
+  public function testUseRequestMapper() {
+    $cfg = Config::useRequestMapper('FortissimoRequestMapper')->getConfiguration();
+    $this->assertEquals('FortissimoRequestMapper', $cfg[Config::REQUEST_MAPPER]);
   }
 }
 
