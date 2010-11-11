@@ -2,7 +2,7 @@
 /** @page commands.php
  * The commands.php file is the main configuration file for Fortissimo.
  *
- * There are (at least) six different facilities you can configure in this file:
+ * There are (at least) seven different facilities you can configure in this file:
  *
  * - requests: This is how you instruct Fortissimo on how to handle inbound requests. Essentially,
  *   you map a request to a chain of commands. The default request is 'default'. For more on 
@@ -22,6 +22,25 @@
  *   is more advanced, and is generally only needed on high-traffic apps.
  * - include paths: Fortissimo uses a PHP autoloader to find and include classes. You can tell
  *   Fortissimo what paths to use when seeking for classes.
+ * - request mapper: Each Fortissimo instance can have a single request mapper. This is a 
+ *   class that handles matching inbound URIs (or strings) onto a request. Fortissimo uses
+ *   its own FortissimoRequestMapper by default. You can replace it using 
+ *   Config::useRequestMapper().
+ *
+ *
+ *
+ * Requests are "containers" that describe a single process from beginning to end. A request is
+ * a chain of commands. Each command is executed in sequence, with each command having access to
+ * the output of the last command.
+ *
+ * There are a few requests that have special meaning to Fortissimo:
+ *
+ * - default: This is the request that will be executed when no request is explicitly issued.  Think
+ *   of it as Fortissimo's equivalent to request a base URL. 'default' is equivalent to 'index.html'
+ *   in that analogy.
+ * - 404: If a request named 404 exists, it will be used whenever a 404 error is encountered (e.g.
+ *   when no request is found to match the incoming URI/string.) Your request mapper, should you use
+ *   one, can redirect the 404 name to a different request name, too.
  */
 
 /**
@@ -104,6 +123,20 @@ Config::group('bootstrap')
  * This part of the configuration file is used for mapping an inbound request to a 
  * chain of commands. Fortissimo will begin with the first command and process commands
  * one at a time until the chain has completed (or some error condition has occurred.)
+ *
+ * Requests are "containers" that describe a single process from beginning to end. A request is
+ * a chain of commands. Each command is executed in sequence, with each command having access to
+ * the output of the last command.
+ *
+ * There are a few requests that have special meaning to Fortissimo:
+ *
+ * - default: This is the request that will be executed when no request is explicitly issued.  Think
+ *   of it as Fortissimo's equivalent to request a base URL. 'default' is equivalent to 'index.html'
+ *   in that analogy.
+ * - 404: If a request named 404 exists, it will be used whenever a 404 error is encountered (e.g.
+ *   when no request is found to match the incoming URI/string.) Your request mapper, should you use
+ *   one, can redirect the 404 name to a different request name, too.
+ *
  *
  * @code
  * <?php
