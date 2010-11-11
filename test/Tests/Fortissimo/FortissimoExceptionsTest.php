@@ -16,18 +16,26 @@ class FortissimoExceptionsTest extends PHPUnit_Framework_TestCase {
    * @   expectedException FortissimoException
    */
   public function testException () {
-    $ff = new FortissimoHarness(self::config);
+    $ff = new FortissimoHarness();
+    
+    // Make sure that we are not just hitting the 404 handler.
+    $this->assertTrue($ff->hasRequest('foo'), 'Command foo exists?');
+    
+    //ob_start();
     $ff->handleRequest('foo');
-    $log = $ff->getContext()->getLoggerManager()->getLoggerbyName('fail');
+    //ob_end_clean();
+
+    $log = $ff->loggerManager()->getLoggerbyName('fail');
     $msgs = $log->getMessages();
     
     $this->assertEquals(1, count($msgs));
   }
   
   public function testErrorToException() {
-    $ff = new FortissimoHarness(self::config);
+    $ff = new FortissimoHarness();
+    $this->assertTrue($ff->hasRequest('div'), 'Command div exists?');
     $ff->handleRequest('div');
-    $log = $ff->getContext()->getLoggerManager()->getLoggerbyName('fail');
+    $log = $ff->loggerManager()->getLoggerbyName('fail');
     $msgs = $log->getMessages();
     
     $this->assertEquals(1, count($msgs));

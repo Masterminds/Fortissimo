@@ -87,8 +87,9 @@ class FortissimoTest extends PHPUnit_Framework_TestCase {
     
     // Munge the config.
     include self::config;
+    Config::cache('foo')->whichInvokes('MockAlwaysReturnFooCache');
     $config = Config::getConfiguration();
-    $config[Config::CACHES]['foo']['class'] = 'MockAlwaysReturnFooCache';
+    //$config[Config::CACHES]['foo']['class'] = 'MockAlwaysReturnFooCache';
     Config::initialize($config);
     
     $ff = new FortissimoHarness();
@@ -103,10 +104,13 @@ class FortissimoTest extends PHPUnit_Framework_TestCase {
     unset($config[Config::CACHES]['foo']);
     
     // Second, test to see if values can be written to cache.
-    $config[Config::CACHES]['foo']['class'] = 'MockAlwaysSetValueCache';
-    Config::initialize($config);
+    //$config[Config::CACHES]['foo']['class'] = 'MockAlwaysSetValueCache';
+    Config::cache('foo')
+      ->whichInvokes('MockAlwaysSetValueCache')
+       ->withParam('isDefault')->whoseValueIs(TRUE);
+    //Config::initialize($config);
     
-    $ff = new FortissimoHarness(self::config);
+    $ff = new FortissimoHarness();
     
     ob_start();
     $ff->handleRequest('testRequestCache2');
@@ -260,6 +264,13 @@ class FortissimoHarness extends Fortissimo {
       Config::initialize();
     }
     parent::__construct($file);
+  }
+  
+  public function hasRequest($requestName) {
+    
+    $r = $this->requestMapper->mapRequest($requestName);
+    return $this->commandConfig->hasRequest($r);
+    
   }
   
   public $pSources = array(

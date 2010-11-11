@@ -400,11 +400,27 @@ class Fortissimo {
     // Experimental: Convert errors (E_ERROR | E_USER_ERROR) to exceptions.
     set_error_handler(array('FortissimoErrorException', 'initializeFromError'), 257);
     
-    // Use the mapper to determine what the real request name is.
-    $requestName = $this->requestMapper->mapRequest($identifier);
-    
     // Load the request.
-    $request = $this->commandConfig->getRequest($requestName);
+    try {
+      // Use the mapper to determine what the real request name is.
+      $requestName = $this->requestMapper->mapRequest($identifier);
+      $request = $this->commandConfig->getRequest($requestName);
+    }
+    catch (FortissimoRequestNotFoundException $nfe) {
+      // Need to handle this case.
+      $this->logManager->log($nfe, self::LOG_USER);
+      $requestName = $this->requestMapper->mapRequest('404');
+      
+      if ($this->commandConfig->hasRequest($requestName)) {
+        $request = $this->commandConfig->getRequest($requestName);
+      }
+      else {
+        header('HTTP/1.0 404 Not Found');
+        print '<h1>Not Found</h1>';
+        return;
+      }
+    }
+    
     $cacheKey = NULL; // This is set only if necessary.
     
     // If this request is in explain mode, explain and exit.
