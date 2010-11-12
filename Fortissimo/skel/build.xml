@@ -1,7 +1,6 @@
 <?xml version="1.0"?>
 <project name="%%PROJECT%%" 
   description=""
-  basedir="." 
   default="main"
 >
 <!--
@@ -47,14 +46,7 @@ fff MyProjectName
   <property name="packagedir" value="${project.basedir}/dist"/>
   <property name="appdir" value="{$srcdir}/includes"/>
 
-  <!--
-  =============================================================================
-  FORTISSIMO TASKS
-  =============================================================================
-  -->
-  <includepath classpath="${project.basedir}/lib"/>
-  <taskdef classname="task.FortissimoExplainTask" name="fortissimoexplain"/>
-  <taskdef classname="task.FortissimoRunRequestTask" name="fortissimorequest"/>
+
 
   <!--
   =============================================================================
@@ -85,6 +77,17 @@ fff MyProjectName
   
   <!--
   =============================================================================
+  FORTISSIMO TASKS
+  =============================================================================
+  -->
+  <target name="registerTasks">
+    <includepath classpath="${project.basedir}/lib"/>
+    <taskdef classname="task.FortissimoExplainTask" name="fortissimoexplain"/>
+    <taskdef classname="task.FortissimoRunRequestTask" name="fortissimorequest"/>
+  </target>
+  
+  <!--
+  =============================================================================
   COMMANDS (BUILD TARGETS)
   =============================================================================
   -->
@@ -94,10 +97,10 @@ fff MyProjectName
       
   </target>
   
-  <target name="explain" description="Explain all of the requests.">
+  <target name="explain" description="Explain all of the requests." depends="registerTasks">
     <fortissimoexplain/>
   </target>
-  <target name="run" description="Run the default request">
+  <target name="run" description="Run the default request" depends="registerTasks">
     <property name="o" value="default"/>
     <fortissimorequest request="${o}"/>
   </target>
