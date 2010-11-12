@@ -101,4 +101,81 @@ fff MyProjectName
       <fileset refid="sourcecode" />
     </phplint>
   </target>
+  
+  <!-- TARGET
+  
+  Run any necessary preliminaries before executing tests.
+  -->
+  <target name="pretest" description="tasks done before any unit testing.">
+    <mkdir dir="test/reports"/>
+    <mkdir dir="test/reports/html"/>
+  </target>
+  
+  <!-- TARGET
+  Run a full test and format an HTML report.
+  
+  This differs from tmtest in that the output for this report is more robust, designed for
+  detailed viewing, not viewing quickly in a pop-up window.
+  -->
+  <target name="test" depends="lint,pretest" description="Run full tests">
+    <mkdir dir="test/reports/html"/>
+    <mkdir dir="test/db"/>
+    <phpunit>
+      <formatter todir="test/reports" type="xml"/>
+      <batchtest>
+        <fileset dir="test/Tests">
+          <include name="**/*Test.php"/>
+        </fileset>
+      </batchtest>
+    </phpunit>
+    <phpunitreport 
+      infile="test/reports/testsuites.xml" 
+      format="frames" 
+      todir="test/reports/html" 
+      />
+  </target>
+  
+  <!-- TARGET 
+  Run a coverage report.
+  
+  Run a report to determine to what extent your code has been covered by the unit tests.
+  -->
+  <target name="coverage" depends="lint" description="Run a coverage analysis.">
+    <coverage-setup database="./test/db/coverage.db">
+      <fileset refid="sourcecode"/>
+    </coverage-setup>
+    <phpunit codecoverage="true" haltonfailure="true">
+      <formatter type="plain" todir="test/reports" outfile="coverage.xml"/>
+      <batchtest>
+        <fileset dir="test/Tests">
+          <include name="**/*Test.php"/>
+        </fileset>
+      </batchtest>
+    </phpunit>
+    <coverage-report outfile="test/reports/coverage.xml">
+      <report todir="test/coverage"/>
+    </coverage-report>
+  </target>
+
+  
+  <!-- TARGET
+  
+  Run unit tests with HTML output optimized for display inside of TextMate.
+  
+  If you have Phing-TMBundle installed (http://github.com/technosophos/phing-tmbundle) then
+  you can press CMD-SHIFT-I to run these tests.
+  -->
+  <target name="tmtest" description="Run test, optimized for TextMate output." depends="pretest">
+    <phpunit>
+      <formatter todir="test/reports" type="xml" usefile="yes"/>
+      <batchtest>
+        <fileset refid="unittests"/>
+      </batchtest>
+    </phpunit>
+     <phpunitreport 
+        infile="test/reports/testsuites.xml" 
+        format="noframes" 
+        todir="test/reports/html" 
+        />
+  </target>
 </project>

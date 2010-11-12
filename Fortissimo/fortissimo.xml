@@ -69,6 +69,11 @@ Copyright (c) 2009, 2010, Matt Butcher, some rights reserved.
       </fileset>
     </copy>
     
+    <!-- Create a place to put unit tests. -->
+    <mkdir dir="${basepath}/${project}/test/Tests"/>
+    <mkdir dir="${basepath}/${project}/test/Tests/${project}"/>
+    
+    
     <!-- Clean up core Fortissimo tools -->
     <reflexive>
       <fileset dir="${basepath}/${project}/src">
