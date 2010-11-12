@@ -74,7 +74,12 @@ fff MyProjectName
   </fileset>
   
   <!-- App-specific Files to be treated as source code -->
-  <fileset id="appcode" dir="$appdir">
+  <fileset id="appcode" dir="${appdir}">
+    <include name="**/*" />
+  </fileset>
+  
+  <!-- Unit tests -->
+  <fileset id="unittests" dir="${testdir}">
     <include name="**/*" />
   </fileset>
   
