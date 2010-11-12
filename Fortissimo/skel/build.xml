@@ -126,20 +126,20 @@ fff MyProjectName
   detailed viewing, not viewing quickly in a pop-up window.
   -->
   <target name="test" depends="lint,pretest" description="Run full tests">
-    <mkdir dir="test/reports/html"/>
-    <mkdir dir="test/db"/>
+    <mkdir dir="${project.basedir}/test/reports/html"/>
+    <mkdir dir="${project.basedir}/test/db"/>
     <phpunit>
-      <formatter todir="test/reports" type="xml"/>
+      <formatter todir="${project.basedir}/test/reports" type="xml"/>
       <batchtest>
-        <fileset dir="test/Tests">
+        <fileset dir="${project.basedir}/test/Tests">
           <include name="**/*Test.php"/>
         </fileset>
       </batchtest>
     </phpunit>
     <phpunitreport 
-      infile="test/reports/testsuites.xml" 
+      infile="${project.basedir}/test/reports/testsuites.xml" 
       format="frames" 
-      todir="test/reports/html" 
+      todir="${project.basedir}/test/reports/html" 
       />
   </target>
   
@@ -149,19 +149,19 @@ fff MyProjectName
   Run a report to determine to what extent your code has been covered by the unit tests.
   -->
   <target name="coverage" depends="lint" description="Run a coverage analysis.">
-    <coverage-setup database="./test/db/coverage.db">
+    <coverage-setup database="${project.basedir}/test/db/coverage.db">
       <fileset refid="sourcecode"/>
     </coverage-setup>
     <phpunit codecoverage="true" haltonfailure="true">
-      <formatter type="plain" todir="test/reports" outfile="coverage.xml"/>
+      <formatter type="plain" todir="${project.basedir}/test/reports" outfile="coverage.xml"/>
       <batchtest>
-        <fileset dir="test/Tests">
+        <fileset dir="${project.basedir}/test/Tests">
           <include name="**/*Test.php"/>
         </fileset>
       </batchtest>
     </phpunit>
-    <coverage-report outfile="test/reports/coverage.xml">
-      <report todir="test/coverage"/>
+    <coverage-report outfile="${project.basedir}/test/reports/coverage.xml">
+      <report todir="${project.basedir}/test/coverage"/>
     </coverage-report>
   </target>
 
@@ -175,15 +175,15 @@ fff MyProjectName
   -->
   <target name="tmtest" description="Run test, optimized for TextMate output." depends="pretest">
     <phpunit>
-      <formatter todir="test/reports" type="xml" usefile="yes"/>
+      <formatter todir="${project.basedir}/test/reports" type="xml" usefile="yes"/>
       <batchtest>
         <fileset refid="unittests"/>
       </batchtest>
     </phpunit>
      <phpunitreport 
-        infile="test/reports/testsuites.xml" 
+        infile="${project.basedir}/test/reports/testsuites.xml" 
         format="noframes" 
-        todir="test/reports/html" 
+        todir="${project.basedir}/test/reports/html" 
         />
   </target>
 </project>
