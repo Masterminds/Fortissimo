@@ -3,13 +3,16 @@
  * This is a canary test to make sure that Fortissimo can correctly be bootstrapped.
  */
 
-$basedir = dirname(__FILE__);
+
 
 // You must have PHPUnit installed.
 require_once 'PHPUnit/Framework.php';
 
 // The location of Fortissimo. Once it bootstraps, the correct paths should all be available.
-require_once $basedir . '/../../../src/Fortissimo.php';
+require_once 'src/Fortissimo.php';
+// If you are not using Phing, you may need something like this:
+//$basedir = dirname(__FILE__);
+//require_once $basedir . '/../../../src/Fortissimo.php';
 
 
 /**
