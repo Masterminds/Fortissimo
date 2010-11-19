@@ -1,8 +1,8 @@
 <?php
 /**
  * Provides a basic echo command.
- * @package Fortissimo
- * @subpackage Command
+ *
+ * @ingroup Fortissimo
  */
 
 /**

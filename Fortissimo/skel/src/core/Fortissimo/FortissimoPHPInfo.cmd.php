@@ -1,16 +1,14 @@
 <?php
-/**
+/** @file
  * Provides PHP info.
- * @package Fortissimo
- * @subpackage Command
  */
 
 /**
  * A simple command for printing PHP information.
  *
  * This command provides a quick way of outputting {@link phpinfo()} information.
- * @package Fortissimo
- * @subpackage Command
+ *
+ * @ingroup Fortissimo
  */
 class FortissimoPHPInfo extends BaseFortissimoCommand {
   

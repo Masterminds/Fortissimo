@@ -9,6 +9,8 @@
  * Params:
  * - categories: An indexed array or comma-separated list of categories that this logger should log.
  * @see FortissimoArrayInjectionLogger
+ *
+ * @ingroup Fortissimo
  */
 class SimpleArrayInjectionLogger extends FortissimoArrayInjectionLogger {
   public function log($message, $category, $details) {

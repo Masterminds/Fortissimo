@@ -23,6 +23,8 @@
  *
  * - html: If TRUE, the logger generates HTML. If false, it generates plain text.
  * - categories: An indexed array or comma-separated list of categories that this logger should log.
+ *
+ * @ingroup Fortissimo
  */
 class FortissimoArrayInjectionLogger extends FortissimoLogger {
   protected $logItems = array();

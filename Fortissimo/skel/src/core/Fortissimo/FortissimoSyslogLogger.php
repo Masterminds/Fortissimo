@@ -24,6 +24,8 @@
  *  - facility: one of the facility constants (LOG_USER, LOG_LOCAL3, LOG_SYSLOG, etc). By default,
  *      LOG_USER is used for maximal platform compatibility. For a list of facilities, see
  *      http://us2.php.net/manual/en/function.openlog.php
+ *
+ * @ingroup Fortissimo
  */
 class FortissimoSyslogLogger extends FortissimoLogger {
   

@@ -38,6 +38,8 @@
  * ;
  * ?>
  * @endcode
+ *
+ * @ingroup Fortissimo
  */
 class FortissimoMemcacheCache extends FortissimoCache {
   protected $memcache = NULL;

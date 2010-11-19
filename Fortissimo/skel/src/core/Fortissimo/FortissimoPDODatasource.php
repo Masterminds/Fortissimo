@@ -7,7 +7,7 @@
  * Provides a datasource access layer for PDO.
  *
  * This is a thin wrapper layer for controlling the initialization and
- * access of a PDO connection.
+ * access of a PDO connection. PDO is part of PHP, and is documented on PHP.net.
  *
  * Example configuration:
  *
@@ -16,7 +16,7 @@
  * Config::datasource('pdo')
  *   ->whichInvokes('FortissimoPDODatasource')
  *   ->withParam('dsn')
- *     ->whoseValueIs('mysql:host=localhost;dbname=test)
+ *     ->whoseValueIs('mysql:host=localhost;dbname=test')
  *   ->withParam('user')
  *     ->whoseValueIs('db_user')
  *   ->withParam('password')
@@ -28,7 +28,35 @@
  * ?>
  * @endcode
  *
+ * To access a PDO database connection, do something like this:
+ *
+ * @code
+ * <?php
+ * class FooClass extends BaseFortissimoCommand {
+ *
+ *  public function expects() {
+ *    return $this
+ *      ->description('Some command that does something')
+ *    ;
+ *  }
+ *
+ *  public function doCommand() {
+ *    // Note that 'pdo' is the name we declared in the example above.
+ *    $db = $this->context->datasource('pdo')->get();
+ *    // Do whatever with DB:
+ *    $res = $db->query('SELECT * FROM foo');
+ *  }
+ * }
+ * ?>
+ * @endcode
+ *
  * Parameters
+ * - dsn: The PDO DSN
+ * - user: The username for the database connection
+ * - password: The password for the database connection
+ * - driver_options: An array of driver options, as defined by PDO.
+ *
+ * @ingroup Fortissimo
  */
 class FortissimoPDODatasource extends FortissimoDatasource {
   

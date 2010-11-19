@@ -1,8 +1,8 @@
 <?php
 /**
  * A command for using the Twig template engine from within Fortissimo.
- * @package Fortissimo
- * @subpackage Command
+ *
+ * @ingroup Fortissimo
  */
  
 /**
@@ -30,6 +30,8 @@ require_once 'Twig/Autoloader.php';
  * This is highly desirable when apps need to cache output.
  * 
  * @see http://www.twig-project.org
+ *
+ * @ingroup Fortissimo
  */
 class FortissimoTemplate extends BaseFortissimoCommand {
   

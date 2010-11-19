@@ -19,6 +19,8 @@
  * Parameters: 
  *  - url: A full (absolute) URL, e.g. 'http://example.com'
  *  - redirect_type: One of 301, 302, 303, 304, 305, 307. The default is 301.
+ *
+ * @ingroup Fortissimo
  */
 class FortissimoRedirect extends BaseFortissimoCommand {
   

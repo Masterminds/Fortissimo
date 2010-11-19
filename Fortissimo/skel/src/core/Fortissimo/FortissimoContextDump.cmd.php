@@ -1,8 +1,8 @@
 <?php
 /**
  * This file contains the command for dumping context.
- * @package Fortissimo
- * @subpackage Command
+ *
+ * @ingroup Fortissimo
  */
 
 /**

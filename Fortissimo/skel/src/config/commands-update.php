@@ -41,10 +41,18 @@
  * - 404: If a request named 404 exists, it will be used whenever a 404 error is encountered (e.g.
  *   when no request is found to match the incoming URI/string.) Your request mapper, should you use
  *   one, can redirect the 404 name to a different request name, too.
+ *
+ * Configuration Directives:
+ *  - @subpage include_path_config
+ *  - @subpage datasource_config
+ *  - @subpage group_config
+ *  - @subpage request_config
+ *  - @subpage logger_config
+ *  - @subpage cache_config
  */
 
 /**
- * @section include_path_config Include Paths
+ * @page include_path_config Include Paths
  *
  * To declare a new include path, you will want to use code like this:
  *
@@ -60,7 +68,7 @@
 // Config::includePath('includes/MyClasses');
 
 /**
- * @section datasource_config Datasources
+ * @page datasource_config Datasources
  * Fortissimo provides a very thin database abstraction layer.
  *
  * To use it with MongoDB, simply customize the setup below. To use another
@@ -89,7 +97,7 @@ Config::datasource('db') // Name of datasource
 
 
 /**
- * @section group_config Groups
+ * @page group_config Groups
  * A group is a grouping of commands that cannot be executed as a request.
  *
  * While they are not directly executed (ever), they can be included into a request. See the 
@@ -118,7 +126,7 @@ Config::group('bootstrap')
 ;
 
 /**
- * @section request_config Requests
+ * @page request_config Requests
  *
  * This part of the configuration file is used for mapping an inbound request to a 
  * chain of commands. Fortissimo will begin with the first command and process commands
@@ -207,7 +215,7 @@ Config::request('default')
 ;
 
 /**
- * @section logger_config Loggers
+ * @page logger_config Loggers
  * 
  * You can configure Fortissimo to log to one or more logging backends.
  *
@@ -245,7 +253,7 @@ Config::logger('foil')
 ;
 
 /**
- * @section cache_config Caches
+ * @page cache_config Caches
  *
  * Fortissimo has built-in support for multiple caching backends. For example, applications could
  * strategically cache some data in memcache and some in APC. Fortissimo includes a simple 

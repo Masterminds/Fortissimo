@@ -12,6 +12,8 @@
  *
  * Params:
  * - categories: An indexed array or comma-separated list of categories that this logger should log.
+ *
+ * @ingroup Fortissimo
  */
 class SimpleOutputInjectionLogger extends FortissimoOutputInjectionLogger {
   
