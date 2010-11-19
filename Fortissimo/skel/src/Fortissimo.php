@@ -3424,3 +3424,6 @@ class FortissimoRequestMapper {
 
 // End defgroup.
 /** @} */
+/** @defgroup Fortissimo Fortissimo
+ * Features that are included in Fortissimo by default.
+ */
