@@ -403,13 +403,13 @@ class Fortissimo {
     // Load the request.
     try {
       // Use the mapper to determine what the real request name is.
-      $requestName = $this->requestMapper->mapRequest($identifier);
+      $requestName = $this->requestMapper->uriToRequest($identifier);
       $request = $this->commandConfig->getRequest($requestName);
     }
     catch (FortissimoRequestNotFoundException $nfe) {
       // Need to handle this case.
       $this->logManager->log($nfe, self::LOG_USER);
-      $requestName = $this->requestMapper->mapRequest('404');
+      $requestName = $this->requestMapper->uriToRequest('404');
       
       if ($this->commandConfig->hasRequest($requestName)) {
         $request = $this->commandConfig->getRequest($requestName);
@@ -3408,6 +3408,7 @@ class FortissimoRequestMapper {
     $this->datasourceManager = $datasourceManager;
   }
   
+
   /**
    * Map a given string to a request name.
    *
@@ -3417,8 +3418,31 @@ class FortissimoRequestMapper {
    * @return string
    *  The name of the request to execute.
    */
-  public function mapRequest($uri) {
+  public function uriToRequest($uri) {
     return $uri;
+  }
+  
+  /**
+   * Map a request into a URI (usually a URL).
+   *
+   * This takes a request name and transforms it into a URL.
+   */
+  public function requestToUri($request, $params = array(), $target = NULL) {
+    
+  }
+  
+  /**
+   * The canonical host name to be used in Fortissimo.
+   *
+   * By default, this is fetched from the $_SERVER variable.
+   *
+   * This can be used in URLs and other references.
+   *
+   * @return string 
+   *  The hostname.
+   */
+  public function hostname() {
+    
   }
 }
 

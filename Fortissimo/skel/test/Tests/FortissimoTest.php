@@ -67,7 +67,7 @@ class FortissimoHarness extends Fortissimo {
    */
   public function hasRequest($requestName) {
     
-    $r = $this->requestMapper->mapRequest($requestName);
+    $r = $this->requestMapper->uriToRequest($requestName);
     return $this->commandConfig->hasRequest($r);
     
   }

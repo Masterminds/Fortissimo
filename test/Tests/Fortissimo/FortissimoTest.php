@@ -218,10 +218,10 @@ class MockPrintBarCommand implements FortissimoCommand {
  * re-maps all requests to 'default'.
  */
 class MockRequestMapper extends FortissimoRequestMapper {
-  public function mapRequest($string) {
+  public function uriToRequest($string) {
     if ($string == 'NonExistentRequestName') return 'testHandleRequest2';
     
-    return parent::mapRequest($string);
+    return parent::uriToRequest($string);
   }
 }
 
@@ -268,7 +268,7 @@ class FortissimoHarness extends Fortissimo {
   
   public function hasRequest($requestName) {
     
-    $r = $this->requestMapper->mapRequest($requestName);
+    $r = $this->requestMapper->uriToRequest($requestName);
     return $this->commandConfig->hasRequest($r);
     
   }
