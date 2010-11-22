@@ -3425,16 +3425,34 @@ class FortissimoRequestMapper {
   /**
    * Map a request into a URI (usually a URL).
    *
-   * This takes a request name and transforms it into a URL.
+   * This takes a request name and transforms it into an absolute URL.
    */
-  public function requestToUri($request, $params = array(), $target = NULL) {
+  public function requestToUri($request = 'default', $params = array(), $fragment = NULL) {
+    // base
+    $baseURL = $this->baseURL();
+    $fragment = empty($fragment) ? '' : '#' . $fragment;
     
+    $buffer = $baseURL . $fragment;
+    
+    
+    // FIXME: Need to respect Apache rewrite rules.
+    if ($request != 'default') $params['ff'] = $request;
+    
+    if (!empty($params)) {
+      // XXX: Do & need to be recoded as &amp; here?
+      $qstr = http_build_query($params);
+      $buffer .= '?' . $qstr;      
+    }
+    
+    return $buffer;
   }
   
   /**
    * The canonical host name to be used in Fortissimo.
    *
-   * By default, this is fetched from the $_SERVER variable.
+   * By default, this is fetched from the $_SERVER variables as follows:
+   * - If a Host: header is passed, this attempts to use that ($_SERVER['HTTP_HOST'])
+   * - If no host header is passed, server name ($_SERVER['SERVER_NAME']) is used.
    *
    * This can be used in URLs and other references.
    *
@@ -3442,7 +3460,27 @@ class FortissimoRequestMapper {
    *  The hostname.
    */
   public function hostname() {
+    return !empty($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : $_SERVER['SERVER_NAME'];
+  }
+  
+  /**
+   * Get the base URL for this instance.
+   *
+   * @return string
+   *  A string of the form 'http[s]://hostname[:port]/[base_uri]'
+   */
+  public function baseURL() {
+    $uri = empty($_SERVER['REQUEST_URI']) ? '/' : $_SERVER['REQUEST_URI'];
+    $host = $this->hostname();
+    $scheme = empty($_SERVER['HTTPS']) ? 'http://' : 'https://';
     
+    $default_port = empty($_SERVER['HTTPS']) ? 80 : 443;
+    
+    if ($_SERVER['SERVER_PORT'] != $default_port) {
+      $host .= ':' . $_SERVER['SERVER_PORT'];
+    }
+    
+    return $scheme . $host . $uri;
   }
 }
 
