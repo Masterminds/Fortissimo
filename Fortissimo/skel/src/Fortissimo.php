@@ -1935,9 +1935,11 @@ class FortissimoConfig {
  * The idea of the context is to provide three things during the course of the 
  * request(s):
  * - Shared access to data being generated.
- * - Common access to the logging system.
- * - Common access to the datasources.
- * - Access to the request mapper.
+ * - Common access to the logging system (see FortissimoLoggerManager).
+ * - Common access to the datasources (See FortissimoDatasourceManager).
+ * - Access to the underlying cache engine (so commands can cache their own data). 
+ *   See FortissimoCacheManager.
+ * - Access to the request mapper. See FortissimoRequestMapper.
  *
  * Thus, every command can utilize the loggers and datasources defined for the
  * application, and commands can pass data throughout the lifecycle of the request.
