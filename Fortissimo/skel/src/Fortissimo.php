@@ -1307,6 +1307,23 @@ abstract class BaseFortissimoCommand implements FortissimoCommand, Explainable {
   }
   
   /**
+   * EXPERIMENTAL: Convert a request and arguments to a URL.
+   *
+   * This is a convenience wrapper that fetches the FortissimoRequestMapper and
+   * transforms a request to a URL.
+   *
+   * @param string $request
+   *  The request name.
+   * @param array $args
+   *  Name/value params.
+   * @return string
+   *  URL, suitable for links.
+   */
+  protected function url($request, $args = array()) {
+    return $this->context->getRequestMapper()->requestToUrl($request, $args);
+  }
+  
+  /**
    * Get an object from the context.
    *
    * Get an object from the context by name. The context is the 
@@ -3526,3 +3543,69 @@ class FortissimoRequestMapper {
 /** @defgroup Fortissimo Fortissimo
  * Features that are included in Fortissimo by default.
  */
+/** @mainpage Fortissimo
+  * Fortissimo is a PHP application-building framework designed for performance, ease of
+  * development, and flexibility.
+  *
+  * Instead of using the MVC pattern, Fortissimo uses a pattern much more suited to web
+  * development: Chain of Command.
+  *
+  * In a "chain of command" (CoC) pattern, we map a <em>request</em> to a series of 
+  * <em>commands</em>. Each command is executed in sequence, and each command can build off of the 
+  * results of the previous commands.
+  *
+  * If you are new to Fortissimo, you should get to know the following:
+  *
+  * - commands.php: The configuration file.
+  * - BaseFortissimoCommand: The base command that most of your classes will extend.
+  * 
+  * Take a look at the built-in Fortissimo commands in src/core/Fortissimo. In particular, 
+  * the FortissimoPHPInfo command is a good starting point, as it shows how to build a command
+  * with parameters, and it simply outputs phpinfo().
+  *
+  * Learn more:
+  * - Read QUICKSTART.mdown to get started right away
+  * - Read the README.mdown in the documentation
+  * - Take a look at Fortissimo's unit tests
+  *
+  * @section getting_started Getting Started
+  * 
+  * To start a new project, see the documentation in the README file. It explains how to run
+  * the command-line project generator, which will stub out your entire application for you.
+  *
+  * Once you have a base application, you should edit commands.php. While you can configure 
+  * several things there (loggers, caches, include paths, etc.), the main purpose of this file
+  * is to provide a location to map a request to a chain of commands.
+  *
+  * For the most part, developing a Fortissimo application should consist of only a few main tasks:
+  * define your requests in commands.php, and create commands by writing new classes that 
+  * extend BaseFortissimoCommand.
+  *
+  * Your commands should go in src/includes/. As long as the classname and file name are the same, 
+  * Fortissimo's autoloader will automatically find your commands and load them when necessary.
+  *
+  * @section default_facilities_explained Default Facilities
+  *
+  * Fortissimo provides several facilities that you can make use of:
+  *
+  * - Datasources: Fortissimo provides a facility for declaring and working with various data
+  *  storage systems such as relational SQL databases and NoSQL databases like MongoDB or even
+  *  Memcached. Fortissimo comes with support for Mongo DB (FortissimoMongoDatasource) and
+  *  PDO-based SQL drivers (FortissimoPDODatasource). Writing custom datasources is usally trivial.
+  * - Loggers: Fortissimo has a pluggable logging system with built-in loggers for printing 
+  *  straight to output (FortissimoOutputInjectionLogger), an array for later retrieval
+  *  (FortissimoArrayInjectionLogger), or to a system logger (FortissimoSyslogLogger).
+  * - Caches: Fortissimo supports a very robust notion of caches: Requests can be cached, and 
+  *  any command can declare itself cacheable. Thus, individual commands can cache data. In 
+  *  addition, the caching layer is exposed to commands, which can cache arbitrary data. Extending
+  *  the caching system is trivial. A PECL/Memcache implementation is provided in 
+  *  FortissimoMemcacheCache.
+  * - Request Mapper: With the popularity of search-engine-friendly (SEF) URLs, Fortissimo provides
+  *  a generic method by which application developers can write their own URL mappers. The 
+  *  default FortissimoRequestMapper provides basic support for mapping a URL to a request. You
+  *  can extend this to perform more advanced URL handling, including looking up path aliases
+  *  in a datasource.
+  * - Include Paths: By default, Fortissimo searches the includes/ directory for your source code.
+  *  Sometimes you will want it to search elsewhere. Use include paths to add new locations for
+  *  Fortissimo to search. This is done with Config::includePath().
+  */
