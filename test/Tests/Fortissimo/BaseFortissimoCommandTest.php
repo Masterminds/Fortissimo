@@ -17,7 +17,7 @@ class BaseFortissimoCommandTest extends PHPUnit_Framework_TestCase {
     $expectations = $cmd->expects();
     
     $params = $expectations->params();
-    $this->assertEquals(3, count($params));
+    $this->assertEquals(4, count($params), 'Command has four arguments');
     
     // Since params should be in order, we can shift them off the top:
     $testString = array_shift($params);
@@ -84,7 +84,12 @@ class SimpleCommandTest extends BaseFortissimoCommand {
       ->withFilter('float')
       
       ->usesParam('testNumeric2', 'Another test numeric value')
-      ->withFilter('callback', array('options' => array(new SimpleValidatorTest(), 'validate')));
+      ->withFilter('callback', array('options' => array(new SimpleValidatorTest(), 'validate')))
+      
+      ->usesParam('testInternal', 'Test internal filters')
+      ->whichHasDefault('FOO')
+      ->withFilter('this', 'internalValidator')
+    ;
   }
   
   public function doCommand() {
@@ -94,5 +99,9 @@ class SimpleCommandTest extends BaseFortissimoCommand {
     if ($this->param('testNumeric2') != 7) throw new Exception('Expected float to be 7');
     
     return $this->param('testNumeric2');
+  }
+  
+  public function internalValidator($data) {
+    return TRUE;
   }
 }

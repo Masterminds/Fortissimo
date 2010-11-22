@@ -956,6 +956,7 @@ class BaseFortissimoCommandParameterCollection implements IteratorAggregate {
    *  - number_float: Removes anything except digits, signs, . , e and E.
    *  - magic_quotes: Run {@link addslashes()}.
    *  - callback: Use the given callback to filter.
+   *  - this: A convenience for 'callback' with the options array('options'=>array($this, 'func'))
    * @param mixed $options
    *  This can be either an array or an OR'd list of flags, as specified in the 
    *  PHP documentation.
@@ -1420,6 +1421,24 @@ abstract class BaseFortissimoCommand implements FortissimoCommand, Explainable {
    * @see handleIllegalParameter() Called if this fails.
    */
   protected function validate ($name, $filter, $payload, $options = NULL) {
+    
+    // Specialized filter support to make it simple for classes to filter.
+    if ($filter == 'this') {
+      $filter = 'callback';
+      
+      $func = $options;
+      
+      $options = array(
+        'options' => array($this, $func),
+      );
+    }
+    // Convenience for the awkward filter_var callback syntax.
+    elseif ($filter == 'callback' && is_callable($options)) {
+      $options = array(
+        'options' => $options,
+      );
+    }
+    
     $filterID = filter_id($filter);
     $res = filter_var($payload, $filterID, $options);
     
