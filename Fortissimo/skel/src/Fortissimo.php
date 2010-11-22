@@ -1935,8 +1935,9 @@ class FortissimoConfig {
  * The idea of the context is to provide three things during the course of the 
  * request(s):
  * - Shared access to data being generated.
- * - Common access to the logging system
- * - Common access to the datasources
+ * - Common access to the logging system.
+ * - Common access to the datasources.
+ * - Access to the request mapper.
  *
  * Thus, every command can utilize the loggers and datasources defined for the
  * application, and commands can pass data throughout the lifecycle of the request.
@@ -1964,6 +1965,7 @@ class FortissimoExecutionContext implements IteratorAggregate {
   protected $logger = NULL;
   protected $datasources = NULL;
   protected $cacheManager = NULL;
+  protected $requestMapper = NULL;
   /** Command cache. */
   protected $cache = array();
   protected $caching = FALSE;
@@ -1979,8 +1981,11 @@ class FortissimoExecutionContext implements IteratorAggregate {
    *  The manager for all datasources declared for this request.
    * @param FortissimoCacheManager $cacheManager
    *  The manager for all caches. Commands may use this to store or retrieve cached content.
+   * @param FortissimoRequestMapper $requestMapper
+   *  The request mapper used on this request. A request mapper should know how to construct
+   *  a URL to the app.
    */
-  public function __construct($initialContext = array(), FortissimoLoggerManager $logger = NULL, FortissimoDatasourceManager $datasources = NULL, FortissimoCacheManager $cacheManager = NULL) {
+  public function __construct($initialContext = array(), FortissimoLoggerManager $logger = NULL, FortissimoDatasourceManager $datasources = NULL, FortissimoCacheManager $cacheManager = NULL, $requestMapper = NULL) {
     if ($initialContext instanceof FortissimoExecutionContext) {
       $this->data = $initialContext->toArray();
     }
@@ -1992,6 +1997,7 @@ class FortissimoExecutionContext implements IteratorAggregate {
     if (isset($logger)) $this->logger = $logger;
     if (isset($datasources)) $this->datasources = $datasources;
     if (isset($cacheManager)) $this->cacheManager = $cacheManager;
+    if (isset($requestMapper)) $this->requestMapper = $requestMapper;
   }
   
   /**
@@ -2181,6 +2187,16 @@ class FortissimoExecutionContext implements IteratorAggregate {
    */
   public function getCacheManager() {
     return $this->cacheManager;
+  }
+  
+  /**
+   * Get the FortissimoRequestMapper for this request.
+   *
+   * The Request Mapper maps requests to URLs and URLs to requests. It can be used
+   * for constructing URLs to other parts of the app.
+   */
+  public function getRequestMapper() {
+    return $this->requestMapper;
   }
 }
 
