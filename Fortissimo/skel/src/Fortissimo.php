@@ -3543,7 +3543,7 @@ class FortissimoRequestMapper {
 /** @defgroup Fortissimo Fortissimo
  * Features that are included in Fortissimo by default.
  */
-/** @mainpage Fortissimo
+/** @page Fortissimo
   * Fortissimo is a PHP application-building framework designed for performance, ease of
   * development, and flexibility.
   *
