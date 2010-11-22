@@ -178,6 +178,7 @@ Config::group('bootstrap')
  *     ->whichInvokes('FortissimoEcho')
  *     ->from('context:tpl')
  * ;
+ * ?>
  * @endcode
  *
  * A request can have two things in its chain: commands and groups.
