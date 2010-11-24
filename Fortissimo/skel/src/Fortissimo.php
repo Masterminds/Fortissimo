@@ -1297,13 +1297,12 @@ abstract class BaseFortissimoCommand implements FortissimoCommand, Explainable {
    * @param string $name
    *  The name of the parameter to fetch.
    * @param mixed $default
-   *  The default value to return if no such paramter is found.
+   *  The default value to return if no such parameter is found.
    *  This is NULL by default.
    * @see context()
    */
   protected function param($name, $default = NULL) {
-    $val = $this->parameters[$name];
-    return isset($val) ? $val : $default;
+    return isset($this->parameters[$name]) ? $this->parameters[$name] : $default;
   }
   
   /**
