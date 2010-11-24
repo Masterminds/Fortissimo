@@ -1,7 +1,8 @@
 <?php
 /** @file
- * This file contains the definition of a memcache backend for a FortissimoRequestCache..
+ * This file contains the definition of a memcache backend for a FortissimoRequestCache.
  */
+ 
 /**
  * Provide access to one or more memcache servers acting as a caching cluster.
  * 

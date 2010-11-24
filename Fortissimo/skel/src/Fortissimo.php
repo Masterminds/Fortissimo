@@ -59,11 +59,12 @@
  *
  * The code in the Fortissimo project is released under an MIT-style license.
  *
+ * License: http://opensource.org/licenses/mit.php An MIT-style License (See LICENSE.txt)
+ * Copyright (c) 2009, 2010 Matt Butcher.
+ *
  * @author M Butcher <matt@aleph-null.tv>
- * @license http://opensource.org/licenses/mit.php An MIT-style License (See LICENSE.txt)
  * @see Fortissimo
- * @copyright Copyright (c) 2009, 2010 Matt Butcher.
- * @version @UNSTABLE@
+ * @version %UNSTABLE-
  * @{
  */
 
@@ -315,7 +316,7 @@ class Fortissimo {
   /**
    * Add paths that will be used by the autoloader and include/require.
    *
-   * Fortissimo uses the {@link spl_autoload()} family of functions to
+   * Fortissimo uses the spl_autoload() family of functions to
    * automatically load classes. This method can be used to dynamically 
    * append directories to the paths used for including class files.
    *
@@ -392,7 +393,7 @@ class Fortissimo {
    * @param string $identifier
    *  A named identifier, typically a URI. By default (assuming ForitissimoRequestMapper has not 
    *  been overridden) the $identifier should be a request name.
-   * @param FortissimoExecutionContext $initialContext
+   * @param FortissimoExecutionContext $initialCxt
    *  If an initialized context is necessary, it can be passed in here.
    */
   public function handleRequest($identifier = 'default', FortissimoExecutionContext $initialCxt = NULL) {
@@ -570,9 +571,7 @@ class Fortissimo {
    * Execute a single command.
    *
    * @param array $commandArray
-   *  An associative array, as described in {@link FortissimoConfig::createCommandInstance}.
-   * @param FortissimoExecutionContext $cxt
-   *  The context of this request. This is passed from command to command.
+   *  An associative array, as described in FortissimoConfig::createCommandInstance.
    * @throws FortissimoException
    *  Thrown if the command failed, but execution should continue.
    * @throws FortissimoInterrupt
@@ -608,8 +607,6 @@ class Fortissimo {
    * @param array $commandArray
    *  Associative array of information about a command, as described
    *  in FortissimoConfig::createCommandInstance().
-   * @param FortissimoExecutionContext $cxt
-   *  The execution context.
    */
   protected function fetchParameters($commandArray) {
     $params = array();
@@ -642,7 +639,7 @@ class Fortissimo {
    * Parse a parameter specification and retrieve the appropriate data.
    *
    * @param string $from
-   *  A parameter specification of the form <source>:<name>. Examples:
+   *  A parameter specification of the form [source]:[name]. Examples:
    *  - get:myParam
    *  - post:username
    *  - cookie:session_id
@@ -661,9 +658,6 @@ class Fortissimo {
    *  - request
    *  - argv (From $argv, assumes that the format of from is argv:N, where N is an integer)
    *  - files
-   * @param FortissimoExecutionContext $cxt
-   *  The current working context. This is used to retrieve data from cmd: 
-   *  sources.
    * @return string 
    *  The value or NULL.
    * @todo argv should support slices of the ARGV array so shell globs can be handled.
@@ -924,19 +918,19 @@ class BaseFortissimoCommandParameterCollection implements IteratorAggregate {
    * A parameter can have any number of filters. Filters are used to 
    * either clean (sanitize) a value or check (validate) a value. In the first
    * case, the system will attempt to remove bad data. In the second case, the
-   * system will merely check to see if the data is acceptible.
+   * system will merely check to see if the data is acceptable.
    *
    * Fortissimo supports all of the filters supplied by PHP. For a complete 
-   * list, including valide options, see 
-   * {@link http://us.php.net/manual/en/book.filter.php}.
+   * list, including valid options, see 
+   * http://us.php.net/manual/en/book.filter.php.
    *
    * Filters each have options, and the options can augment filter behavior, sometimes
-   * in remarkable ways. See {@link http://us.php.net/manual/en/filter.filters.php} for
+   * in remarkable ways. See http://us.php.net/manual/en/filter.filters.php for
    * complete documentation on all filters and all of their options.
    *
    * @param string $filter
    *  One of the predefined filter types supported by PHP. You can obtain the list
-   *  from the PHP builtin function {@link filter_list()}. Here are values currently 
+   *  from the PHP builtin function filter_list(). Here are values currently 
    *  documented:
    *  - int: Checks whether a value is an integer.
    *  - boolean: Checks whether a value is a boolean.
@@ -954,7 +948,7 @@ class BaseFortissimoCommandParameterCollection implements IteratorAggregate {
    *  - url: Removes non-URL characters
    *  - number_int: Removes anything that is not a digit or a sign (+ or -).
    *  - number_float: Removes anything except digits, signs, . , e and E.
-   *  - magic_quotes: Run {@link addslashes()}.
+   *  - magic_quotes: Run addslashes().
    *  - callback: Use the given callback to filter.
    *  - this: A convenience for 'callback' with the options array('options'=>array($this, 'func'))
    * @param mixed $options
@@ -1096,7 +1090,7 @@ class BaseFortissimoCommandParameter {
    *   array('type' => FILTER_SOME_CONST, 'options' => array('some'=>'param'))
    * );
    * ?>
-   * @param array $validators
+   * @param array $filters
    *  An indexed array of validator specifications.
    * @return BaseFortissimoCommandParameter
    *  Returns this object to facilitate chaining.
@@ -1129,7 +1123,7 @@ class BaseFortissimoCommandParameter {
   /**
    * Get the list of filters.
    * @return array
-   *  An array of the form specified in {@link setValidators()}.
+   *  An array of the form specified in setFilters().
    */
   public function getFilters() { return $this->filters; }
   public function getName() { return $this->name; }
@@ -1216,26 +1210,26 @@ interface Cacheable {
  * The class provides several basic services. 
  *
  * First, it simplifies the
- * process of executing a command. The {@link BaseFortissimoCommand::doCommand()}
+ * process of executing a command. The BaseFortissimoCommand::doCommand()
  * method follows a very simple pattern.
  *
  * Second, it provides structure for describing a command. The abstract 
- * {@link BaseFortissimoCommand::expects()} method provides the facilities for
+ * BaseFortissimoCommand::expects() method provides the facilities for
  * describing what parameters this command should use, how these parameters should
  * be filtered/validated/sanitized, and what each parameter is for.
  *
- * Third, using the data from {@link BaseFortissimoCommand::expects()}, this 
- * class provides a self-documenting tool, {@link BaseFortissimoCommand::explain()},
+ * Third, using the data from BaseFortissimoCommand::expects(), this 
+ * class provides a self-documenting tool, BaseFortissimoCommand::explain(),
  * which uses the information about the parameter to provide human-radible 
  * documentation about what this command does.
  *
  * When extending this class, there are two things that every extension must do:
  * 
  * 1. It must provide information about what parameters it uses. This is done
- *  by implementing {@link expects()}.
+ *  by implementing expects().
  * 2. It must provide logic for performing the command. This is done in 
- *  {@link doCommand()}.
- * @abstract
+ *  doCommand().
+ *
  */
 abstract class BaseFortissimoCommand implements FortissimoCommand, Explainable {
   
@@ -1823,7 +1817,7 @@ class FortissimoConfig {
    *
    * @param string $type
    *  The type of item to retrieve. Use the Config class constants.
-   * @param array 
+   * @return array 
    *  An associative array of the form <code>array('name' => object)</code>, where
    *  the object is an instance of the respective 'invoke' class.
    */
@@ -1840,11 +1834,11 @@ class FortissimoConfig {
   /**
    * Get the parameters for a facility such as a logger or a cache.
    *
-   * @param array $facility
+   * @param array $params
    *  Configuration for the given facility.
    * @return array
-   *  An associative array of param name/values. <param name="foo">bar</param>
-   *  becomes array('foo' => 'bar').
+   *  An associative array of param name/values. @code<param name="foo">bar</param>@endcode
+   *  becomes @code array('foo' => 'bar') @endcode.
    */
   protected function getParams(array $params) {
     $res = array();
@@ -2796,7 +2790,7 @@ abstract class FortissimoDatasource {
  *
  * Category logic is encapsulated in the method FortissimoLogger::isLoggingThisCategory(). 
  *
- * @abstract
+ * 
  */
 abstract class FortissimoLogger {
   
@@ -2910,7 +2904,7 @@ abstract class FortissimoLogger {
    *
    * @param string $msg
    *  The message to log.
-   * @param string $category
+   * @param string $severity
    *  The log message category. Typical values are 
    *  - warning
    *  - error

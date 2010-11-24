@@ -217,6 +217,7 @@ Config::request('default')
 
 /**
  * @page logger_config Loggers
+ *
  * You can configure Fortissimo to log to one or more logging backends.
  *
  * @code
@@ -254,6 +255,7 @@ Config::logger('foil')
 
 /**
  * @page cache_config Caches
+ *
  * Caching support is built into Fortissimo.
  *
  * Fortissimo has built-in support for multiple caching backends. For example, applications could
