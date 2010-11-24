@@ -1667,15 +1667,15 @@ abstract class BaseFortissimoCommand implements FortissimoCommand, Explainable {
    *
    * Performs the work for this command.
    *
-   * Every class that extends this base class should implement {@link doCommand()},
+   * Every class that extends this base class should implement doCommand(),
    * executing the command's logic, and returning the value or values that should
    * be placed into the execution context.
    *
    * This object provides access to the following variables of interest:
-   *  - {@link $name}: The name of the command.
-   *  - {@link $parameters}: The name/value list of parameters. These are learned 
-   *    and validated based on the contents of the {@link expects()} method.
-   *  - {@link $context}: The {@link FortissimoExecutionContext} object for this request.
+   *  - $name: The name of the command.
+   *  - $parameters: The name/value list of parameters. These are learned 
+   *    and validated based on the contents of the expects() method.
+   *  - $context: The FortissimoExecutionContext object for this request.
    * @return mixed
    *  A value to be placed into the execution environment. The value can be retrieved
    *  using <code>$cxt->get($name)</code>, where <code>$name</code> is the value of this
@@ -2846,6 +2846,11 @@ abstract class FortissimoLogger {
    *
    * In general, this check is run from rawLog(), and so does not need to be 
    * directly called elsewhere.
+   *
+   * @param string $category
+   *  The category to check.
+   * @return boolean
+   *  TRUE if this is logging for the given category, false otherwise.
    */
   public function isLoggingThisCategory($category) {
     return empty($this->facilities) || isset($this->facilities[$category]);
