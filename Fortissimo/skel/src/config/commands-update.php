@@ -65,7 +65,7 @@
  * By default, Fortissimo uses a flat namespace (no deeply nested directories) because Fortissimo 
  * itself is a thin framework.
  */
-// Config::includePath('includes/MyClasses');
+Config::includePath('core/Fortissimo/Theme'); // Include the Theme classes, which are optional.
 
 /**
  * @page datasource_config Datasources
