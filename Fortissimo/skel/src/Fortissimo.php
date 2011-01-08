@@ -1330,16 +1330,16 @@ abstract class BaseFortissimoCommand implements FortissimoCommand, Explainable {
    *  to a command in the commands.xml file.
    * @param mixed $default
    *  The default value that will be returned if no such object is found in the 
-   *  context. EXPERT: If the return type is not an object, it contains the value
-   *  of the object. However, you can get a reference to the data by using
-   *  $this->context->get($name) (e.g. FortissimoExecutionContext::get()). If you 
-   *  intend to modify the in-context value, the later method can save some
-   *  memory, as well as saving you a call to FortissimoExecutionContext::set().
+   *  context. EXPERT: This will return by reference if you use the &$foo syntax.
    * @see param()
    */
-  protected function context($name, $default = NULL) {
-    $val = $this->context->get($name);
-    return isset($val) ? $val : $default;
+  protected function &context($name, $default = NULL) {
+    $val = &$this->context->get($name);
+    if (!isset($val)) {
+      $val = NULL;
+    }
+    
+    return $val;
   }
   
   /**
@@ -2133,12 +2133,21 @@ class FortissimoExecutionContext implements IteratorAggregate {
    * reference is returned so that one can modify the value. But this introduces a risk: You 
    * can accidentally modify the context value if you are not careful.
    *
+   * If you are working with a non-object and you want to use it by reference, use the following 
+   * syntax:
+   * @code
+   * $foo =& $context->get('foo');
+   * @endcode
+   *
    * @return mixed
    *  A reference to the value in the context, or NULL if $name was not found.
    */
-  public function get($name) {
-    // isset() is used to avoid E_STRICT warnings.
-    return isset($this->data[$name]) ? &$this->data[$name]: NULL;
+  public function &get($name) {
+    $var = NULL;
+    if (isset($this->data[$name])) {
+      $var =  &$this->data[$name];
+    }
+    return $var;
   }
   
   /**
