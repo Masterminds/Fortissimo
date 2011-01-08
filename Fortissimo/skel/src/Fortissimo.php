@@ -2124,12 +2124,17 @@ class FortissimoExecutionContext implements IteratorAggregate {
   
   /**
    * Get a value by name.
+   *
+   * This fetches an item out of the context and returns a reference to it. A 
+   * reference is returned so that one can modify the value. But this introduces a risk: You 
+   * can accidentally modify the context value if you are not careful.
+   *
    * @return mixed
-   *  The value in the array, or NULL if $name was not found.
+   *  A reference to the value in the context, or NULL if $name was not found.
    */
   public function get($name) {
     // isset() is used to avoid E_STRICT warnings.
-    return isset($this->data[$name]) ? $this->data[$name]: NULL;
+    return isset($this->data[$name]) ? &$this->data[$name]: NULL;
   }
   
   /**
