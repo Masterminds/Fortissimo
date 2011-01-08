@@ -1330,7 +1330,11 @@ abstract class BaseFortissimoCommand implements FortissimoCommand, Explainable {
    *  to a command in the commands.xml file.
    * @param mixed $default
    *  The default value that will be returned if no such object is found in the 
-   *  context.
+   *  context. EXPERT: If the return type is not an object, it contains the value
+   *  of the object. However, you can get a reference to the data by using
+   *  $this->context->get($name) (e.g. FortissimoExecutionContext::get()). If you 
+   *  intend to modify the in-context value, the later method can save some
+   *  memory, as well as saving you a call to FortissimoExecutionContext::set().
    * @see param()
    */
   protected function context($name, $default = NULL) {
