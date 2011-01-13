@@ -22,7 +22,7 @@ class FortissimoEcho extends BaseFortissimoCommand {
   
   public function doCommand() {
     
-    $type = $this->getParam('type', NULL);
+    $type = $this->param('type', NULL);
     
     if (!empty($type)) {
       header('Content-Type: ' . $type);
