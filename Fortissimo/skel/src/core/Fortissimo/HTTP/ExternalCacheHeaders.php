@@ -66,7 +66,7 @@ class ExternalCacheHeaders extends BaseFortissimoCommand {
     // Otherwise we set the cache headers.
     $ttl = $this->param('ttl', 120);
     $exp_time = $_SERVER['REQUEST_TIME'] + $ttl;
-    $exp_date = gmdate($exp_time);
+    $exp_date = gmdate(self::EXPIRES_DATE_FORMAT,$exp_time);
     
     header(sprintf('Cache-Control: max-age=%d, must-revalidate, public', $ttl));
     header(sprintf('Expires: %s', $exp_date));
