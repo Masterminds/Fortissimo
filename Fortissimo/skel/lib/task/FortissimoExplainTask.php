@@ -18,6 +18,12 @@ class FortissimoExplainTask extends Task {
   
   public function init() {}
   public function main() {
+    
+    array_unshift('./src', get_include_path());
+    
+    $path = implode(PATH_SEPARATOR, $paths);
+    set_include_path($path);
+    
     include 'src/config/commands.php';
     $config = Config::getConfiguration();
     foreach ($config[Config::REQUESTS] as $request) {
