@@ -25,7 +25,7 @@ class FortissimoExplainTask extends Task {
     // foreach ($requests as $req) $req->attr('explain', 'true');
     
     include 'src/config/commands.php';
-    $config = Config::getConfigiration();
+    $config = Config::getConfiguration();
     foreach ($config[Config::REQUESTS] as $request) {
       $request['#explaining'] = TRUE;
     }
