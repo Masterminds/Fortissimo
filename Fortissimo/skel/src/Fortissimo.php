@@ -900,6 +900,7 @@ interface FortissimoCommand {
  */
 class BaseFortissimoCommandParameterCollection implements IteratorAggregate {
   protected $params = array();
+  protected $events = array();
   protected $description = '';
   protected $paramCounter = -1;
   protected $returns = 'Nothing';
@@ -986,6 +987,48 @@ class BaseFortissimoCommandParameterCollection implements IteratorAggregate {
     return $this;
   }
   
+  /**
+   * Declares an event for this command.
+   *
+   * This indicates (though does not enforce) that this command may
+   * at some point in execution fire an event with the given event name.
+   *
+   * Event listeners can bind to this command's event and be notified when the
+   * event fires.
+   *
+   * @param string $name
+   *  The name of the event. Example: 'load'.
+   * @param string $description
+   *  A description of the event.
+   * @return
+   *  This object.
+   */
+  public function declaresEvent($name, $description) {
+    $this->events[$name] = $description;
+    return $this;
+  }
+  
+  /**
+   * Set all events for this object.
+   *
+   * The $events array must follow this form:
+   *
+   * @code
+   * <?php
+   * array(
+   *  'event_name' => 'Long description help text',
+   *  'other_event' => 'Description of conditions under which other_event is called.',
+   * );
+   * ?>
+   * @endcode
+   */
+  public function setEvents(array $events) {
+    $this->events = $events;
+    return $this;
+  }
+  
+  public function events() { return $this->events; }
+  
   public function returnDescription() {
     return $this->returns;
   }
@@ -1014,6 +1057,7 @@ class BaseFortissimoCommandParameterCollection implements IteratorAggregate {
  */
 class BaseFortissimoCommandParameter {
   protected $filters = array();
+  
   protected $name, $description, $defaultValue;
   protected $required = FALSE;
   
@@ -1038,7 +1082,7 @@ class BaseFortissimoCommandParameter {
    * A parameter can have any number of filters. Filters are used to 
    * either clean (sanitize) a value or check (validate) a value. In the first
    * case, the system will attempt to remove bad data. In the second case, the
-   * system will merely check to see if the data is acceptible.
+   * system will merely check to see if the data is acceptable.
    *
    * Fortissimo supports all of the filters supplied by PHP. For a complete 
    * list, including valide options, see 
@@ -1100,6 +1144,8 @@ class BaseFortissimoCommandParameter {
     return $this;
   }
   
+
+  
   public function setRequired($required) {
     $this->required = $required;
   }
@@ -1144,6 +1190,30 @@ interface Explainable {
    *  A string explaining the role of the class.
    */
   public function explain();
+}
+
+/**
+ * Classes that implement this advertise that they support event listening support.
+ *
+ * Commands in Fortissimo may optionally support an events model in which the 
+ * command fires events that other classes may then respond to.
+ *
+ * The core event system is part of Fortissimo proper, but commands may or may 
+ * not choose to declare (or answer) any events. Commands that extend
+ * BaseFortissimoCommand can very easily declare and answer events. Those that do 
+ * not will need to provide their own event management, adhering to this interface.
+ */
+interface Observable {
+  
+}
+
+/**
+ * Classes that implement this declare themselves to be capable of observing.
+ *
+ * Observers can be attached to Observables.
+ */
+interface Observer {
+  
 }
 
 /**
@@ -1582,6 +1652,17 @@ abstract class BaseFortissimoCommand implements FortissimoCommand, Explainable {
       $filterString = implode(', ', $fltr);
       if (strlen($filterString) == 0) $filterString = 'no filters';
       $buffer .= sprintf($format, $name, $filterString, $desc);
+      
+    }
+    
+    // Gather information on which events this command fires.
+    $events = array();
+    foreach ($expects->events() as $event => $desc) {
+      $events[] = sprintf("\t* %s: %s", $event, $desc);
+    }
+    
+    if (!empty($events)) {
+      $buffer .= "\tEVENTS:" . PHP_EOL . implode(PHP_EOL, $events) . PHP_EOL;
     }
     
     // We do this because __CLASS__ will return the abstract class.
