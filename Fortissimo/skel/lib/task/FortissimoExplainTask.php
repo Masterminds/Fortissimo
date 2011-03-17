@@ -29,7 +29,7 @@ class FortissimoExplainTask extends Task {
     foreach ($config[Config::REQUESTS] as $request) {
       $request['#explaining'] = TRUE;
     }
-    Config::configuration($config);
+    Config::set($config);
     
     
     $ff = new Fortissimo();
