@@ -277,3 +277,14 @@ Here's what's going on:
   request.
 
 This will put a filename into the context. So some subsequent command can use fopen, file_get_contents, etc. to access the file.
+
+# Events
+
+Fortissimo now includes an events model. Commands can declare events (points in their processing). When a command fires an event, other things have the opportunity to jump in and access/modify the data.
+
+The events system has three parts:
+
+1. Commands: Commands declare events and fire them whenever appropriate. To see which events a command declares, you can run an 'explain' on that command (or just read the `expects()` function in the command's source code).
+2. Event Handlers (Listeners): Event handlers are given the opportunity to respond to specific events.
+3. Configuration: The commands.php file is where event listeners can be wired up to listen for events.
+
