@@ -3283,6 +3283,7 @@ class Config {
   const CACHES = 'caches';
   const LOGGERS = 'loggers';
   const REQUEST_MAPPER = 'requestMapper';
+  const LISTENERS = 'listeners';
   
   public static function request($name, $description = '') {
     return self::set(self::REQUESTS, $name);
@@ -3360,6 +3361,41 @@ class Config {
    */
   public static function group($name) {
     return self::set(self::GROUPS, $name);
+  }
+  
+  /**
+   * Declare an event listener that will bind to ALL requests.
+   *
+   * @code
+   * <?php
+   * Config::listener('FooClass', 'load', function ($e) {});
+   *
+   * // ...
+   *
+   * // The above will automatically bind to this.
+   * Config::request('foo')->hasCommand('bar')->whichInvokes('FooClass');
+   * ?>
+   * @endcode
+   *
+   * @param string $klass
+   *  The name of the class to bind to.
+   * @param string $event
+   *  The name of the event to listen for.
+   * @param callable $callable
+   *  The callback to execute when $klass fires $event.
+   * @return
+   *  The config instance.
+   */
+  public static function listener($klass, $event, $callable) {
+    $i = self::inst();
+    //$i->config[self::LISTENERS] = arra();
+    $i->currentCategory = self::LISTENERS;
+    $i->currentName = NULL;
+    
+    // Now register the callable.
+    $i->config[self::LISTENERS][$klass][$event][] = $callable;
+    
+    return $i;
   }
   
   /**
@@ -3466,6 +3502,7 @@ class Config {
       self::PATHS => array(),
       self::GROUPS => array(),
       self::DATASOURCES => array(),
+      self::LISTENERS => array(),
       self::REQUEST_MAPPER => NULL,
     );
   }
@@ -3500,6 +3537,13 @@ class Config {
       case self::REQUESTS:
       case self::GROUPS:
         $this->config[$this->currentCategory][$this->currentName][$this->commandName]['class'] = $className;
+        
+        // We need to bind global listeners to each request that invokes the class.
+        if (!empty($this->config[self::LISTENERS][$className])) {
+          foreach($this->config[self::LISTENERS][$className] as $event => $callable) {
+            $this->config[$this->currentCategory][$this->currentName][$this->commandName]['listeners'][$event] = $callable;
+          }
+        }
         break;
       default:
         $msg = 'Tried to add a class to ' . $this->currentCategory;
