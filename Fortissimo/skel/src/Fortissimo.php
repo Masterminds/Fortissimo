@@ -1257,15 +1257,6 @@ interface Observable {
 }
 
 /**
- * Classes that implement this declare themselves to be capable of observing.
- *
- * Observers can be attached to Observables.
- */
-interface Observer {
-  
-}
-
-/**
  * Classes that implement this advertise that their output can be cached.
  *
  * Simply implementing this in no way results in the results being cached. There must be a
