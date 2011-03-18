@@ -568,6 +568,13 @@ class Fortissimo {
   }
   
   /**
+   * Given a command, prepare it to receive events.
+   */
+  protected function setEventHandlers($command, $listeners) {
+    $command->setEventHandlers($listeners);
+  }
+  
+  /**
    * Execute a single command.
    *
    * @param array $commandArray
@@ -583,6 +590,10 @@ class Fortissimo {
     $inst = $commandArray['instance'];
     
     $params = $this->fetchParameters($commandArray, $this->cxt);
+    //print $commandArray['name'] . ' is ' . ($inst instanceof Observable ? 'Observable' : 'Not observable') . PHP_EOL;
+    if ($inst instanceof Observable && !empty($commandArray['listeners'])) {
+      $this->setEventHandlers($inst, $commandArray['listeners']);
+    }
     
     //set_error_handler(array('FortissimoErrorException', 'initializeFromError'), 257);
     set_error_handler(array('FortissimoErrorException', 'initializeFromError'), self::ERROR_TO_EXCEPTION);
@@ -1204,7 +1215,45 @@ interface Explainable {
  * not will need to provide their own event management, adhering to this interface.
  */
 interface Observable {
+  /**
+   * Set the event handlers.
+   *
+   * This tells the Observable what listeners are registered for the given 
+   * object. The listeners array should be an associative array mapping 
+   * event names to an array of callables.
+   *
+   * @code
+   * <?php
+   * array(
+   *   'load' => array(
+   *      'function_name'
+   *      function () {},
+   *      array($object, 'methodName'),
+   *      array('ClassNam', 'staticMethod').
+   *    ),
+   *   'another_event => array(
+   *      'some_other_function',
+   *    ),
+   * );
+   * ?>
+   * @endcode
+   *
+   * @param array $listeners
+   *  An associative array of event names and an array of eventhandlers.
+   */
+  public function setEventHandlers($listeners);
   
+  /**
+   * Trigger a particular event.
+   *
+   * @param string $eventName
+   *   The name of the event.
+   * @param array $data
+   *   Any data that is to be passed into the event.
+   * @return
+   *   An optional return value, as determined by the particular event.
+   */
+  public function fireEvent($eventName, $data = NULL);
 }
 
 /**
@@ -1301,9 +1350,14 @@ interface Cacheable {
  *  doCommand().
  *
  */
-abstract class BaseFortissimoCommand implements FortissimoCommand, Explainable {
+abstract class BaseFortissimoCommand implements FortissimoCommand, Explainable, Observable {
   
   protected $paramsCollection;
+  
+  /**
+   * The array of event listeners attached to this command.
+   */
+  protected $listeners = NULL;
   
   /**
    * The name of this command.
@@ -1677,6 +1731,58 @@ abstract class BaseFortissimoCommand implements FortissimoCommand, Explainable {
       . $expects->returnDescription()
       . PHP_EOL . PHP_EOL;
   }
+  /**
+   * Set the event handlers.
+   *
+   * This tells the Observable what listeners are registered for the given 
+   * object. The listeners array should be an associative array mapping 
+   * event names to an array of callables.
+   *
+   * @code
+   * <?php
+   * array(
+   *   'load' => array(
+   *      'function_name'
+   *      function () {},
+   *      array($object, 'methodName'),
+   *      array('ClassNam', 'staticMethod').
+   *    ),
+   *   'another_event => array(
+   *      'some_other_function',
+   *    ),
+   * );
+   * ?>
+   * @endcode
+   *
+   * @param array $listeners
+   *  An associative array of event names and an array of eventhandlers.
+   */
+  public function setEventHandlers($listeners) {
+    $this->listeners = $listeners;
+  }
+  
+  /**
+   * Trigger a particular event.
+   *
+   * @param string $eventName
+   *   The name of the event.
+   * @param array $data
+   *   Any data that is to be passed into the event.
+   * @return
+   *   An optional return value, as determined by the particular event.
+   */
+  public function fireEvent($eventName, $data = NULL) {
+    if (empty($this->listeners) || empty($this->listeners[$eventName])) return;
+
+    $results = array();
+    foreach ($this->listeners[$eventName] as $callable) {
+      if (!is_callable($callable)) {
+        throw new FortissimoInterruptException('Attempting to call uncallable item ' . (string)$callable);
+      }
+      $results[] = call_user_func($callable, $data);
+    }
+    return $results;
+  }
   
   /**
    * Information about what parameters the command expects.
@@ -2002,6 +2108,7 @@ class FortissimoConfig {
    *    information and correctly populate the parameters at execution time.
    *    Parameter information is returned as an associative array of arrays:
    *    <?php $param['name'] => array('from' => 'src:name', 'value' => 'default value'); ?>
+   *  - listeners: Information on event listeners and what they are listening for.
    * @throws FortissimoException
    *  In the event that a paramter does not have a name, an exception is thrown.
    */
@@ -2013,6 +2120,7 @@ class FortissimoConfig {
 
     $cache = isset($config['caching']) && filter_var($config['caching'], FILTER_VALIDATE_BOOLEAN);
     $params = isset($config['params']) ? $config['params'] : array();
+    $listeners = isset($config['listeners']) ? $config['listeners'] : array();
     
     $inst = new $class($cmd, $cache);
     return array(
@@ -2021,6 +2129,7 @@ class FortissimoConfig {
       'class' => $class,
       'instance' => $inst,
       'params' => $params,
+      'listeners' => $listeners,
     );
   }
   
@@ -3426,6 +3535,20 @@ class Config {
         break;
       default:
         $msg = 'Tried to add a param to ' . $this->currentCategory;
+        throw new FortissimoConfigurationException($msg);
+    }
+    return $this;
+  }
+  public function bind($eventName, $callable) {
+    $cat = $this->currentCategory;
+    $name = $this->currentName;
+    switch ($cat) {
+      case self::GROUPS:
+      case self::REQUESTS:
+        $this->config[$cat][$name][$this->commandName]['listeners'][$eventName][] = $callable;
+        break;
+      default:
+        $msg = 'Tried to add an event listener to ' . $this->currentCategory;
         throw new FortissimoConfigurationException($msg);
     }
     return $this;
