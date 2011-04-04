@@ -1337,6 +1337,32 @@ interface Cacheable {
    *  The name of the cache. If this is NULL, then the default cache will be used.
    */
   public function cacheBackend();
+  
+  
+  /**
+   * Indicate whether or not the current command is caching.
+   *
+   * This provides a standard mechanism for indicating whether or not a particular
+   * Cacheable instance is allowed to be cached. Implementors can, for example, 
+   * implement a configuration parameter that will enable or disable caching.
+   *
+   * Typically, when the request handing subsystem test an object to see if it is
+   * able to be cached, the following should all be true:
+   *
+   * - Fortissimo ought to have a suitable cache provided (e.g. Config::cache())
+   * - The command should implement Cacheable
+   * - isCaching() should return TRUE
+   * - cacheKey() should return a string value
+   *
+   * Note that this flag is checked after the command is initialized, but before the 
+   * command is executed. Any changes that the command makes to this value during
+   * the command's execution will be ignored.
+   *
+   * @return boolean
+   *  TRUE if this command is in caching mode, FALSE if this command object is 
+   *  disallowing cached output.
+   */
+  public function isCaching();
 }
 
 /**
