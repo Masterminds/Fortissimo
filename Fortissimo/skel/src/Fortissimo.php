@@ -388,7 +388,8 @@ class Fortissimo {
    * caching. When request caching is enabled, the output of a request is 
    * stored in a cache. Subsequent identical requests will be served out of
    * the cache, thereby avoiding all overhead associated with loading and 
-   * executing commands.
+   * executing commands. (Request caching is different than command caching, see Cacheable, which
+   * caches only the output of individual commands.)
    *
    * @param string $identifier
    *  A named identifier, typically a URI. By default (assuming ForitissimoRequestMapper has not 
@@ -441,6 +442,8 @@ class Fortissimo {
         return;
       }
       
+      // If we get here, no cache hit was found, so we start buffering the
+      // content to cache it.
       $this->startCaching();
     }
     
@@ -577,6 +580,13 @@ class Fortissimo {
   /**
    * Execute a single command.
    *
+   * This takes a command array, which describes a command, and then does the following:
+   * 
+   * - Find out what params the command expects and get them.
+   * - Prepare any event handlers that listen for events on this command
+   * - Execute the command
+   * - Handle any errors that arise
+   *
    * @param array $commandArray
    *  An associative array, as described in FortissimoConfig::createCommandInstance.
    * @throws FortissimoException
@@ -614,6 +624,13 @@ class Fortissimo {
   
   /**
    * Retrieve the parameters for a command.
+   *
+   * This does the following:
+   *
+   * - Find out what parameters a command expects.
+   * - Look at the Config::from() calls on an object and retrieve data as necessary. This uses fetchParameterFromSource() to retrieve the data.
+   * - Fill in default values from Config::whoseValueIs() calls
+   * - Return the mapping of parameter names to (newly fetched) values.
    *
    * @param array $commandArray
    *  Associative array of information about a command, as described
@@ -1265,6 +1282,14 @@ interface Observable {
  * For example, BaseFortissimoCommand is capable of understanding Cacheable objects. When 
  * a BaseFortissimCommand::doCommand() result is returned, if a cache key can be generated
  * for it, then its results will be cached.
+ *
+ * To implement and configure caching:
+ * - Make your BaseFortissimoCommand class implement Cacheable
+ * - Set up a cache with Config::cache()
+ *
+ * When the command is executed, its results will be stored in cache. The next time the command
+ * is executed, it will first attempt to use the cached copy (unless that copy is gone or
+ * expired). If a copy is found, it is returned, otherwise a new copy is generated.
  */
 interface Cacheable {
   
@@ -1390,11 +1415,22 @@ abstract class BaseFortissimoCommand implements FortissimoCommand, Explainable, 
   /**
    * By default, a Fortissimo base command is cacheable.
    *
+   * This has been deprecated in favor of the Cacheable interface. To test the 
+   * cacheability of an object, you should run this:
+   * @code
+   * <?php
+   * $cmd instanceof Cacheable;
+   * ?>
+   * @endcode
+   *
    * @return boolean
    *  Returns TRUE unless a subclass overrides this.
+   * @deprecated
+   *  This is no longer used, as it was replaced by the Cacheable interface.
    */
   public function isCacheable() {
-    return TRUE;
+    //return TRUE;
+    return $this instanceof Cacheable;
   }
   
   /**
