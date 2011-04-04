@@ -3726,13 +3726,45 @@ class Config {
     return $this;
   }
   /**
-   * Turn on or off caching for a request.
+   * Turn on or off caching for a request or command.
+   *
+   * Command-based caching caches the results of just a specific command. It makes it 
+   * possible to have certain parts of a request be cached while not caching the entire
+   * request.
+   *
+   * @code
+   * <?php
+   * Config::request('foo')
+   *   ->doesCommand('bar')
+   *   ->whichInvokes('MyBarClass')
+   *   ->whichUses('baz')->whoseValueIs('lurp')
+   *   ->isCaching(TRUE);
+   * ?>
+   *   
+   * Request-based caching (EXPERIMENTAL) caches the output of an entire request.
+   *
+   * @code
+   * <?php
+   * Config::request('foo')->isCaching(TRUE);
+   * ?>
+   * @endcode
+   *
+   * @param boolean $boolean
+   *  TRUE to turn on caching, FALSE to disable caching.
    */
   public function isCaching($boolean = TRUE) {
     if ($this->currentCategory == self::REQUESTS) {
       $cat = $this->currentCategory;
       $name = $this->currentName;
+      
+      if (!empty($this->commandName)) {
+        $this->config[$cat][$name][$this->commandName]['cache'] = $boolean;
+      }
+      
       $this->config[$cat][$name]['#caching'] = $boolean;
+    }
+    elseif ($this->currentCategory == self::GROUPS && !empty($this->commandName)) {
+      $this->config[$cat][$name][$this->commandName]['cache'] = $boolean;
     }
     return $this;
     
