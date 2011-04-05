@@ -14,7 +14,7 @@ class ConfigTest extends PHPUnit_Framework_TestCase {
   
   public function testGetConfiguration() {
     $cfg = Config::getConfiguration();
-    $this->assertEquals(7, count($cfg));
+    $this->assertEquals(8, count($cfg));
   }
   
   public function testIncludePath() {

@@ -21,7 +21,7 @@ class FortissimoConfigTest extends PHPUnit_Framework_TestCase {
     $fc = new FortissimoConfig(self::command);
     $array = $fc->getConfig();
     $this->assertTrue(is_array($array), 'Returned a configuration array.');
-    $this->assertEquals(7, count($array), 'Has seven categories.');
+    $this->assertEquals(8, count($array), 'Has eight categories.');
   }
   
   public function testIsLegalRequestName() {
