@@ -2168,7 +2168,7 @@ class FortissimoConfig {
   protected function createCommandInstance($cmd, $config) {
     $class = $config['class'];
     if (empty($class)) {
-      throw new FortissimoConfigException('No class specified for ' . $cmd);
+      throw new FortissimoConfigurationException('No class specified for ' . $cmd);
     }
 
     $cache = isset($config['caching']) && filter_var($config['caching'], FILTER_VALIDATE_BOOLEAN);
@@ -3756,15 +3756,20 @@ class Config {
     if ($this->currentCategory == self::REQUESTS) {
       $cat = $this->currentCategory;
       $name = $this->currentName;
-      
+      $this->config[$cat][$name]['#caching'] = $boolean;
+/*      
       if (!empty($this->commandName)) {
         $this->config[$cat][$name][$this->commandName]['cache'] = $boolean;
       }
+      else {
+        $this->config[$cat][$name]['#caching'] = $boolean;
+      }
       
-      $this->config[$cat][$name]['#caching'] = $boolean;
     }
+    // Add caching in group commands.
     elseif ($this->currentCategory == self::GROUPS && !empty($this->commandName)) {
       $this->config[$cat][$name][$this->commandName]['cache'] = $boolean;
+*/
     }
     return $this;
     
