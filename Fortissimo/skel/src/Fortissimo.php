@@ -1561,7 +1561,7 @@ abstract class BaseFortissimoCommand implements FortissimoCommand, Explainable, 
     $result = NULL;
     
     // If this looks like a cache can handle it, use a cache.
-    if ($this instanceof Cacheable && ($key = $this->cacheKey()) != NULL) {
+    if ($this instanceof Cacheable && $this->isCaching() && ($key = $this->cacheKey()) != NULL) {
       $result = $this->executeWithCache($key);
     }
     
