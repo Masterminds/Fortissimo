@@ -2530,6 +2530,20 @@ class FortissimoCacheManager {
   }
   
   /**
+   * Get an array of cache names.
+   *
+   * This will generate a list of names for all of the caches
+   * that are currently active. This name can be passed to getCacheByName() 
+   * to get a particular cache.
+   *
+   * @return array
+   *  An indexed array of cache names.
+   */
+  public function getCacheNames() {
+    return array_keys($this->caches);
+  }
+  
+  /**
    * Get the default cache.
    */
   public function getDefaultCache() {
