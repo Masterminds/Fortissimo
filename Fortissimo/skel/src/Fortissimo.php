@@ -2038,12 +2038,12 @@ class FortissimoConfig {
    * Get all caches.
    *
    * This will load all of the caches from the command configuration 
-   * (typically commands.xml) and return them in an associative array of 
+   * (typically commands.php) and return them in an associative array of 
    * the form array('name' => object), where object is a FortissimoRequestCache
    * of some sort.
    * 
    * @return array
-   *  An associative array of name => logger pairs.
+   *  An associative array of name => cache pairs.
    * @see FortissimoRequestCache
    */
   public function getCaches() {
@@ -2070,7 +2070,7 @@ class FortissimoConfig {
     foreach ($this->config[$type] as $name => $facility) {
       $klass = $facility['class'];
       $params = isset($facility['params']) ? $this->getParams($facility['params']) : array();
-      $facilities[$name] = new $klass($params);
+      $facilities[$name] = new $klass($params, $name);
     }
     return $facilities;
   }
@@ -2861,13 +2861,24 @@ abstract class FortissimoCache {
    */
   protected $params = NULL;
   protected $default = FALSE;
+  protected $name = NULL;
   
   /**
    * Construct a new datasource.
+   *
+   * @param array $params
+   *  The parameters passed in from the configuration.
+   * @param string $name
+   *  The name of the facility.
    */
-  public function __construct($params = array()) {
+  public function __construct($params = array(), $name = 'unknown_cache') {
     $this->params = $params;
+    $this->name = $name;
     $this->default = isset($params['isDefault']) && filter_var($params['isDefault'], FILTER_VALIDATE_BOOLEAN);
+  }
+  
+  public function getName() {
+    return $this->name;
   }
   
   /**
@@ -3012,12 +3023,19 @@ abstract class FortissimoDatasource {
    */
   protected $params = NULL;
   protected $default = FALSE;
+  protected $name = NULL;
   
   /**
    * Construct a new datasource.
+   *
+   * @param array $params
+   *  An associative array of params from the configuration.
+   * @param string $name
+   *  The name of the facility.
    */
-  public function __construct($params = array()) {
+  public function __construct($params = array(), $name = 'unknown_datasource') {
     $this->params = $params;
+    $this->name = $name;
     $this->default = isset($params['isDefault']) && filter_var($params['isDefault'], FILTER_VALIDATE_BOOLEAN);
   }
   
@@ -3074,15 +3092,19 @@ abstract class FortissimoLogger {
    */
   protected $params = NULL;
   protected $facilities = NULL;
+  protected $name = NULL;
   
   /**
    * Construct a new logger instance.
    *
    * @param array $params
    *   An associative array of name/value pairs.
+   * @param string $name
+   *   The name of this logger.
    */
-  public function __construct($params = array()) {
+  public function __construct($params = array(), $name = 'unknown_logger') {
     $this->params = $params;
+    $this->name = $name;
     
     // Add support for facility declarations.
     if (isset($params['categories'])) {
