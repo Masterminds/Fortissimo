@@ -3040,6 +3040,16 @@ abstract class FortissimoDatasource {
   }
   
   /**
+   * Get this datasource's name, as set in the configuration.
+   *
+   * @return string
+   *  The name of this datasource.
+   */
+  public function getName() {
+    return $this->name;
+  }
+  
+  /**
    * Determine whether this is the default datasource.
    *
    * Note that this may be called *before* init().
@@ -3116,6 +3126,16 @@ abstract class FortissimoLogger {
       $this->facilities = array_combine($fac, $fac);
     }
     
+  }
+  
+  /**
+   * Get the name of this logger.
+   *
+   * @return string
+   *  The name of this logger.
+   */
+  public function getName() {
+    return $this->name;
   }
   
   /**
