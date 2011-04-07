@@ -191,6 +191,9 @@ class FortissimoAutoloader {
     // its own classloader.
     if (strpos($class, 'Twig_') === 0) return;
     
+    // Namespace translation:
+    $class = str_replace('\\', '/', $class);
+    
     foreach ($this->include_paths as $dir) {
       $path = $dir . DIRECTORY_SEPARATOR . $class;
       foreach ($this->extensions as $ext) {
@@ -1421,6 +1424,9 @@ abstract class BaseFortissimoCommand implements FortissimoCommand, Explainable, 
    *
    * For caching to be enabled, both this flag (which comes from the command
    * config) and the {@link isCacheable()} method must be TRUE.
+   *
+   * @deprecated This has been replaced by Cacheable::isCaching(), which leaves cache control
+   * the responsibility only of objects that are actually cacheable.
    */
   protected $caching = FALSE;
   /**
