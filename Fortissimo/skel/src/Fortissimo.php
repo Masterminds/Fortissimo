@@ -1439,6 +1439,19 @@ abstract class BaseFortissimoCommand implements FortissimoCommand, Explainable, 
    */
   protected $parameters = NULL;
   
+  /**
+   * Construct a new BaseFortissimoCommand.
+   *
+   * This is automatically called by the framework during a Fortissimo::handleRequest() 
+   * sequence of events. Note, however, that it can be called explicitly by things trying
+   * to execute commands outside of the normal chain.
+   *
+   * @param string $name
+   *  The name of the command, available to extending classes as $this->name.
+   * @param boolean $caching
+   *  DEPRECATED: This is ignored. The original command caching mechanism has been replaced
+   *  by the Cacheable interface and Cacheable::isCaching().
+   */
   public function __construct($name, $caching = FALSE) {
     $this->name = $name;
     $this->caching = $caching;
