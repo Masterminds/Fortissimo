@@ -15,48 +15,136 @@
  * @endcode
  */
 
-/**
- * Point this to the correct Fortissimo.php.
- */
-require '../src/Fortissimo.php';
-
 if ($argc <= 1) {
   printf('%s expects at least one parameter. Try --help.'. PHP_EOL, $argv[0]);
   exit(1);
 }
 elseif ($argv[1] == '--help') {
   printf('This is a command-line Fortissimo command runner.'. PHP_EOL);
-  printf('Syntax: %s COMMAND [ARGUMENTS]'. PHP_EOL, $argv[0]);
+  printf('Syntax: %s [OPTIONS] COMMAND [ARGUMENTS]'. PHP_EOL, $argv[0]);
+  print 'Options:' . PHP_EOL; 
+  print "\t--help: get help" . PHP_EOL;
+  print "\t--base DIRECTORY: Use the given directory as the root of Fortissimo" . PHP_EOL;
+  print "\t--config FILENAME.php: use config with given path/name". PHP_EOL;
+  print "\t--explain: turn on explaining" . PHP_EOL;
   exit(0);
 }
 
-// Try to find the commands file:
-
-$cwd = getcwd();
-$bases = array(
-  $cwd,
-  $cwd . '/src',
-  $cwd . '/../src',
+// If TRUE, then we must have a value (e.g. --config filename.php). Otherwise, if FALSE
+// we assume this is a flag, and we set it to TRUE.
+$opts = array(
+  '--help' => FALSE,
+  '--explain' => FALSE,
+  '--config' => TRUE,
+  '--base' => TRUE,
 );
 
-$basedir = NULL;
-foreach ($bases as $base) {
-  if (is_file($base . '/config/commands.php')) {
-    //$practicalBase = $base;
-    $basedir = $base;// . '/config/commands.php';
+/*
+ * Process command-line arguments. 
+ */
+$modifiers = array();
+$endOpts = 1;
+for ($i = 1; $i < $argc; ++$i) {
+  if (isset($opts[$argv[$i]])) {
+    $modifiers[$argv[$i]] = $opts[$argv[$i]] ? $argv[++$i] : TRUE;
+  }
+  elseif ($argv[$i] == '--') {
+    $endOpts = ++$i;
     break;
   }
+  elseif (strpos($argv[$i], '--') === 0) {
+    printf("Unrecognized option %s.", $argv[$i]);
+    exit;
+  }
+  else {
+    $endOpts = $i;
+    break;
+  }
+}
+
+// Set command name.
+$commandName = $argv[$endOpts];
+
+// Set config file.
+$config = empty($modifiers['--config']) ? 'config/commands.php' : $modifiers['--config'];
+
+/*
+ * Set Base path. 
+ */
+$basedir = getcwd();
+if (isset($modifiers['--base'])) {
+  $basedir = $modifiers['--base'];
+  
+  if (!is_dir($basedir)) {
+    print "ERROR: Not a directory: " . $basedir;
+    exit(1);
+  }  
+}
+
+// Go to the base directory.
+chdir($basedir);
+
+// See if we need to look for Fortissimo.php.
+if (!file_exists('Fortissimo.php') && is_dir('src/')) {
+  chdir('src');
+}
+
+if (!file_exists('Fortissimo.php')) {
+  print "ERROR: Could not find Fortissimo.php in " . getcwd();
+  exit(1);
+}
+
+require 'Fortissimo.php';
+
+/*
+ * Set configuration file. 
+ */
+if (strpos($config, '/') === 0) {
+  // If absolute path, include directly.
+  $basedir = dirname($config);
+  require $config;
+}
+else {
+  $cwd = getcwd();
+  $bases = array(
+    $cwd . '/',
+    $cwd . '/src/',
+  );
+
+  $basedir = NULL;
+  foreach ($bases as $base) {
+    if (is_file($base . $config)) {
+      //$practicalBase = $base;
+      $basedir = $base;// . '/config/commands.php';
+      break;
+    }
+  }
+  //chdir($basedir);
+  require $basedir . DIRECTORY_SEPARATOR . $config;
+  //chdir($cwd);
 }
 
 if (empty($basedir)) {
   print 'No configuration file found. Quitting.' . PHP_EOL;
   exit(1);
 }
-chdir($basedir);
+
+/*
+ * See if we are explaining. 
+ */
+if (!empty($modifiers['--explain'])) {
+  $config = Config::getConfiguration();
+  
+  foreach ($config[Config::REQUESTS] as $reqName => $payload) {
+    $config[Config::REQUESTS][$reqName]['#explaining'] = TRUE;
+  }
+  Config::initialize($config);
+}
 
 /*
  * Build a new Fortissimo server and execute the command. 
  */
+$ff = new Fortissimo();
+$ff->handleRequest($commandName);
 
-$ff = new Fortissimo('config/commands.php');
-$ff->handleRequest($argv[1]);
+
