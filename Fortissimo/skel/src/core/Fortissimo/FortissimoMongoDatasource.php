@@ -41,7 +41,6 @@ class FortissimoMongoDatasource extends FortissimoDatasource {
    * - defaultDB: The default database to use (required)
    */
   public function init() {
-    
     if (!isset($this->params['defaultDB'])) {
       throw new FortissimoInterruptException("'defaultDB' is a required parameter.");
     }

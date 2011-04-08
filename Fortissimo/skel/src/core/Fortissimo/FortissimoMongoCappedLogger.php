@@ -55,16 +55,19 @@ class FortissimoMongoCappedLogger extends FortissimoLogger {
   }
   
   // Override this to do some initialization when the datasources are set.
-  public function setDatsourceManager($manager) {
+  public function setDatasourceManager(FortissimoDatasourceManager $manager) {
     parent::setDatasourceManager($manager);
     
     // Try to get the datasource:
-    $this->ds = $this->datasourceManager->getDatasourceByName($this->dsName)->get();
-    if (!($this->ds instanceof MongoDB)) {
+    $dsWrapper = $this->datasourceManager->datasource($this->dsName);
+    $this->ds = $dsWrapper->get();
+    if (empty($this->ds)) {
+      throw new FortissimoInterruptException('Could not get datasource named ' . $this->dsName);
+    }
+    if (!($this->ds instanceof mongoDB)) {
       throw new FortissimoInterruptException('Expected a MongoDB for ' . $this->dsName);
     }
-    
-    $this->db->createCollection($this->collectionName, TRUE, $this->maxSize, $this->maxEntries);
+    $this->ds->createCollection($this->collectionName, TRUE, $this->maxSize, $this->maxEntries);
   }
 
   public function log($msg, $category, $details) {
@@ -74,7 +77,7 @@ class FortissimoMongoCappedLogger extends FortissimoLogger {
       'cat' => $category,
       'dtls' => $details
     );
-    $this->db->selectCollection($this->collectionName)->insert($data);
+    $this->ds->selectCollection($this->collectionName)->insert($data);
   }
 
 
