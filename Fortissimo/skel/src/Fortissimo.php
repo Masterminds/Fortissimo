@@ -297,15 +297,31 @@ class Fortissimo {
     $paths = $this->commandConfig->getIncludePaths();
     $this->addIncludePaths($paths);
     
+    /*
+     * Create log, cache, and datasource managers, then give each a handle to the others.
+     */
+    
     // Create the log manager.
     $this->logManager = new FortissimoLoggerManager($this->commandConfig->getLoggers());
-    
-    // Create cache manager.
-    $this->cacheManager = new FortissimoCacheManager($this->commandConfig->getCaches());
     
     // Create the datasource manager.
     $this->datasourceManager = new FortissimoDatasourceManager($this->commandConfig->getDatasources());
     
+    // Create cache manager.
+    $this->cacheManager = new FortissimoCacheManager($this->commandConfig->getCaches());
+
+    // Set up the log manager
+    $this->logManager->setDatasourceManager($this->datasourceManager);
+    $this->logManager->setCacheManager($this->cacheManager);
+    
+    // Set up the datasource manager
+    $this->datasourceManager->setLogManager($this->logManager);
+    $this->datasourceManager->setCacheManager($this->cacheManager);
+    
+    // Set up the cache manager
+    $this->cacheManager->setLogManager($this->logManager);
+    $this->cacheManager->setDatasourceManager($this->datasourceManager);
+
     // Create a request mapper. We do this last so that it can access the other facilities.
     $mapperClass = $this->commandConfig->getRequestMapper();
     if (!is_string($mapperClass) && !is_object($mapperClass)) {
@@ -2537,6 +2553,14 @@ class FortissimoCacheManager {
     $this->caches = $caches;
   }
   
+  public function setLogManager($manager) {
+    foreach ($this->caches as $name => $obj) $obj->setLogManager($manager);
+  }
+  
+  public function setDatasourceManager($manager) {
+    foreach ($this->caches as $name => $obj) $obj->setDatasourceManager($manager);
+  }
+  
   /**
    * Given a name, retrieve the cache.
    *
@@ -2687,6 +2711,7 @@ class FortissimoDatasourceManager {
   
   protected $datasources = NULL;
   protected $initMap = array();
+
   
   /**
    * Build a new datasource manager.
@@ -2698,6 +2723,15 @@ class FortissimoDatasourceManager {
   public function __construct($config) {
     $this->datasources = &$config;
   }
+  
+  public function setCacheManager(FortissimoCacheManager $manager) {
+    foreach ($this->datasources as $name => $obj) $obj->setCacheManager($manager);
+  }
+  
+  public function setLogManager(FortissimoLoggerManager $manager) {
+    foreach ($this->datasources as $name => $obj) $obj->setLogManager($manager);
+  }
+  
   
   /**
    * Get a datasource by its string name.
@@ -2811,6 +2845,15 @@ class FortissimoLoggerManager {
     $this->loggers = &$config;
   }
   
+  public function setCacheManager(FortissimoCacheManager $manager) {
+    foreach ($this->loggers as $name => $obj) $obj->setCacheManager($manager);
+  }
+  
+  public function setDatasourceManager(FortissimoDatasourceManager $manager) {
+    foreach ($this->loggers as $name => $obj) $obj->setDatasourceManager($manager);
+  }
+  
+  
   /**
    * Get a logger.
    *
@@ -2881,6 +2924,8 @@ abstract class FortissimoCache {
   protected $params = NULL;
   protected $default = FALSE;
   protected $name = NULL;
+  protected $datasourceManager = NULL;
+  protected $logManager = NULL;
   
   /**
    * Construct a new datasource.
@@ -2894,6 +2939,14 @@ abstract class FortissimoCache {
     $this->params = $params;
     $this->name = $name;
     $this->default = isset($params['isDefault']) && filter_var($params['isDefault'], FILTER_VALIDATE_BOOLEAN);
+  }
+  
+  public function setDatasourceManager(FortissimoDatasourceManager $manager) {
+    $this->datasourceManager = $manager;
+  }
+  
+  public function setLogManager(FortissimoLoggerManager $manager) {
+    $this->logManager = $manager;
   }
   
   public function getName() {
@@ -3043,6 +3096,8 @@ abstract class FortissimoDatasource {
   protected $params = NULL;
   protected $default = FALSE;
   protected $name = NULL;
+  protected $logManager = NULL;
+  protected $cacheManager = NULL;
   
   /**
    * Construct a new datasource.
@@ -3056,6 +3111,14 @@ abstract class FortissimoDatasource {
     $this->params = $params;
     $this->name = $name;
     $this->default = isset($params['isDefault']) && filter_var($params['isDefault'], FILTER_VALIDATE_BOOLEAN);
+  }
+  
+  public function setCacheManager(FortissimoCacheManager $manager) {
+    $this->cacheManager = $manager;
+  }
+  
+  public function setLogManager(FortissimoLoggerManager $manager) {
+    $this->logManager = $manager;
   }
   
   /**
@@ -3122,6 +3185,8 @@ abstract class FortissimoLogger {
   protected $params = NULL;
   protected $facilities = NULL;
   protected $name = NULL;
+  protected $datasourceManager = NULL;
+  protected $cacheManager = NULL;
   
   /**
    * Construct a new logger instance.
@@ -3146,6 +3211,15 @@ abstract class FortissimoLogger {
     }
     
   }
+  
+  public function setDatasourceManager(FortissimoDatasourceManager $manager) {
+    $this->datasourceManager = $manager;
+  }
+  
+  public function setCacheManager(FortissimoCacheManager $manager) {
+    $this->logManager = $manager;
+  }
+  
   
   /**
    * Get the name of this logger.
