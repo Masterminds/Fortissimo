@@ -11,7 +11,7 @@
  * classes are encapsulated in this single file so that bootstrapping time can be
  * kept to a minimum, with as little loading/autoloading overhead as possible.
  *
- * When this file is loaded, the include path is augmented to include the 
+ * When this file is loaded, the include path is augmented to include the
  * includes/, core/, and phar/ directories.
  *
  * <b>Using Fortissimo</b>
@@ -20,24 +20,24 @@
  * the front controller pattern, coupled with a variation on the chain-of-command
  * pattern.
  *
- * To get started, look at the command.xml file. The front controller reads 
- * this file to map requests to a sequence of commands. When building a 
+ * To get started, look at the command.xml file. The front controller reads
+ * this file to map requests to a sequence of commands. When building a
  * Fortissimo application, you will be building such mappings yourself.
  *
- * Each request will kick off a chain of zero or more commands, which are 
- * executed in sequence. A command is simply a class that implements the 
+ * Each request will kick off a chain of zero or more commands, which are
+ * executed in sequence. A command is simply a class that implements the
  * FortissimoCommand class. Most commands will extend the abstract
- * BaseFortissimoCommand class, which provides a baseline of 
+ * BaseFortissimoCommand class, which provides a baseline of
  * functionality.
  *
  * A command can take zero or more parameters. Parameters can be retrieved from
- * a wide variety of sources, the most common being GET and POST data, and 
- * output from other commands. Since commands are highly configurable, they 
+ * a wide variety of sources, the most common being GET and POST data, and
+ * output from other commands. Since commands are highly configurable, they
  * are input-neutral: the parameters can come from any input. Fortissimo
  * itself handles the retrieval of parameters, and the source of each parameter
  * is configured not in code, but in the commands.xml file. Practically speaking,
  * what this means is that one command can recieve input from a user-configurable
- * source. The data can come from GET, POST, cookies, sessions, other commands, 
+ * source. The data can come from GET, POST, cookies, sessions, other commands,
  * command line args, or environment variables.
  *
  * To get started with Fortissimo, take a look at some of the unit testing
@@ -54,7 +54,7 @@
  * using require/require_once, both with and without an opcode cache.
  *
  * You can augment the autoloader's default paths using <code>include</code>
- * elements in the command.xml file (or manually loading them in via the 
+ * elements in the command.xml file (or manually loading them in via the
  * config object).
  *
  * The code in the Fortissimo project is released under an MIT-style license.
@@ -94,7 +94,7 @@ define('FORTISSIMO_REQ_TIME', time());
 define('FORTISSIMO_VERSION', '@UNSTABLE@');
 
 // Set the include path to include Fortissimo directories.
-$basePath = dirname(__FILE__); 
+$basePath = dirname(__FILE__);
 $paths[] = get_include_path();
 $paths[] = $basePath . '/includes';
 $paths[] = $basePath . '/core';
@@ -108,8 +108,8 @@ spl_autoload_extensions('.php,.cmd.php,.inc');
 
 
 // For performance, use the default loader.
-// XXX: This does not work well because the default autoloader 
-// downcases all classnames before checking the FS. Thus, FooBar 
+// XXX: This does not work well because the default autoloader
+// downcases all classnames before checking the FS. Thus, FooBar
 // becomes foobar.
 //spl_autoload_register();
 
@@ -122,7 +122,7 @@ spl_autoload_register(array($loader, 'load'));
  * A broad autoloader that should load data from expected places.
  *
  * This autoloader is designed to load classes within the includes, core, and phar
- * directories inside of Fortissimo. Its include path can be augmented using the 
+ * directories inside of Fortissimo. Its include path can be augmented using the
  * {@link addIncludePaths()} member function. Internally, {@link Fortissimo} does this
  * as it is parsing the commands.xml file (See {@link Fortissimo::addIncludePaths}).
  *
@@ -130,7 +130,7 @@ spl_autoload_register(array($loader, 'load'));
  *  - Uses the class name for the base file name.
  *  - Checks in includes/, core/, and phar/ for the named file
  *  - Tests using three different extensions: .php. .cmd.php, and .inc
- * 
+ *
  * So to load class Foo_Bar, it will check the following (in order):
  *  - includes/Foo_Bar.php
  *  - includes/Foo_Bar.cmd.php
@@ -145,8 +145,8 @@ spl_autoload_register(array($loader, 'load'));
  *  - phar/Foo_Bar.cmd.php
  *  - phar/Foo_Bar.inc
  *
- * Then it will search any other included paths using the same 
- * algorithm as exhibited above. (We search includes/ first because 
+ * Then it will search any other included paths using the same
+ * algorithm as exhibited above. (We search includes/ first because
  * that is where implementors are supposed to put their classes! That means
  * that with a little trickery, you can override Fortissimo base commands simply
  * by putting your own copy in includes/)
@@ -154,30 +154,30 @@ spl_autoload_register(array($loader, 'load'));
  * <b>Note that phar is experimental, and may be removed in future releases.</b>
  */
 class FortissimoAutoloader {
-  
+
   protected $extensions = array('.php', '.cmd.php', '.inc');
   protected $include_paths = array();
-  
+
   public function __construct() {
     //$full_path = get_include_path();
     //$include_paths = explode(PATH_SEPARATOR, $full_path);
-    $basePath = dirname(__FILE__); 
+    $basePath = dirname(__FILE__);
     $this->include_paths[] = $basePath . '/includes';
     $this->include_paths[] = $basePath . '/core';
     $this->include_paths[] = $basePath . '/core/Fortissimo';
     $this->include_paths[] = $basePath . '/phar';
   }
-  
+
   /**
    * Add an array of paths to the include path used by the autoloader.
    *
-   * @param array $paths 
+   * @param array $paths
    *  Indexed array of paths.
    */
   public function addIncludePaths($paths) {
     $this->include_paths = array_merge($this->include_paths, $paths);
   }
-  
+
   /**
    * Attempt to load the file containing the given class.
    *
@@ -186,14 +186,14 @@ class FortissimoAutoloader {
    * @see spl_autoload_register()
    */
   public function load($class) {
-    
+
     // Micro-optimization for Twig, which supplies
     // its own classloader.
     if (strpos($class, 'Twig_') === 0) return;
-    
+
     // Namespace translation:
     $class = str_replace('\\', '/', $class);
-    
+
     foreach ($this->include_paths as $dir) {
       $path = $dir . DIRECTORY_SEPARATOR . $class;
       foreach ($this->extensions as $ext) {
@@ -205,20 +205,20 @@ class FortissimoAutoloader {
       }
     }
   }
-  
+
 }
- 
+
 /**
  * The Fortissimo front controller.
  *
  * This class is used to bootstrap Fortissimo and oversee execution of a
- * Fortissimo request. Unlike Rhizome, there is no split between the 
+ * Fortissimo request. Unlike Rhizome, there is no split between the
  * front controller and the request handler. The front controller assumes that
  * the application will be run either as a CLI or as a web application. And it
- * is left to commands to execute behaviors specific to their execution 
+ * is left to commands to execute behaviors specific to their execution
  * environment.
  *
- * Typically, the entry point for this class is {@link handleRequest()}, which 
+ * Typically, the entry point for this class is {@link handleRequest()}, which
  * takes a request name and executes all associated commands.
  *
  * For more details, see {@link __construct()}.
@@ -226,12 +226,12 @@ class FortissimoAutoloader {
  * @see Fortissimo.php
  */
 class Fortissimo {
-  
+
   /**
    * Error codes that should be converted to exceptions and thrown.
    */
   const ERROR_TO_EXCEPTION = 771; // 257 will catch only errors; 771 is errors and warnings.
-  
+
   /**
    * Fatal error.
    * Used by Fortissimo when logging failures.
@@ -249,75 +249,75 @@ class Fortissimo {
   const LOG_RECOVERABLE = 'Recoverable Error';
   /**
    * Error designed for the user to see.
-   * 
-   * Errors like this are generally user-friendly, and are designed to give 
+   *
+   * Errors like this are generally user-friendly, and are designed to give
    * feedback to the user. Example: Failed form submission.
    */
   const LOG_USER = 'User Error';
-  
+
   protected $commandConfig = NULL;
   protected $initialConfig = NULL;
   protected $logManager = NULL;
   protected $cxt = NULL;
   protected $cacheManager = NULL;
   protected $datasourceManager = NULL;
-  
+
   /** Tracks whether the current request is caching. */
   protected $isCachingRequest = FALSE;
-  
+
   /**
    * Construct a new Fortissimo server.
    *
    * The server is lightweight, and optimized for PHP's single request model. For
    * advanced cases, one server can handle multiple requests, and performance will
    * scale linearly (dependent, of course, on the commands themselves). However,
-   * since the typical PHP application handles only one request per invocation, 
+   * since the typical PHP application handles only one request per invocation,
    * this controller will attempt to bootstrap very quickly with minimal loading.
    *
-   * It should be illegal to eat bananas on a crowded train. They smell bad, and 
+   * It should be illegal to eat bananas on a crowded train. They smell bad, and
    * people chomp on them, which makes a gross noise.
    *
    * @param string $configuration
-   *  The full path to a configuration file. This is optional, as you can load 
+   *  The full path to a configuration file. This is optional, as you can load
    *  configuration data externally.
    * @param array $configData
-   *  Any additional configuration data can be added here. This information 
+   *  Any additional configuration data can be added here. This information
    *  will be placed into the {@link FortissimoExecutionContext} that is passed
    *  into each command. In this way, information passed here should be available
    *  to every command, as well as to the overarching framework.
    */
   public function __construct($configuration = NULL, $configData = array()) {
-    
+
     $this->initialConfig = $configData;
-    
+
     // Parse configuration file.
     $this->commandConfig = new FortissimoConfig($configuration);
-    
+
     // Add additional files to the include path:
     $paths = $this->commandConfig->getIncludePaths();
     $this->addIncludePaths($paths);
-    
+
     /*
      * Create log, cache, and datasource managers, then give each a handle to the others.
      */
-    
+
     // Create the log manager.
     $this->logManager = new FortissimoLoggerManager($this->commandConfig->getLoggers());
-    
+
     // Create the datasource manager.
     $this->datasourceManager = new FortissimoDatasourceManager($this->commandConfig->getDatasources());
-    
+
     // Create cache manager.
     $this->cacheManager = new FortissimoCacheManager($this->commandConfig->getCaches());
 
     // Set up the log manager
     $this->logManager->setDatasourceManager($this->datasourceManager);
     $this->logManager->setCacheManager($this->cacheManager);
-    
+
     // Set up the datasource manager
     $this->datasourceManager->setLogManager($this->logManager);
     $this->datasourceManager->setCacheManager($this->cacheManager);
-    
+
     // Set up the cache manager
     $this->cacheManager->setLogManager($this->logManager);
     $this->cacheManager->setDatasourceManager($this->datasourceManager);
@@ -327,22 +327,22 @@ class Fortissimo {
     if (!is_string($mapperClass) && !is_object($mapperClass)) {
       throw new FortissimoInterruptException('Could not find a valid command mapper.');
     }
-      
-    $this->requestMapper = 
+
+    $this->requestMapper =
         new $mapperClass($this->logManager, $this->cacheManager, $this->datasourceManager);
   }
-  
+
   /**
    * Add paths that will be used by the autoloader and include/require.
    *
    * Fortissimo uses the spl_autoload() family of functions to
-   * automatically load classes. This method can be used to dynamically 
+   * automatically load classes. This method can be used to dynamically
    * append directories to the paths used for including class files.
    *
    * No duplicate checking is done internally. That means that this
    * multiple instances of the same path can be added to the include
    * path. There are no known problems associated with this behavior.
-   * 
+   *
    * @param array $paths
    *  An indexed array of path names. This will be appended to the PHP
    *  include path.
@@ -351,17 +351,17 @@ class Fortissimo {
   public function addIncludePaths($paths) {
     global $loader;
     $loader->addIncludePaths($paths);
-    
+
     array_unshift($paths, get_include_path());
-    
+
     $path = implode(PATH_SEPARATOR, $paths);
     set_include_path($path);
   }
-  
+
   public function genCacheKey($requestName) {
     return 'request-' . $requestName;
   }
-  
+
   /**
    * Explain all of the commands in a request.
    *
@@ -377,11 +377,11 @@ class Fortissimo {
    *  An explanation string in plain text.
    */
   public function explainRequest($request) {
-    
+
     if (empty($request)) {
       throw new FortissimoException('Request not found.');
     }
-    
+
     $out = sprintf('REQUEST: %s', $request->getName()) . PHP_EOL;
     foreach($request as $name => $command) {
       // If this command as an explain() method, use it.
@@ -390,13 +390,13 @@ class Fortissimo {
       }
       else {
         $filter = 'CMD: %s (%s): Unexplainable command, unknown parameters.';
-        
+
         $out .= sprintf($filter, $command['name'], $command['class']) . PHP_EOL;
       }
     }
     return $out . PHP_EOL;
   }
-  
+
   /**
    * Handles a request.
    *
@@ -404,14 +404,14 @@ class Fortissimo {
    * the request to the necessary commands, executing commands in sequence.
    *
    * <b>Note:</b> Fortissimo has experimental support for request
-   * caching. When request caching is enabled, the output of a request is 
+   * caching. When request caching is enabled, the output of a request is
    * stored in a cache. Subsequent identical requests will be served out of
-   * the cache, thereby avoiding all overhead associated with loading and 
+   * the cache, thereby avoiding all overhead associated with loading and
    * executing commands. (Request caching is different than command caching, see Cacheable, which
    * caches only the output of individual commands.)
    *
    * @param string $identifier
-   *  A named identifier, typically a URI. By default (assuming ForitissimoRequestMapper has not 
+   *  A named identifier, typically a URI. By default (assuming ForitissimoRequestMapper has not
    *  been overridden) the $identifier should be a request name.
    * @param FortissimoExecutionContext $initialCxt
    *  If an initialized context is necessary, it can be passed in here.
@@ -419,16 +419,16 @@ class Fortissimo {
    *  When this is TRUE, requests that are internal-only are allowed. Generally, this is TRUE under
    *  the following circumstances:
    *  - When a FortissimoRedirect is thrown, internal requests are allowed. This is so that
-   *    you can declare internal requests that assume that certain tasks have already been 
+   *    you can declare internal requests that assume that certain tasks have already been
    *    performed.
    *  - Some clients can explicitly call handleRequest() with this flag set to TRUE. One example
    *    is `fort`, which will allow command-line execution of internal requests.
    */
   public function handleRequest($identifier = 'default', FortissimoExecutionContext $initialCxt = NULL, $allowInternalRequests = FALSE) {
-    
+
     // Experimental: Convert errors (E_ERROR | E_USER_ERROR) to exceptions.
     set_error_handler(array('FortissimoErrorException', 'initializeFromError'), 257);
-    
+
     // Load the request.
     try {
       // Use the mapper to determine what the real request name is.
@@ -439,7 +439,7 @@ class Fortissimo {
       // Need to handle this case.
       $this->logManager->log($nfe, self::LOG_USER);
       $requestName = $this->requestMapper->uriToRequest('404');
-      
+
       if ($this->commandConfig->hasRequest($requestName, $allowInternalRequests)) {
         $request = $this->commandConfig->getRequest($requestName, $allowInternalRequests);
       }
@@ -449,9 +449,9 @@ class Fortissimo {
         return;
       }
     }
-    
+
     $cacheKey = NULL; // This is set only if necessary.
-    
+
     // If this request is in explain mode, explain and exit.
     if ($request->isExplaining()) {
       print $this->explainRequest($request);
@@ -462,18 +462,18 @@ class Fortissimo {
       // Handle caching.
       $cacheKey = $this->genCacheKey($requestName);
       $response = $this->cacheManager->get($cacheKey);
-      
+
       // If a cached version is found, print that data and return.
       if (isset($response)) {
         print $response;
         return;
       }
-      
+
       // If we get here, no cache hit was found, so we start buffering the
       // content to cache it.
       $this->startCaching();
     }
-    
+
     // This allows pre-seeding of the context.
     if (isset($initialCxt)) {
       $this->cxt = $initialCxt;
@@ -481,13 +481,13 @@ class Fortissimo {
     // This sets up the default context.
     else {
       $this->cxt = new FortissimoExecutionContext(
-        $this->initialConfig, 
-        $this->logManager, 
+        $this->initialConfig,
+        $this->logManager,
         $this->datasourceManager,
         $this->cacheManager
       );
     }
-    
+
     // Loop through requests and execute each command. Most of the logic in this
     // loop deals with exception handling.
     foreach ($request as $command) {
@@ -505,7 +505,7 @@ class Fortissimo {
         // Not sure what to do about caching here.
         // For now we just stop caching.
         $this->stopCaching();
-        
+
         // Forward the request to another handler. Note that we allow forwarding
         // to internal requests.
         $this->handleRequest($forward->destination(), $forward->context(), TRUE);
@@ -531,19 +531,19 @@ class Fortissimo {
         return;
       }
     }
-    
+
     // If output caching is on, place this entry into the cache.
     if ($request->isCaching() && isset($this->cacheManager)) {
       $contents = $this->stopCaching();
       // Add entry to cache.
       $this->cacheManager->set($cacheKey, $contents);
-      
+
     }
-    
+
     // Experimental: Restore error handler. (see set_error_handler()).
     restore_error_handler();
   }
-  
+
   /**
    * Start caching a request.
    *
@@ -553,7 +553,7 @@ class Fortissimo {
     $this->isCachingRequest = TRUE;
     ob_start();
   }
-  
+
   /**
    * Stop caching this request.
    *
@@ -571,7 +571,7 @@ class Fortissimo {
       return $contents;
     }
   }
-  
+
   /**
    * Retrieve the associated logger manager.
    *
@@ -587,7 +587,7 @@ class Fortissimo {
   public function loggerManager() {
     return $this->logManager;
   }
-  
+
   /**
    * Get the caching manager for this server.
    *
@@ -597,19 +597,19 @@ class Fortissimo {
   public function cacheManager() {
     return $this->cacheManager;
   }
-  
+
   /**
    * Given a command, prepare it to receive events.
    */
   protected function setEventHandlers($command, $listeners) {
     $command->setEventHandlers($listeners);
   }
-  
+
   /**
    * Execute a single command.
    *
    * This takes a command array, which describes a command, and then does the following:
-   * 
+   *
    * - Find out what params the command expects and get them.
    * - Prepare any event handlers that listen for events on this command
    * - Execute the command
@@ -626,13 +626,13 @@ class Fortissimo {
   protected function execCommand($commandArray) {
     // We should already have a command object in the array.
     $inst = $commandArray['instance'];
-    
+
     $params = $this->fetchParameters($commandArray, $this->cxt);
     //print $commandArray['name'] . ' is ' . ($inst instanceof Observable ? 'Observable' : 'Not observable') . PHP_EOL;
     if ($inst instanceof Observable && !empty($commandArray['listeners'])) {
       $this->setEventHandlers($inst, $commandArray['listeners']);
     }
-    
+
     //set_error_handler(array('FortissimoErrorException', 'initializeFromError'), 257);
     set_error_handler(array('FortissimoErrorException', 'initializeFromError'), self::ERROR_TO_EXCEPTION);
     try {
@@ -649,7 +649,7 @@ class Fortissimo {
     }
     restore_error_handler();
   }
-  
+
   /**
    * Retrieve the parameters for a command.
    *
@@ -667,14 +667,14 @@ class Fortissimo {
   protected function fetchParameters($commandArray) {
     $params = array();
     foreach ($commandArray['params'] as $name => $config) {
-      
-      
+
+
       // If there is a FROM source, fetch the data from the designated source(s).
       if (!empty($config['from'])) {
         // Handle cases like this: 'from="get:preferMe post:onlyIfNotInGet"'
         $fromItems = explode(' ', $config['from']);
         $value = NULL;
-        
+
         // Stop as soon as a parameter is fetched and is not NULL.
         foreach ($fromItems as $from) {
           $value = $this->fetchParameterFromSource($from);
@@ -684,13 +684,13 @@ class Fortissimo {
           }
         }
       }
-            
+
       // Set the default value if necessary.
       if (!isset($params[$name]) && isset($config['value'])) $params[$name] = $config['value'];
     }
     return $params;
   }
-  
+
   /**
    * Parse a parameter specification and retrieve the appropriate data.
    *
@@ -714,7 +714,7 @@ class Fortissimo {
    *  - request
    *  - argv (From $argv, assumes that the format of from is argv:N, where N is an integer)
    *  - files
-   * @return string 
+   * @return string
    *  The value or NULL.
    * @todo argv should support slices of the ARGV array so shell globs can be handled.
    */
@@ -771,21 +771,21 @@ class Fortissimo {
  * This class represents a single request.
  */
 class FortissimoRequest implements IteratorAggregate {
-  
+
   protected $commandQueue = NULL;
   protected $isCaching = FALSE;
   protected $isExplaining = FALSE;
   protected $requestName;
-  
+
   public function __construct($requestName, $commands) {
     $this->requestName = $requestName;
     $this->commandQueue = $commands;
   }
-  
+
   public function getName() {
     return $this->requestName;
   }
-  
+
   /**
    * Get the array of commands.
    *
@@ -795,14 +795,14 @@ class FortissimoRequest implements IteratorAggregate {
   public function getCommands() {
     return $this->commandQueue;
   }
-  
+
   /**
    * Set the flag indicating whether or not this is caching.
    */
   public function setCaching($boolean) {
     $this->isCaching = $boolean;
   }
-  
+
   /**
    * Set explain mode.
    *
@@ -813,7 +813,7 @@ class FortissimoRequest implements IteratorAggregate {
   public function setExplain($boolean) {
     $this->isExplaining = $boolean;
   }
-  
+
   /**
    * Determine whether this request is in 'explain' mode.
    *
@@ -827,7 +827,7 @@ class FortissimoRequest implements IteratorAggregate {
   public function isExplaining() {
     return $this->isExplaining;
   }
-  
+
   /**
    * Determine whether this request can be served from cache.
    *
@@ -836,14 +836,14 @@ class FortissimoRequest implements IteratorAggregate {
    * of requiring the entire request to be executed.
    *
    * @return boolean
-   *  Returns TRUE if this can be served from cache, or 
+   *  Returns TRUE if this can be served from cache, or
    *  FALSE if this should not be served from cache.
    * @see FortissimoRequestCache
    */
   public function isCaching() {
     return $this->isCaching;
   }
-  
+
   /**
    * Get an iterator of this object.
    *
@@ -858,15 +858,15 @@ class FortissimoRequest implements IteratorAggregate {
  * A Fortissimo command.
  *
  * The main work unit in Fortissimo is the FortissimoCommand. A FortissimoCommand is
- * expected to conduct a single unit of work -- retrieving a datum, running a 
+ * expected to conduct a single unit of work -- retrieving a datum, running a
  * calculation, doing a database lookup, etc. Data from a command (if any) can then
- * be stored in the {@link FortissimoExecutionContext} that is passed along the 
+ * be stored in the {@link FortissimoExecutionContext} that is passed along the
  * chain of commands.
  *
  * Each command has a request-unique <b>name</b> (only one command in each request
  * can have a given name), a set of zero or more <b>params</b>, passed as an array,
  * and a <b>{@link FortissimoExecutionContext} object</b>. This last object contains
- * the results (if any) of previously executed commands, and is the depository for 
+ * the results (if any) of previously executed commands, and is the depository for
  * any data that the present command needs to pass along.
  *
  * Typically, the last command in a request will format the data found in the context
@@ -882,7 +882,7 @@ interface FortissimoCommand {
    *  Other commands (perhaps other instances of the same class) can then interact
    *  with this command by name.
    * @param boolean $caching
-   *  If this is set to TRUE, the command is assumed to be a caching command, 
+   *  If this is set to TRUE, the command is assumed to be a caching command,
    *  which means (a) its output can be cached, and (b) it can be served
    *  from a cache. It is completely up to the implementation of this interface
    *  to provide (or not to provide) a link to the caching service. See
@@ -890,7 +890,7 @@ interface FortissimoCommand {
    *  no requirement that caching be supported by a command.
    */
   public function __construct($name/*, $caching = FALSE*/);
-  
+
   /**
    * Execute the command.
    *
@@ -900,30 +900,30 @@ interface FortissimoCommand {
    *  - stores zero or more pieces of data in the context, typically keyed by this
    *    object's $name.
    *
-   * Commands do not return values. Any data they produce can be placed into 
+   * Commands do not return values. Any data they produce can be placed into
    * the {@link FortissimoExcecutionContext} object. On the occasion of an error,
-   * the command can either throw a {@link FortissimoException} (or any subclass 
-   * thereof), in which case the application will attempt to handle the error. Or it 
-   * may throw a {@link FortissimoInterrupt}, which will interrupt the flow of the 
+   * the command can either throw a {@link FortissimoException} (or any subclass
+   * thereof), in which case the application will attempt to handle the error. Or it
+   * may throw a {@link FortissimoInterrupt}, which will interrupt the flow of the
    * application, causing the application to forgo running the remaining commands.
    *
    * @param array $paramArray
-   *  An associative array of name/value parameters. A value may be of any data 
+   *  An associative array of name/value parameters. A value may be of any data
    *  type, including a classed object or a resource.
    * @param FortissimoExecutionContext $cxt
    *  The execution context. This can be modified by the command. Typically,
-   *  though, it is only written to. Reading from the context may have the 
+   *  though, it is only written to. Reading from the context may have the
    *  effect of making the command less portable.
    * @throws FortissimoInterrupt
-   *  Thrown when the command should be treated as the last command. The entire 
+   *  Thrown when the command should be treated as the last command. The entire
    *  request will be terminated if this is thrown.
    * @throws FortissimoException
-   *  Thrown if the command experiences a general execution error. This may not 
+   *  Thrown if the command experiences a general execution error. This may not
    *  result in the termination of the request. Other commands may be processed after
    *  this.
    */
-  public function execute($paramArray, FortissimoExecutionContext $cxt);  
-  
+  public function execute($paramArray, FortissimoExecutionContext $cxt);
+
   /**
    * Indicates whether the command's additions to the context are cacheable.
    *
@@ -947,7 +947,7 @@ interface FortissimoCommand {
  *
  * This collection contains parameters. It is used by anything that extends
  * BaseFortissimoCommand to store parameter information for use
- * in BaseFortissimoCommand::explain() and 
+ * in BaseFortissimoCommand::explain() and
  * BaseFortissimoCommand::expects(). A builder for these is found
  * in BaseFortissimoCommand::description(), which provides a semi-fluent
  * interface for defining expectations.
@@ -960,25 +960,25 @@ class BaseFortissimoCommandParameterCollection implements IteratorAggregate {
   protected $description = '';
   protected $paramCounter = -1;
   protected $returns = 'Nothing';
-  
+
   public function __construct($description) {$this->description = $description;}
-  
+
   public function usesParam($name, $description) {
     $param = new BaseFortissimoCommandParameter($name, $description);
     $this->params[++$this->paramCounter] = $param;
-    
+
     return $this;
   }
   /**
    * Add a filter to this parameter.
    *
-   * A parameter can have any number of filters. Filters are used to 
+   * A parameter can have any number of filters. Filters are used to
    * either clean (sanitize) a value or check (validate) a value. In the first
    * case, the system will attempt to remove bad data. In the second case, the
    * system will merely check to see if the data is acceptable.
    *
-   * Fortissimo supports all of the filters supplied by PHP. For a complete 
-   * list, including valid options, see 
+   * Fortissimo supports all of the filters supplied by PHP. For a complete
+   * list, including valid options, see
    * http://us.php.net/manual/en/book.filter.php.
    *
    * Filters each have options, and the options can augment filter behavior, sometimes
@@ -987,7 +987,7 @@ class BaseFortissimoCommandParameterCollection implements IteratorAggregate {
    *
    * @param string $filter
    *  One of the predefined filter types supported by PHP. You can obtain the list
-   *  from the PHP builtin function filter_list(). Here are values currently 
+   *  from the PHP builtin function filter_list(). Here are values currently
    *  documented:
    *  - int: Checks whether a value is an integer.
    *  - boolean: Checks whether a value is a boolean.
@@ -1009,18 +1009,18 @@ class BaseFortissimoCommandParameterCollection implements IteratorAggregate {
    *  - callback: Use the given callback to filter.
    *  - this: A convenience for 'callback' with the options array('options'=>array($this, 'func'))
    * @param mixed $options
-   *  This can be either an array or an OR'd list of flags, as specified in the 
+   *  This can be either an array or an OR'd list of flags, as specified in the
    *  PHP documentation.
    */
   public function withFilter($filter, $options = NULL) {
     $this->params[$this->paramCounter]->addFilter($filter, $options);
     return $this;
   }
-  
+
   public function description() {
     return $this->description;
   }
-  
+
   /**
    * Provide a description of what value or values are returned.
    *
@@ -1032,17 +1032,17 @@ class BaseFortissimoCommandParameterCollection implements IteratorAggregate {
     $this->returns = $description;
     return $this;
   }
-  
+
   public function whichIsRequired() {
     $this->params[$this->paramCounter]->setRequired(TRUE);
     return $this;
   }
-  
+
   public function whichHasDefault($default) {
     $this->params[$this->paramCounter]->setDefault($default);
     return $this;
   }
-  
+
   /**
    * Declares an event for this command.
    *
@@ -1063,7 +1063,7 @@ class BaseFortissimoCommandParameterCollection implements IteratorAggregate {
     $this->events[$name] = $description;
     return $this;
   }
-  
+
   /**
    * Set all events for this object.
    *
@@ -1082,21 +1082,21 @@ class BaseFortissimoCommandParameterCollection implements IteratorAggregate {
     $this->events = $events;
     return $this;
   }
-  
+
   public function events() { return $this->events; }
-  
+
   public function returnDescription() {
     return $this->returns;
   }
-  
+
   public function setParams($array) {
     $this->params = $array;
   }
-  
+
   public function params() {
     return $this->params;
   }
-  
+
   public function getIterator() {
     return new ArrayIterator($this->params);
   }
@@ -1113,13 +1113,13 @@ class BaseFortissimoCommandParameterCollection implements IteratorAggregate {
  */
 class BaseFortissimoCommandParameter {
   protected $filters = array();
-  
+
   protected $name, $description, $defaultValue;
   protected $required = FALSE;
-  
+
   /**
    * Create a new parameter with a name, and optionally a description.
-   * 
+   *
    * @param string $name
    *  The name of the parameter. This is used to fetch the parameter
    *  from the server.
@@ -1131,17 +1131,17 @@ class BaseFortissimoCommandParameter {
     $this->name = $name;
     $this->description = $description;
   }
-  
+
   /**
    * Add a filter to this parameter.
    *
-   * A parameter can have any number of filters. Filters are used to 
+   * A parameter can have any number of filters. Filters are used to
    * either clean (sanitize) a value or check (validate) a value. In the first
    * case, the system will attempt to remove bad data. In the second case, the
    * system will merely check to see if the data is acceptable.
    *
-   * Fortissimo supports all of the filters supplied by PHP. For a complete 
-   * list, including valide options, see 
+   * Fortissimo supports all of the filters supplied by PHP. For a complete
+   * list, including valide options, see
    * {@link http://us.php.net/manual/en/book.filter.php}.
    *
    * Filters each have options, and the options can augment filter behavior, sometimes
@@ -1150,7 +1150,7 @@ class BaseFortissimoCommandParameter {
    *
    * @param string $filter
    *  One of the predefined filter types supported by PHP. You can obtain the list
-   *  from the PHP builtin function {@link filter_list()}. Here are values currently 
+   *  from the PHP builtin function {@link filter_list()}. Here are values currently
    *  documented:
    *  - int: Checks whether a value is an integer.
    *  - boolean: Checks whether a value is a boolean.
@@ -1171,18 +1171,18 @@ class BaseFortissimoCommandParameter {
    *  - magic_quotes: Run {@link addslashes()}.
    *  - callback: Use the given callback to filter.
    * @param mixed $options
-   *  This can be either an array or an OR'd list of flags, as specified in the 
+   *  This can be either an array or an OR'd list of flags, as specified in the
    *  PHP documentation.
    * @return BaseFortissimoCommandParameter
-   *  Returns this object to facilitate chaining.   
+   *  Returns this object to facilitate chaining.
    */
   public function addFilter($filter, $options = NULL) {
     $this->filters[] = array('type' => $filter, 'options' => $options);
     return $this;
   }
-  
+
   /**
-   * Set all filters for this object. 
+   * Set all filters for this object.
    * Validators must be in the form:
    * <?php
    * array(
@@ -1199,29 +1199,29 @@ class BaseFortissimoCommandParameter {
     $this->filters = $filters;
     return $this;
   }
-  
 
-  
+
+
   public function setRequired($required) {
     $this->required = $required;
   }
-  
+
   public function isRequired() {return $this->required;}
-  
+
   /**
    * Set the default value.
    */
   public function setDefault($val) {
     $this->defaultValue = $val;
   }
-  
+
   /**
    * Get the default value.
    */
   public function getDefault() {
     return $this->defaultValue;
   }
-  
+
   /**
    * Get the list of filters.
    * @return array
@@ -1241,7 +1241,7 @@ class BaseFortissimoCommandParameter {
 interface Explainable {
   /**
    * Provides a string explaining what this class does.
-   * 
+   *
    * @return string
    *  A string explaining the role of the class.
    */
@@ -1251,20 +1251,20 @@ interface Explainable {
 /**
  * Classes that implement this advertise that they support event listening support.
  *
- * Commands in Fortissimo may optionally support an events model in which the 
+ * Commands in Fortissimo may optionally support an events model in which the
  * command fires events that other classes may then respond to.
  *
- * The core event system is part of Fortissimo proper, but commands may or may 
+ * The core event system is part of Fortissimo proper, but commands may or may
  * not choose to declare (or answer) any events. Commands that extend
- * BaseFortissimoCommand can very easily declare and answer events. Those that do 
+ * BaseFortissimoCommand can very easily declare and answer events. Those that do
  * not will need to provide their own event management, adhering to this interface.
  */
 interface Observable {
   /**
    * Set the event handlers.
    *
-   * This tells the Observable what listeners are registered for the given 
-   * object. The listeners array should be an associative array mapping 
+   * This tells the Observable what listeners are registered for the given
+   * object. The listeners array should be an associative array mapping
    * event names to an array of callables.
    *
    * @code
@@ -1287,7 +1287,7 @@ interface Observable {
    *  An associative array of event names and an array of eventhandlers.
    */
   public function setEventHandlers($listeners);
-  
+
   /**
    * Trigger a particular event.
    *
@@ -1307,7 +1307,7 @@ interface Observable {
  * Simply implementing this in no way results in the results being cached. There must be a
  * caching mechanism that receives the data and caches it.
  *
- * For example, BaseFortissimoCommand is capable of understanding Cacheable objects. When 
+ * For example, BaseFortissimoCommand is capable of understanding Cacheable objects. When
  * a BaseFortissimCommand::doCommand() result is returned, if a cache key can be generated
  * for it, then its results will be cached.
  *
@@ -1320,7 +1320,7 @@ interface Observable {
  * expired). If a copy is found, it is returned, otherwise a new copy is generated.
  */
 interface Cacheable {
-  
+
   /**
    * Return a cache key.
    *
@@ -1330,16 +1330,16 @@ interface Cacheable {
    * If a Cacheable object returns a cache key from this function, the underlying system is
    * considered to be allowed to cache the object's output.
    *
-   * Note that the exact data that is cached will be based not on this interface, but on the 
-   * caching mechanism used. For example, BaseFortissimoCommand caches the output of the 
+   * Note that the exact data that is cached will be based not on this interface, but on the
+   * caching mechanism used. For example, BaseFortissimoCommand caches the output of the
    * BaseFortissimoCommand::doCommand() method.
    *
    * @return string
    *  Cache key or NULL if (a) no key can be generated, or (b) this object should not be cached.
-   *  
+   *
    */
   public function cacheKey();
-  
+
   /**
    * Indicates how long the item should be stored.
    *
@@ -1352,7 +1352,7 @@ interface Cacheable {
    *  using the default for the underlying cache mechanism.
    */
   public function cacheLifetime();
-  
+
   /**
    * Indicates which cache to use.
    *
@@ -1365,13 +1365,13 @@ interface Cacheable {
    *  The name of the cache. If this is NULL, then the default cache will be used.
    */
   public function cacheBackend();
-  
-  
+
+
   /**
    * Indicate whether or not the current command is caching.
    *
    * This provides a standard mechanism for indicating whether or not a particular
-   * Cacheable instance is allowed to be cached. Implementors can, for example, 
+   * Cacheable instance is allowed to be cached. Implementors can, for example,
    * implement a configuration parameter that will enable or disable caching.
    *
    * Typically, when the request handing subsystem test an object to see if it is
@@ -1382,12 +1382,12 @@ interface Cacheable {
    * - isCaching() should return TRUE
    * - cacheKey() should return a string value
    *
-   * Note that this flag is checked after the command is initialized, but before the 
+   * Note that this flag is checked after the command is initialized, but before the
    * command is executed. Any changes that the command makes to this value during
    * the command's execution will be ignored.
    *
    * @return boolean
-   *  TRUE if this command is in caching mode, FALSE if this command object is 
+   *  TRUE if this command is in caching mode, FALSE if this command object is
    *  disallowing cached output.
    */
   public function isCaching();
@@ -1396,39 +1396,39 @@ interface Cacheable {
 /**
  * This is a base class that can be extended to add new commands.
  *
- * The class provides several basic services. 
+ * The class provides several basic services.
  *
  * First, it simplifies the
  * process of executing a command. The BaseFortissimoCommand::doCommand()
  * method follows a very simple pattern.
  *
- * Second, it provides structure for describing a command. The abstract 
+ * Second, it provides structure for describing a command. The abstract
  * BaseFortissimoCommand::expects() method provides the facilities for
  * describing what parameters this command should use, how these parameters should
  * be filtered/validated/sanitized, and what each parameter is for.
  *
- * Third, using the data from BaseFortissimoCommand::expects(), this 
+ * Third, using the data from BaseFortissimoCommand::expects(), this
  * class provides a self-documenting tool, BaseFortissimoCommand::explain(),
- * which uses the information about the parameter to provide human-radible 
+ * which uses the information about the parameter to provide human-radible
  * documentation about what this command does.
  *
  * When extending this class, there are two things that every extension must do:
- * 
+ *
  * 1. It must provide information about what parameters it uses. This is done
  *  by implementing expects().
- * 2. It must provide logic for performing the command. This is done in 
+ * 2. It must provide logic for performing the command. This is done in
  *  doCommand().
  *
  */
 abstract class BaseFortissimoCommand implements FortissimoCommand, Explainable, Observable {
-  
+
   protected $paramsCollection;
-  
+
   /**
    * The array of event listeners attached to this command.
    */
   protected $listeners = NULL;
-  
+
   /**
    * The name of this command.
    * Passed from the 'name' value of the command configuration file.
@@ -1442,7 +1442,7 @@ abstract class BaseFortissimoCommand implements FortissimoCommand, Explainable, 
    * automatically insert it into the context.
    */
   protected $context = NULL;
-  
+
   /**
    * Flag indicating whether this object is currently (supposed to be)
    * in caching mode.
@@ -1458,16 +1458,16 @@ abstract class BaseFortissimoCommand implements FortissimoCommand, Explainable, 
    * An associative array of parameters.
    *
    * These are the parameters passed into the command from the environment. The name
-   * will correspond to the 'name' parameter in the command configuration file. The 
+   * will correspond to the 'name' parameter in the command configuration file. The
    * value is retrieved depending on the 'from' (or default value) rules in the
    * configuration file.
    */
   protected $parameters = NULL;
-  
+
   /**
    * Construct a new BaseFortissimoCommand.
    *
-   * This is automatically called by the framework during a Fortissimo::handleRequest() 
+   * This is automatically called by the framework during a Fortissimo::handleRequest()
    * sequence of events. Note, however, that it can be called explicitly by things trying
    * to execute commands outside of the normal chain.
    *
@@ -1481,11 +1481,11 @@ abstract class BaseFortissimoCommand implements FortissimoCommand, Explainable, 
     $this->name = $name;
     $this->caching = $caching;
   }
-  
+
   /**
    * By default, a Fortissimo base command is cacheable.
    *
-   * This has been deprecated in favor of the Cacheable interface. To test the 
+   * This has been deprecated in favor of the Cacheable interface. To test the
    * cacheability of an object, you should run this:
    * @code
    * <?php
@@ -1502,7 +1502,7 @@ abstract class BaseFortissimoCommand implements FortissimoCommand, Explainable, 
     //return TRUE;
     return $this instanceof Cacheable;
   }
-  
+
   /**
    * Get a parameter by name.
    *
@@ -1519,7 +1519,7 @@ abstract class BaseFortissimoCommand implements FortissimoCommand, Explainable, 
   protected function param($name, $default = NULL) {
     return isset($this->parameters[$name]) ? $this->parameters[$name] : $default;
   }
-  
+
   /**
    * EXPERIMENTAL: Convert a request and arguments to a URL.
    *
@@ -1536,11 +1536,11 @@ abstract class BaseFortissimoCommand implements FortissimoCommand, Explainable, 
   protected function url($request, $args = array()) {
     return $this->context->getRequestMapper()->requestToUrl($request, $args);
   }
-  
+
   /**
    * Get an object from the context.
    *
-   * Get an object from the context by name. The context is the 
+   * Get an object from the context by name. The context is the
    * {@link FortissimoExecutionContext} for the current request. When
    * a Fortissimo command extending {@link BaseFortissimoCommand} returns,
    * its data goes into the context, so you can use this to fetch the results
@@ -1550,7 +1550,7 @@ abstract class BaseFortissimoCommand implements FortissimoCommand, Explainable, 
    *  The name of the context object. Typically, this is the name value assigned
    *  to a command in the commands.xml file.
    * @param mixed $default
-   *  The default value that will be returned if no such object is found in the 
+   *  The default value that will be returned if no such object is found in the
    *  context. EXPERT: This will return by reference if you use the &$foo syntax.
    * @see param()
    */
@@ -1559,10 +1559,10 @@ abstract class BaseFortissimoCommand implements FortissimoCommand, Explainable, 
     if (!isset($val)) {
       $val = NULL;
     }
-    
+
     return $val;
   }
-  
+
   /**
    * Helper function for handling cache lookups.
    *
@@ -1570,9 +1570,9 @@ abstract class BaseFortissimoCommand implements FortissimoCommand, Explainable, 
    *  The key to use with the cache.
    */
   protected function executeWithCache($key) {
-    
+
     $cacheManager = $this->context->getCacheManager();
-    
+
     // Figure out which cache we're using.
     if (($be = $this->cacheBackend()) == NULL) {
       $cache = $cacheManager->getDefaultCache();
@@ -1580,42 +1580,42 @@ abstract class BaseFortissimoCommand implements FortissimoCommand, Explainable, 
     else {
       $cache = $cacheManager->getCacheByName($be);
     }
-    
+
     // Bail here if we don't have a cache.
     if (empty($cache)) {
       return;
     }
-    
+
     // Try to get from cache.
     if (($result = $cacheManager->get($key)) != NULL) {
       return $result;
     }
-    
+
     // We have a cache miss, so we need to do the command and set the cache entry.
     $result = $this->doCommand();
     $cacheManager->set($key, $result, $this->cacheLifetime());
-    
+
     // Return the result to execute().
     return $result;
   }
-  
+
   public function execute($params, FortissimoExecutionContext $cxt) {
     $this->context = $cxt;
     $this->prepareParameters($params);
     $result = NULL;
-    
+
     // If this looks like a cache can handle it, use a cache.
     if ($this instanceof Cacheable && $this->isCaching() && ($key = $this->cacheKey()) != NULL) {
       $result = $this->executeWithCache($key);
     }
-    
+
     // If no result has been set, execute the command.
     if (is_null($result)) $result = $this->doCommand();
-    
+
     // Add the results to the context.
     $this->context->add($this->name, $result);
   }
-  
+
   /**
    * Handle a parameter validation/sanitization failure.
    *
@@ -1623,9 +1623,9 @@ abstract class BaseFortissimoCommand implements FortissimoCommand, Explainable, 
    * can be handled here, if necessary.
    *
    * @throws FortissimoException
-   *  If the filter fails, an exception is thrown. Note that 
+   *  If the filter fails, an exception is thrown. Note that
    *  FILTER_VALIDATE_BOOLEAN will not throw an exception if it fails. Instead,
-   *  if converts values to FALSE. This is a limitation in the PHP 
+   *  if converts values to FALSE. This is a limitation in the PHP
    *  filter library, where a failed filter always returns FALSE.
    *
    * @see validate()
@@ -1634,7 +1634,7 @@ abstract class BaseFortissimoCommand implements FortissimoCommand, Explainable, 
     $msg = "Filter %s failed for %s (options: %s)";
     throw new FortissimoException(sprintf($msg, $filter, $name, print_r($options, TRUE)));
   }
-  
+
   /**
    * Run a validator or sanitizer.
    *
@@ -1644,7 +1644,7 @@ abstract class BaseFortissimoCommand implements FortissimoCommand, Explainable, 
    * @param string $name
    *  The name of the parameter. This is used for error reporting.
    * @param string $filter
-   *  The name (AS A STRING) of the filter to run. See 
+   *  The name (AS A STRING) of the filter to run. See
    *  BaseFortissimoCommandParameter::addFilter() for a list of names,
    *  or consult the PHP documentation for filters.
    * @param mixed $payload
@@ -1656,13 +1656,13 @@ abstract class BaseFortissimoCommand implements FortissimoCommand, Explainable, 
    * @see handleIllegalParameter() Called if this fails.
    */
   protected function validate ($name, $filter, $payload, $options = NULL) {
-    
+
     // Specialized filter support to make it simple for classes to filter.
     if ($filter == 'this') {
       $filter = 'callback';
-      
+
       $func = $options;
-      
+
       $options = array(
         'options' => array($this, $func),
       );
@@ -1673,20 +1673,20 @@ abstract class BaseFortissimoCommand implements FortissimoCommand, Explainable, 
         'options' => $options,
       );
     }
-    
+
     $filterID = filter_id($filter);
     $res = filter_var($payload, $filterID, $options);
-    
-    
+
+
     // Boolean validation returns FALSE if the bool is false, or if a fail occurs.
     // So we just pass through. Nothing more that can really be done about it.
     if ($res === FALSE && $filterID != FILTER_VALIDATE_BOOLEAN) {
       $this->handleIllegalParameter($name, $filter, $payload, $options);
     }
-    
+
     return $res;
   }
-  
+
   /**
    * Prepare all parameters.
    *
@@ -1694,15 +1694,15 @@ abstract class BaseFortissimoCommand implements FortissimoCommand, Explainable, 
    * parameter filtering.
    *
    * @param array $params
-   *  And array of {@link BaseFortissimoCommandParameter} objects which 
-   *  will be used to determine what parameters this object needs. 
+   *  And array of {@link BaseFortissimoCommandParameter} objects which
+   *  will be used to determine what parameters this object needs.
    *
    * @see BaseFortissimoCommand::expects()
    * @see BaseFortissimoCommand::describe()
    */
   protected function prepareParameters($params) {
     $this->parameters = array();
-    
+
     // Gets the list of BaseFortissimoCommandParameter objects and loops
     // through them, loading the parameters into the object.
     $expecting = $this->expects();
@@ -1714,22 +1714,22 @@ abstract class BaseFortissimoCommand implements FortissimoCommand, Explainable, 
           throw new FortissimoException(sprintf('Expected param %s in command %s', $name, $this->name));
         }
         $params[$name] = $paramObj->getDefault();
-        
+
       }
-      
+
       // The value.
       $payload = $params[$name];
-      
+
       // Run all filters, in order.
       foreach ($filters as $filter) {
         $payload = $this->validate($name, $filter['type'], $payload, $filter['options']);
       }
-      
+
       // Assign a sanitized/validated value.
       $this->parameters[$name] = $payload;
     }
   }
-  
+
   /**
    * Set a description of this object.
    *
@@ -1749,7 +1749,7 @@ abstract class BaseFortissimoCommand implements FortissimoCommand, Explainable, 
     $this->paramsCollection = new BaseFortissimoCommandParameterCollection($string);
     return $this->paramsCollection;
   }
-  
+
   /**
    * Produces helpful information about this command.
    *
@@ -1759,17 +1759,17 @@ abstract class BaseFortissimoCommand implements FortissimoCommand, Explainable, 
    */
   public function explain() {
     $expects = $this->expects();
-    
+
     if (empty($expects)) {
       throw new FortissimoException('No information for ' . get_class($this));
     }
-    
+
     $format = "\t* %s (%s): %s\n";
     $buffer = "\tPARAMS:" . PHP_EOL;
     foreach ($expects as $paramObj) {
       $name = $paramObj->getName();
       $desc = $paramObj->getDescription();
-      
+
       if ($paramObj->isRequired()) {
         $desc .= ' !REQUIRED!';
       }
@@ -1785,7 +1785,7 @@ abstract class BaseFortissimoCommand implements FortissimoCommand, Explainable, 
         }
         $desc .= ' [' . $val . ']';
       }
-      
+
       $fltr = array();
       foreach ($paramObj->getFilters() as $filter) {
         // If callback, display the callback name. Otherwise display the filter.
@@ -1803,36 +1803,36 @@ abstract class BaseFortissimoCommand implements FortissimoCommand, Explainable, 
       $filterString = implode(', ', $fltr);
       if (strlen($filterString) == 0) $filterString = 'no filters';
       $buffer .= sprintf($format, $name, $filterString, $desc);
-      
+
     }
-    
+
     // Gather information on which events this command fires.
     $events = array();
     foreach ($expects->events() as $event => $desc) {
       $events[] = sprintf("\t* %s: %s", $event, $desc);
     }
-    
+
     if (!empty($events)) {
       $buffer .= "\tEVENTS:" . PHP_EOL . implode(PHP_EOL, $events) . PHP_EOL;
     }
-    
+
     // We do this because __CLASS__ will return the abstract class.
     $klass = new ReflectionClass($this);
-    
+
     $cmdFilter = 'CMD: %s (%s): %s';
     return sprintf($cmdFilter, $this->name, $klass->name, $this->paramsCollection->description())
       . PHP_EOL
       . $buffer
       //. PHP_EOL
-      . "\tRETURNS: " 
+      . "\tRETURNS: "
       . $expects->returnDescription()
       . PHP_EOL . PHP_EOL;
   }
   /**
    * Set the event handlers.
    *
-   * This tells the Observable what listeners are registered for the given 
-   * object. The listeners array should be an associative array mapping 
+   * This tells the Observable what listeners are registered for the given
+   * object. The listeners array should be an associative array mapping
    * event names to an array of callables.
    *
    * @code
@@ -1857,7 +1857,7 @@ abstract class BaseFortissimoCommand implements FortissimoCommand, Explainable, 
   public function setEventHandlers($listeners) {
     $this->listeners = $listeners;
   }
-  
+
   /**
    * Trigger a particular event.
    *
@@ -1880,12 +1880,12 @@ abstract class BaseFortissimoCommand implements FortissimoCommand, Explainable, 
     }
     return $results;
   }
-  
+
   /**
    * Information about what parameters the command expects.
    *
    * A command is intended to perform a single discrete task. To perform
-   * this task, a command may require one or more input parameters. This 
+   * this task, a command may require one or more input parameters. This
    * method is used to accomplish two things:
    *
    * - Declare what parameters it uses
@@ -1894,13 +1894,13 @@ abstract class BaseFortissimoCommand implements FortissimoCommand, Explainable, 
    * The first of these tasks is straightforward: A command uses parameters
    * for input. This method gives the command developer the tools to declare
    * which paramaters are used. Additionally, generic sanitization and validation
-   * can automatically be done by the base command. Developers can declare which 
-   * filters should be run on data so that the parameters prepared before the 
+   * can automatically be done by the base command. Developers can declare which
+   * filters should be run on data so that the parameters prepared before the
    * command is executed.
    *
    * The second task is to explain what this command does with these parameters.
    * This is done to provide real-time documentation to developers. A command
-   * has the ability to report (using {@link explain()}) what it does, which 
+   * has the ability to report (using {@link explain()}) what it does, which
    * expedites the development of a Fortissimo application.
    *
    * An implementation of this function should look something like this:
@@ -1934,7 +1934,7 @@ abstract class BaseFortissimoCommand implements FortissimoCommand, Explainable, 
    * email address.
    *
    * @return BaseFortissimoCommandParameterCollection
-   *  Returns a collection of parameters. This can be easily obtained by 
+   *  Returns a collection of parameters. This can be easily obtained by
    *  calling {@link description()} on the present object. View the example above
    *  or the {@link SimpleCommandTest} class to see basic examples of how to
    *  return the appropriate data from this method.
@@ -1943,7 +1943,7 @@ abstract class BaseFortissimoCommand implements FortissimoCommand, Explainable, 
    * @see http://us.php.net/manual/en/book.filter.php The PHP Filter system.
    */
   abstract public function expects();
-  
+
   /**
    * Do the command.
    *
@@ -1955,7 +1955,7 @@ abstract class BaseFortissimoCommand implements FortissimoCommand, Explainable, 
    *
    * This object provides access to the following variables of interest:
    *  - $name: The name of the command.
-   *  - $parameters: The name/value list of parameters. These are learned 
+   *  - $parameters: The name/value list of parameters. These are learned
    *    and validated based on the contents of the expects() method.
    *  - $context: The FortissimoExecutionContext object for this request.
    * @return mixed
@@ -1975,13 +1975,13 @@ abstract class BaseFortissimoCommand implements FortissimoCommand, Explainable, 
 /**
  * Stores information about Fortissimo commands.
  *
- * The configuration is typically created by the Config class, which provides a 
+ * The configuration is typically created by the Config class, which provides a
  * fluent interface for configuring Fortissimo.
  */
 class FortissimoConfig {
-  
+
   protected $config;
-  
+
   /**
    * Construct a new configuration object.
    *
@@ -1993,7 +1993,7 @@ class FortissimoConfig {
    * @see http://api.querypath.org/docs
    */
   public function __construct($configurationFile = NULL) {
-    
+
     if (is_string($configurationFile)) {
       include $configurationFile;
     }
@@ -2003,10 +2003,10 @@ class FortissimoConfig {
       Config::initialize($configurationFile);
     }
     */
-    
+
     $this->config = Config::getConfiguration();
   }
-  
+
   /**
    * Get an array of additional paths to be added to the include path.
    *
@@ -2015,20 +2015,20 @@ class FortissimoConfig {
    * add them using the <code>include</code> element in the commands.xml file.
    *
    * @return array
-   *  An array of include paths as defined in the command configuration 
+   *  An array of include paths as defined in the command configuration
    *  (commands.xml).
    */
   public function getIncludePaths() {
     return $this->config[Config::PATHS];
   }
-  
+
   public function getRequestMapper($default = 'FortissimoRequestMapper') {
     if (isset($this->config[Config::REQUEST_MAPPER])) {
       return $this->config[Config::REQUEST_MAPPER];
     }
     return $default;
   }
-  
+
   /**
    * Check whether the named request is known to the system.
    *
@@ -2046,7 +2046,7 @@ class FortissimoConfig {
     }
     return isset($this->config[Config::REQUESTS][$requestName]);
   }
-  
+
   /**
    * Validate the request name.
    *
@@ -2063,38 +2063,38 @@ class FortissimoConfig {
    */
   public static function isLegalRequestName($requestName, $allowInternalRequests = FALSE) {
     $regex = $allowInternalRequests ? '/^@?[_a-zA-Z0-9\\-]+$/' : '/^[_a-zA-Z0-9\\-]+$/';
-    
+
     return preg_match($regex, $requestName) == 1;
   }
-  
+
   /**
    * Get all loggers.
    *
-   * This will load all of the loggers from the command configuration 
-   * (typically commands.xml) and return them in an associative array of 
+   * This will load all of the loggers from the command configuration
+   * (typically commands.xml) and return them in an associative array of
    * the form array('name' => object), where object is a FortissimoLogger
    * of some sort.
-   * 
+   *
    * @return array
    *  An associative array of name => logger pairs.
    * @see FortissimoLogger
    */
   public function getLoggers() {
     $loggers = $this->getFacility(Config::LOGGERS);
-    
+
     foreach ($loggers as $logger) $logger->init();
-    
+
     return $loggers;
   }
-  
+
   /**
    * Get all caches.
    *
-   * This will load all of the caches from the command configuration 
-   * (typically commands.php) and return them in an associative array of 
+   * This will load all of the caches from the command configuration
+   * (typically commands.php) and return them in an associative array of
    * the form array('name' => object), where object is a FortissimoRequestCache
    * of some sort.
-   * 
+   *
    * @return array
    *  An associative array of name => cache pairs.
    * @see FortissimoRequestCache
@@ -2104,17 +2104,17 @@ class FortissimoConfig {
     foreach ($caches as $cache) $cache->init();
     return $caches;
   }
-  
+
   public function getDatasources() {
     return $this->getFacility(Config::DATASOURCES);
   }
-  
+
   /**
    * Internal helper function.
    *
    * @param string $type
    *  The type of item to retrieve. Use the Config class constants.
-   * @return array 
+   * @return array
    *  An associative array of the form <code>array('name' => object)</code>, where
    *  the object is an instance of the respective 'invoke' class.
    */
@@ -2127,7 +2127,7 @@ class FortissimoConfig {
     }
     return $facilities;
   }
-  
+
   /**
    * Get the parameters for a facility such as a logger or a cache.
    *
@@ -2145,33 +2145,33 @@ class FortissimoConfig {
     }
     return $res;
   }
-  
+
   /**
    * Given a request name, retrieves a request queue.
    *
-   * The queue (in the form of an array) contains information about what 
+   * The queue (in the form of an array) contains information about what
    * commands should be run, and in what order.
    *
    * @param string $requestName
    *  The name of the request
    * @param boolean $allowInternalRequests
    *  If this is true, internal requests (@-requests, at-requests) will be allowed.
-   * @return FortissimoRequest 
+   * @return FortissimoRequest
    *  A queue of commands that need to be executed. See {@link createCommandInstance()}.
    * @throws FortissimoRequestNotFoundException
-   *  If no such request is found, or if the request is malformed, and exception is 
-   *  thrown. This exception should be considered fatal, and a 404 error should be 
+   *  If no such request is found, or if the request is malformed, and exception is
+   *  thrown. This exception should be considered fatal, and a 404 error should be
    *  returned. Note that (provisionally) a FortissimoRequestNotFoundException is also thrown if
-   *  $allowInternalRequests if FALSE and the request name is for an internal request. This is 
+   *  $allowInternalRequests if FALSE and the request name is for an internal request. This is
    *  basically done to prevent information leakage.
    */
   public function getRequest($requestName, $allowInternalRequests = FALSE) {
-    
+
     // Protection against attempts at request hacking.
     if (!self::isLegalRequestName($requestName, $allowInternalRequests))  {
       throw new FortissimoRequestNotFoundException('Illegal request name.');
     }
-    
+
     if (empty($this->config[Config::REQUESTS][$requestName])) {
       // This should be treated as a 404.
       throw new FortissimoRequestNotFoundException(sprintf('Request %s not found', $requestName));
@@ -2180,25 +2180,25 @@ class FortissimoConfig {
     else {
       $request = $this->config[Config::REQUESTS][$requestName];
     }
-    
+
     $isCaching = isset($request['#caching']) && filter_var($request['#caching'], FILTER_VALIDATE_BOOLEAN);
     $isExplaining = isset($request['#explaining']) && filter_var($request['#explaining'], FILTER_VALIDATE_BOOLEAN);
-    
+
     unset($request['#caching'], $request['#explaining']);
-    
+
     // Once we have the request, find out what commands we need to execute.
     $commands = array();
     foreach ($request as $cmd => $cmdConfig) {
       $commands[] = $this->createCommandInstance($cmd, $cmdConfig);
     }
-    
+
     $request = new FortissimoRequest($requestName, $commands);
     $request->setCaching($isCaching);
     $request->setExplain($isExplaining);
-    
+
     return $request;
   }
-  
+
   /**
    * Create a command instance.
    *
@@ -2214,7 +2214,7 @@ class FortissimoConfig {
    *  - name: Name of the command
    *  - class: Name of the class
    *  - instance: An instance of the class
-   *  - params: Parameter information. Note that the application must take this 
+   *  - params: Parameter information. Note that the application must take this
    *    information and correctly populate the parameters at execution time.
    *    Parameter information is returned as an associative array of arrays:
    *    <?php $param['name'] => array('from' => 'src:name', 'value' => 'default value'); ?>
@@ -2231,7 +2231,7 @@ class FortissimoConfig {
     $cache = isset($config['caching']) && filter_var($config['caching'], FILTER_VALIDATE_BOOLEAN);
     $params = isset($config['params']) ? $config['params'] : array();
     $listeners = isset($config['listeners']) ? $config['listeners'] : array();
-    
+
     $inst = new $class($cmd, $cache);
     return array(
       'isCaching' => $cache,
@@ -2242,7 +2242,7 @@ class FortissimoConfig {
       'listeners' => $listeners,
     );
   }
-  
+
   /**
    * Get the configuration information.
    *
@@ -2258,35 +2258,35 @@ class FortissimoConfig {
 /**
  * Tracks context information over the lifecycle of a request's execution.
  *
- * An execution context is passed from command to command during the course of 
- * a request's execution. State information is inserted into the context by 
+ * An execution context is passed from command to command during the course of
+ * a request's execution. State information is inserted into the context by
  * various commands. Certain commands may also take data out of the context, though
  * this operation is not without its risks. Finally, objects may use information
- * found in the context, either to perform some operation (writing data to 
+ * found in the context, either to perform some operation (writing data to
  * the client) or to modify the context data.
  *
- * The idea of the context is to provide three things during the course of the 
+ * The idea of the context is to provide three things during the course of the
  * request(s):
  * - Shared access to data being generated.
  * - Common access to the logging system (see FortissimoLoggerManager).
  * - Common access to the datasources (See FortissimoDatasourceManager).
- * - Access to the underlying cache engine (so commands can cache their own data). 
+ * - Access to the underlying cache engine (so commands can cache their own data).
  *   See FortissimoCacheManager.
  * - Access to the request mapper. See FortissimoRequestMapper.
  *
  * Thus, every command can utilize the loggers and datasources defined for the
  * application, and commands can pass data throughout the lifecycle of the request.
  *
- * Note that when one request forwards to another request, the context may be 
- * transferred along with it. Thus, sometimes a context will span multiple 
- * defined requests (though this will always be in the handling of one 
+ * Note that when one request forwards to another request, the context may be
+ * transferred along with it. Thus, sometimes a context will span multiple
+ * defined requests (though this will always be in the handling of one
  * client serving operation -- i.e., it will only span one HTTP request, even if
  * multiple Fortissimo requests are fired.)
  *
  * @see Fortissimo
  */
 class FortissimoExecutionContext implements IteratorAggregate {
-  
+
   // Why do we create a class that is basically a thin wrapper around an array?
   // Three reasons:
   // 1. It gives us the ability to control access to the objects in the context.
@@ -2295,7 +2295,7 @@ class FortissimoExecutionContext implements IteratorAggregate {
   //   which is likely to cause confusion with less experienced developers.
   // However, we do provide the to/from array methods to allow developers to make
   // use of the richer array library without our re-inventing the wheel.
-  
+
   protected $data = NULL;
   protected $logger = NULL;
   protected $datasources = NULL;
@@ -2304,7 +2304,7 @@ class FortissimoExecutionContext implements IteratorAggregate {
   /** Command cache. */
   protected $cache = array();
   protected $caching = FALSE;
-  
+
   /**
    * Create a new context.
    *
@@ -2327,14 +2327,14 @@ class FortissimoExecutionContext implements IteratorAggregate {
     else {
       $this->data = $initialContext;
     }
-    
+
     // Store logger and datasources managers if they are set.
     if (isset($logger)) $this->logger = $logger;
     if (isset($datasources)) $this->datasources = $datasources;
     if (isset($cacheManager)) $this->cacheManager = $cacheManager;
     if (isset($requestMapper)) $this->requestMapper = $requestMapper;
   }
-  
+
   /**
    * Log a message.
    * The context should always have a hook into a logger of some sort. This method
@@ -2343,7 +2343,7 @@ class FortissimoExecutionContext implements IteratorAggregate {
    * @param mixed $msg
    *  The message to log. This can be a string or an Exception.
    * @param string $category
-   *  A category. Typically, this is a string like 'error', 'warning', etc. But 
+   *  A category. Typically, this is a string like 'error', 'warning', etc. But
    *  applications can customize their categories according to the underlying
    *  logger.
    * @see FortissimoLoggerManager Manages logging facilities.
@@ -2354,7 +2354,7 @@ class FortissimoExecutionContext implements IteratorAggregate {
       $this->logger->log($msg, $category);
     }
   }
-  
+
   /**
    * Retrieve a named datasource.
    *
@@ -2369,14 +2369,14 @@ class FortissimoExecutionContext implements IteratorAggregate {
   public function datasource($name = NULL) {
     return $this->datasources->datasource($name);
   }
-  
+
   /**
    * Convenience function for {@link datasource()}.
    */
   public function ds($name = NULL) {
     return $this->datasource($name);
   }
-  
+
   /**
    * Check if the context has an item with the given name.
    *
@@ -2386,7 +2386,7 @@ class FortissimoExecutionContext implements IteratorAggregate {
   public function has($name) {
     return isset($this->data[$name]);
   }
-  
+
   /**
    * Get the size of the context.
    *
@@ -2396,7 +2396,7 @@ class FortissimoExecutionContext implements IteratorAggregate {
   public function size() {
     return count($this->data);
   }
-  
+
   /**
    * Add a new name/value pair to the context.
    *
@@ -2413,7 +2413,7 @@ class FortissimoExecutionContext implements IteratorAggregate {
     $this->data[$name] = $value;
   }
   //public function put($name, $value) {$this->add($name, $value);}
-  
+
   /**
    * Add all values in the array.
    *
@@ -2425,15 +2425,15 @@ class FortissimoExecutionContext implements IteratorAggregate {
   public function addAll($array) {
     $this->data = $array + $this->data;
   }
-  
+
   /**
    * Get a value by name.
    *
-   * This fetches an item out of the context and returns a reference to it. A 
-   * reference is returned so that one can modify the value. But this introduces a risk: You 
+   * This fetches an item out of the context and returns a reference to it. A
+   * reference is returned so that one can modify the value. But this introduces a risk: You
    * can accidentally modify the context value if you are not careful.
    *
-   * If you are working with a non-object and you want to use it by reference, use the following 
+   * If you are working with a non-object and you want to use it by reference, use the following
    * syntax:
    * @code
    * $foo =& $context->get('foo');
@@ -2449,7 +2449,7 @@ class FortissimoExecutionContext implements IteratorAggregate {
     }
     return $var;
   }
-  
+
   /**
    * Remove an item from the context.
    *
@@ -2459,7 +2459,7 @@ class FortissimoExecutionContext implements IteratorAggregate {
   public function remove($name) {
     if (isset($this->data[$name])) unset($this->data[$name]);
   }
-  
+
   /**
    * Convert the context to an array.
    *
@@ -2469,7 +2469,7 @@ class FortissimoExecutionContext implements IteratorAggregate {
   public function toArray() {
     return $this->data;
   }
-  
+
   /**
    * Replace the current context with the values in the given array.
    *
@@ -2490,7 +2490,7 @@ class FortissimoExecutionContext implements IteratorAggregate {
     // Does this work?
     return new ArrayIterator($this->data);
   }
-  
+
   /**
    * Expose the logger manager to commands.
    *
@@ -2504,16 +2504,16 @@ class FortissimoExecutionContext implements IteratorAggregate {
   public function getLoggerManager() {
     return $this->logger;
   }
-  
+
   /**
    * Get the datasource manager.
    *
-   * The datasource manager is manages all of the datasources defined in 
+   * The datasource manager is manages all of the datasources defined in
    * this Fortissimo instance (typically defined in commands.xml).
    *
    * Often, you will want to get datasources with the {@link datasource()} function
-   * defined in this class. Sometimes, though, you may need more control over 
-   * the datasource. This method provides direct access to the manager, which 
+   * defined in this class. Sometimes, though, you may need more control over
+   * the datasource. This method provides direct access to the manager, which
    * will give you a higher degree of control.
    *
    * @return FortissimoDatasourceManager
@@ -2523,7 +2523,7 @@ class FortissimoExecutionContext implements IteratorAggregate {
     //throw new Exception('Not implemented.');
     return $this->datasourceManager;
   }
-  
+
   /**
    * Get the FortissimoCacheManager for this request.
    *
@@ -2537,7 +2537,7 @@ class FortissimoExecutionContext implements IteratorAggregate {
   public function getCacheManager() {
     return $this->cacheManager;
   }
-  
+
   /**
    * Get the FortissimoRequestMapper for this request.
    *
@@ -2552,14 +2552,14 @@ class FortissimoExecutionContext implements IteratorAggregate {
 /**
  * Manage caches.
  *
- * This manages top-level {@link FortissimoRequestCache}s. Just as with 
+ * This manages top-level {@link FortissimoRequestCache}s. Just as with
  * {@link FortissimoLoggerManager}, a FortissimoCacheManager can manage
  * multiple caches. It will proceed from cache to cache in order until it
- * finds a hit. (Order is determined by the order returned from the 
+ * finds a hit. (Order is determined by the order returned from the
  * configuration object.)
  *
  * Front-line Fortissimo caching is optimized for string-based values. You can,
- * of course, serialize values and store them in the cache. However, the 
+ * of course, serialize values and store them in the cache. However, the
  * serializing and de-serializing is left up to the implementor.
  *
  * Keys may be hashed for optimal storage in the database. Values may be optimized
@@ -2570,35 +2570,35 @@ class FortissimoExecutionContext implements IteratorAggregate {
  */
 class FortissimoCacheManager {
   protected $caches = NULL;
-  
+
   public function __construct($caches) {
     $this->caches = $caches;
   }
-  
+
   public function setLogManager($manager) {
     foreach ($this->caches as $name => $obj) $obj->setLogManager($manager);
   }
-  
+
   public function setDatasourceManager($manager) {
     foreach ($this->caches as $name => $obj) $obj->setDatasourceManager($manager);
   }
-  
+
   /**
    * Given a name, retrieve the cache.
    *
    * @return FortissimoRequestCache
-   * If there is a cache with this name, the cache object will be 
+   * If there is a cache with this name, the cache object will be
    * returned. Otherwise, this will return NULL.
    */
   public function getCacheByName($name) {
     return $this->caches[$name];
   }
-  
+
   /**
    * Get an array of cache names.
    *
    * This will generate a list of names for all of the caches
-   * that are currently active. This name can be passed to getCacheByName() 
+   * that are currently active. This name can be passed to getCacheByName()
    * to get a particular cache.
    *
    * @return array
@@ -2607,7 +2607,7 @@ class FortissimoCacheManager {
   public function getCacheNames() {
     return array_keys($this->caches);
   }
-  
+
   /**
    * Get the default cache.
    */
@@ -2616,7 +2616,7 @@ class FortissimoCacheManager {
       if ($cache->isDefault()) return $cache;
     }
   }
-  
+
   /**
    * Get a value from the caches.
    *
@@ -2627,12 +2627,12 @@ class FortissimoCacheManager {
   public function get($key) {
     foreach ($this->caches as $n => $cache) {
       $res = $cache->get($key);
-      
+
       // Short-circuit if we find a value.
       if (isset($res)) return $res;
     }
   }
-  
+
   /**
    * Store a value in a cache.
    *
@@ -2649,21 +2649,21 @@ class FortissimoCacheManager {
    * @param string $value
    *  The value to store
    * @param string $cache
-   *  The name of the cache to store the value in. If not given, the cache 
+   *  The name of the cache to store the value in. If not given, the cache
    *  manager will store the item wherever it is most convenient.
    * @param int $expires_after
    *  An integer indicating how many seconds this item should live in the cache. Some
-   *  caching backends may choose to ignore this. Some (like pecl/memcache, pecl/memcached) may 
+   *  caching backends may choose to ignore this. Some (like pecl/memcache, pecl/memcached) may
    *  have an upper limit (30 days). Setting this to NULL will invoke the caching backend's
    *  default.
    */
   public function set($key, $value, $expires_after = NULL, $cache = NULL) {
-    
+
     // If a named cache key is found, set:
     if (isset($cache) && isset($this->caches[$cache])) {
       return $this->caches[$cache]->set($key, $value, $expires_after);
     }
-    
+
     // XXX: Right now, we just use the first item in the cache:
     /*
     $keys = array_keys($this->caches);
@@ -2674,12 +2674,12 @@ class FortissimoCacheManager {
     $cache = $this->getDefaultCache();
     if (!empty($cache)) $cache->set($key, $value, $expires_after);
   }
-  
+
   /**
    * Check whether the value is available in a cache.
    *
    * Note that in most cases, running {@link has()} before running
-   * {@link get()} will result in the same access being run twice. For 
+   * {@link get()} will result in the same access being run twice. For
    * performance reasons, you are probably better off calling just
    * {@link get()} if you are accessing a value.
    *
@@ -2691,29 +2691,29 @@ class FortissimoCacheManager {
   public function has($key) {
     foreach ($this->caches as $n => $cache) {
       $res = $cache->has($key);
-      
+
       // Short-circuit if we find a value.
       if ($res) return $res;
     }
   }
-  
+
   /**
    * Check which cache (if any) contains the given key.
    *
    * If you are just trying to retrieve a cache value, use {@link get()}.
-   * You should use this only if you are trying to determine which underlying 
+   * You should use this only if you are trying to determine which underlying
    * cache holds the given value.
    *
    * @param string $key
    *   The key to search for.
    * @return string
-   *  The name of the cache that contains this key. If the key is 
+   *  The name of the cache that contains this key. If the key is
    *  not found in any cache, NULL will be returned.
    */
   public function whichCacheHas($key) {
     foreach ($this->caches as $n => $cache) {
       $res = $cache->has($key);
-      
+
       // Short-circuit if we find a value.
       if ($res) return $n;
     }
@@ -2723,38 +2723,38 @@ class FortissimoCacheManager {
 /**
  * Manages data sources.
  *
- * Fortissimo provides facilities for declaring multiple data sources. A 
+ * Fortissimo provides facilities for declaring multiple data sources. A
  * datasource is some readable or writable backend like a database.
  *
  * This class manages multiple data sources, providing the execution context
  * with a simple way of retrieving datasources by name.
  */
 class FortissimoDatasourceManager {
-  
+
   protected $datasources = NULL;
   protected $initMap = array();
 
-  
+
   /**
    * Build a new datasource manager.
    *
    * @param array $config
-   *  The configuration for this manager as an associative array of 
+   *  The configuration for this manager as an associative array of
    *  names=>instances.
    */
   public function __construct($config) {
     $this->datasources = &$config;
   }
-  
+
   public function setCacheManager(FortissimoCacheManager $manager) {
     foreach ($this->datasources as $name => $obj) $obj->setCacheManager($manager);
   }
-  
+
   public function setLogManager(FortissimoLoggerManager $manager) {
     foreach ($this->datasources as $name => $obj) $obj->setLogManager($manager);
   }
-  
-  
+
+
   /**
    * Get a datasource by its string name.
    *
@@ -2766,7 +2766,7 @@ class FortissimoDatasourceManager {
   public function getDatasourceByName($name) {
     return $this->datasources[$name];
   }
-  
+
   /**
    * Scan the datasources and return the first one marked default.
    *
@@ -2777,7 +2777,7 @@ class FortissimoDatasourceManager {
   protected function getDefaultDatasource() {
     foreach ($this->datasources as $k => $o) if ($o->isDefault()) return $o;
   }
-  
+
   /**
    * Get a datasource.
    *
@@ -2797,7 +2797,7 @@ class FortissimoDatasourceManager {
     else {
       $ds = $this->getDatasourceByName($name);
     }
-    
+
     // We initialize lazily so that datasources do not
     // have resources allocated until necessary.
     if (!empty($ds) && !isset($this->initMap[$name])) {
@@ -2806,7 +2806,7 @@ class FortissimoDatasourceManager {
     }
     return $ds;
   }
-  
+
   /**
    * Initialize all datasources managed by this manager instance.
    *
@@ -2814,7 +2814,7 @@ class FortissimoDatasourceManager {
    * resources are not allocated needlessly. On some occasions, you may want to
    * initialize all of the datasources at once. Use this function to do so.
    *
-   * Keep in mind that if there are a lot of datasources, this may consume many 
+   * Keep in mind that if there are a lot of datasources, this may consume many
    * system resources.
    */
   public function initializeAllDatasources() {
@@ -2825,10 +2825,10 @@ class FortissimoDatasourceManager {
       }
     }
   }
-  
+
   /**
    * Get all datasources.
-   * 
+   *
    * This does not initialize resources automatically. If you need all datasources
    * to be initialized first, call initializeAllDatasources() before calling this.
    *
@@ -2852,30 +2852,30 @@ class FortissimoDatasourceManager {
  *
  */
 class FortissimoLoggerManager {
-  
+
   protected $loggers = NULL;
-  
+
   /**
    * Build a new logger manager.
    *
    * @param QueryPath $config
    *  The configuration object. Typically, this is from commands.xml.
-   */ 
+   */
   //public function __construct(QueryPath $config) {
   public function __construct($config) {
     // Initialize array of loggers.
     $this->loggers = &$config;
   }
-  
+
   public function setCacheManager(FortissimoCacheManager $manager) {
     foreach ($this->loggers as $name => $obj) $obj->setCacheManager($manager);
   }
-  
+
   public function setDatasourceManager(FortissimoDatasourceManager $manager) {
     foreach ($this->loggers as $name => $obj) $obj->setDatasourceManager($manager);
   }
-  
-  
+
+
   /**
    * Get a logger.
    *
@@ -2887,13 +2887,13 @@ class FortissimoLoggerManager {
   public function getLoggerByName($name) {
     return $this->loggers[$name];
   }
-  
+
   /**
    * Get all buffered log messages.
    *
    * Some, but by no means all, loggers buffer messages for later retrieval.
    * This method provides a way of retrieving all buffered messages from all
-   * buffering loggers. Messages are simply concatenated together from all of 
+   * buffering loggers. Messages are simply concatenated together from all of
    * the available loggers.
    *
    * To fetch the log messages of just one logger instead of all of them, use
@@ -2910,7 +2910,7 @@ class FortissimoLoggerManager {
     }
     return $buffer;
   }
-  
+
   /**
    * Log messages.
    *
@@ -2925,10 +2925,10 @@ class FortissimoLoggerManager {
    *  - debug
    *  Your application may use whatever values are
    *  fit. However, underlying loggers may interpret
-   *  these differently. 
+   *  these differently.
    * @param string $details
    *   Additional information. When $msg is an exception,
-   *   this will automatically be populated with stack trace 
+   *   this will automatically be populated with stack trace
    *   information UNLESS explicit string information is passed
    *   here.
    */
@@ -2948,7 +2948,7 @@ abstract class FortissimoCache {
   protected $name = NULL;
   protected $datasourceManager = NULL;
   protected $logManager = NULL;
-  
+
   /**
    * Construct a new datasource.
    *
@@ -2962,48 +2962,48 @@ abstract class FortissimoCache {
     $this->name = $name;
     $this->default = isset($params['isDefault']) && filter_var($params['isDefault'], FILTER_VALIDATE_BOOLEAN);
   }
-  
+
   public function setDatasourceManager(FortissimoDatasourceManager $manager) {
     $this->datasourceManager = $manager;
   }
-  
+
   public function setLogManager(FortissimoLoggerManager $manager) {
     $this->logManager = $manager;
   }
-  
+
   public function getName() {
     return $this->name;
   }
-  
+
   /**
    * Determine whether this is the default cache.
    *
    * Note that this may be called *before* init().
    *
    * @return boolean
-   *  Returns TRUE if this is the default. Typically the default status is 
+   *  Returns TRUE if this is the default. Typically the default status is
    *  assigned in the commands.xml file.
    */
   public function isDefault() {
     return $this->default;
   }
-  
+
   /**
    * Perform any necessary initialization.
    */
   public abstract function init();
-  
+
   /**
    * Add an item to the cache.
    *
    * @param string $key
    *  A short (<255 character) string that will be used as the key. This is short
-   *  so that database-based caches can optimize for varchar fields instead of 
+   *  so that database-based caches can optimize for varchar fields instead of
    *  text fields.
    * @param string $value
    *  The string that will be stored as the value.
    * @param integer $expires_after
-   *  The number of seconds that should be considered the max age of the cached item. The 
+   *  The number of seconds that should be considered the max age of the cached item. The
    *  details of how this is interpreted are cache dependent.
    */
   public abstract function set($key, $value, $expires_after = NULL);
@@ -3032,7 +3032,7 @@ abstract class FortissimoCache {
 /**
  * A cache for command or request output.
  *
- * This provides a caching facility for the output of entire requests, or for the 
+ * This provides a caching facility for the output of entire requests, or for the
  * output of commands. This cache is used for high-level data caching from within
  * the application.
  *
@@ -3050,23 +3050,23 @@ abstract class FortissimoCache {
  * @deprecated
  */
 interface FortissimoRequestCache {
-  
+
   /**
    * Perform any necessary initialization.
    */
   public function init();
-  
+
   /**
    * Add an item to the cache.
    *
    * @param string $key
    *  A short (<255 character) string that will be used as the key. This is short
-   *  so that database-based caches can optimize for varchar fields instead of 
+   *  so that database-based caches can optimize for varchar fields instead of
    *  text fields.
    * @param string $value
    *  The string that will be stored as the value.
    * @param integer $expires_after
-   *  The number of seconds that should be considered the max age of the cached item. The 
+   *  The number of seconds that should be considered the max age of the cached item. The
    *  details of how this is interpreted are cache dependent.
    */
   public function set($key, $value, $expires_after = NULL);
@@ -3097,15 +3097,15 @@ interface FortissimoRequestCache {
  *
  * Fortissimo provides a very general (and loose) abstraction for datasources.
  * The idea is to make it possible for all datasources -- from files to RDBs to
- * NoSQL databases to LDAPS -- to be defined in a central place (along with 
- * requests) so that they can easily be configured and also leveraged by the 
+ * NoSQL databases to LDAPS -- to be defined in a central place (along with
+ * requests) so that they can easily be configured and also leveraged by the
  * command configuration.
  *
  * The generality of this class makes it less than ideal for doing strict checks
  * on capabilities, but, then, that's what inheritance if for, isn't it.
  *
  * Each data source type should extend this basic class. This base class contains
- * the absolute minimal amount of information that Fortissimo needs in order to 
+ * the absolute minimal amount of information that Fortissimo needs in order to
  * load the datasources and instruct them to initialize themselves.
  *
  * From there, it's up to implementors to build useful datasource wrappers that
@@ -3120,7 +3120,7 @@ abstract class FortissimoDatasource {
   protected $name = NULL;
   protected $logManager = NULL;
   protected $cacheManager = NULL;
-  
+
   /**
    * Construct a new datasource.
    *
@@ -3134,15 +3134,15 @@ abstract class FortissimoDatasource {
     $this->name = $name;
     $this->default = isset($params['isDefault']) && filter_var($params['isDefault'], FILTER_VALIDATE_BOOLEAN);
   }
-  
+
   public function setCacheManager(FortissimoCacheManager $manager) {
     $this->cacheManager = $manager;
   }
-  
+
   public function setLogManager(FortissimoLoggerManager $manager) {
     $this->logManager = $manager;
   }
-  
+
   /**
    * Get this datasource's name, as set in the configuration.
    *
@@ -3152,20 +3152,20 @@ abstract class FortissimoDatasource {
   public function getName() {
     return $this->name;
   }
-  
+
   /**
    * Determine whether this is the default datasource.
    *
    * Note that this may be called *before* init().
    *
    * @return boolean
-   *  Returns TRUE if this is the default. Typically the default status is 
+   *  Returns TRUE if this is the default. Typically the default status is
    *  assigned in the commands.xml file.
    */
   public function isDefault() {
     return $this->default;
   }
-  
+
   /**
    * This is called once before the datasource is first used.
    *
@@ -3174,7 +3174,7 @@ abstract class FortissimoDatasource {
    * left to this function than to overridden constructors.
    */
   public abstract function init();
-  
+
   /**
    * Retrieve the underlying datasource object.
    *
@@ -3195,12 +3195,12 @@ abstract class FortissimoDatasource {
  *  - 'categories': An array or comma-separated list of categories that this logger listens for.
  *     If no categories are set, this logs ALL categories.
  *
- * Category logic is encapsulated in the method FortissimoLogger::isLoggingThisCategory(). 
+ * Category logic is encapsulated in the method FortissimoLogger::isLoggingThisCategory().
  *
- * 
+ *
  */
 abstract class FortissimoLogger {
-  
+
   /**
    * The parameters for this logger.
    */
@@ -3209,7 +3209,7 @@ abstract class FortissimoLogger {
   protected $name = NULL;
   protected $datasourceManager = NULL;
   protected $cacheManager = NULL;
-  
+
   /**
    * Construct a new logger instance.
    *
@@ -3221,7 +3221,7 @@ abstract class FortissimoLogger {
   public function __construct($params = array(), $name = 'unknown_logger') {
     $this->params = $params;
     $this->name = $name;
-    
+
     // Add support for facility declarations.
     if (isset($params['categories'])) {
       $fac = $params['categories'];
@@ -3231,18 +3231,18 @@ abstract class FortissimoLogger {
       // Assoc arrays provide faster lookups on keys.
       $this->facilities = array_combine($fac, $fac);
     }
-    
+
   }
-  
+
   public function setDatasourceManager(FortissimoDatasourceManager $manager) {
     $this->datasourceManager = $manager;
   }
-  
+
   public function setCacheManager(FortissimoCacheManager $manager) {
     $this->logManager = $manager;
   }
-  
-  
+
+
   /**
    * Get the name of this logger.
    *
@@ -3252,25 +3252,25 @@ abstract class FortissimoLogger {
   public function getName() {
     return $this->name;
   }
-  
+
   /**
    * Return log messages.
-   * 
+   *
    * Some, but not all, loggers buffer messages for retrieval later. This
    * method should be used to retrieve messages from such loggers.
    *
    * @return array
-   *  An indexed array of log message strings. By default, this returns an 
+   *  An indexed array of log message strings. By default, this returns an
    *  empty array.
    */
   public function getMessages() {
     return array();
   }
-  
+
   /**
    * Check whether this category is being logged.
    *
-   * In general, this check is run from rawLog(), and so does not need to be 
+   * In general, this check is run from rawLog(), and so does not need to be
    * directly called elsewhere.
    *
    * @param string $category
@@ -3281,12 +3281,12 @@ abstract class FortissimoLogger {
   public function isLoggingThisCategory($category) {
     return empty($this->facilities) || isset($this->facilities[$category]);
   }
-  
+
   /**
    * Handle raw log requests.
    *
    * This handles the transformation of objects (Exceptions)
-   * into loggable strings. 
+   * into loggable strings.
    *
    * @param mixed $message
    *  Typically, this is an Exception, some other object, or a string.
@@ -3295,23 +3295,23 @@ abstract class FortissimoLogger {
    * @param string $category
    *  This message is passed on to the logger.
    * @param string $details
-   *  A detail for the given message. If $message is an Exception, then 
+   *  A detail for the given message. If $message is an Exception, then
    *  details will be automatically filled with stack trace information.
    */
   public function rawLog($message, $category = 'General Error', $details = '') {
-    
+
     // If we shouldn't log this category, skip this step.
     if (!$this->isLoggingThisCategory($category)) return;
-    
+
     if ($message instanceof Exception) {
       $buffer = $message->getMessage();
-      
+
       if (empty($details)) {
         $details = get_class($message) . PHP_EOL;
         $details .= $message->getMessage() . PHP_EOL;
         $details .= $message->getTraceAsString();
       }
-      
+
     }
     elseif (is_object($message)) {
       $buffer = $mesage->toString();
@@ -3322,7 +3322,7 @@ abstract class FortissimoLogger {
     $this->log($buffer, $category, $details);
     return;
   }
-  
+
   /**
    * Initialize the logger.
    *
@@ -3330,14 +3330,14 @@ abstract class FortissimoLogger {
    * once per request), and it will occur before the command is executed.
    */
   public abstract function init();
-  
+
   /**
    * Log a message.
    *
    * @param string $msg
    *  The message to log.
    * @param string $severity
-   *  The log message category. Typical values are 
+   *  The log message category. Typical values are
    *  - warning
    *  - error
    *  - info
@@ -3346,13 +3346,13 @@ abstract class FortissimoLogger {
    *  Further text information about the logged event.
    */
   public abstract function log($msg, $severity, $details);
-  
+
 }
 
 /**
  * Indicates that a condition has been met that necessitates interrupting the command execution chain.
  *
- * This exception is not necessarily intended to indicate that something went 
+ * This exception is not necessarily intended to indicate that something went
  * wrong, but only htat a condition has been satisfied that warrants the interrupting
  * of the current chain of execution.
  *
@@ -3368,7 +3368,7 @@ class FortissimoInterrupt extends Exception {}
  * Indicates that a fatal error has occured.
  *
  * This is the Fortissimo exception with the strongest implications. It indicates
- * that not only has an error occured, but it is of such a magnitude that it 
+ * that not only has an error occured, but it is of such a magnitude that it
  * precludes the ability to continue processing. These should be used sparingly,
  * as they prevent the chain of commands from completing.
  *
@@ -3395,8 +3395,8 @@ class FortissimoErrorException extends FortissimoException {
     $class = __CLASS__;
     throw new $class($str, $code, $file, $line);
   }
-  
-  public function __construct($msg = '', $code = 0, $file = NULL, $line = NULL) {    
+
+  public function __construct($msg = '', $code = 0, $file = NULL, $line = NULL) {
     if (isset($file)) {
       $msg .= ' (' . $file;
       if (isset($line)) $msg .= ': ' . $line;
@@ -3424,12 +3424,12 @@ class FortissimoRequestNotFoundException extends FortissimoException {}
 class FortissimoForwardRequest extends FortissimoInterrupt {
   protected $destination;
   protected $cxt;
-  
+
   /**
    * Construct a new forward request.
    *
    * The information in this forward request will be used to attempt to terminate
-   * the current request, and continue processing by forwarding on to the 
+   * the current request, and continue processing by forwarding on to the
    * named request.
    *
    * @param string $requestName
@@ -3444,7 +3444,7 @@ class FortissimoForwardRequest extends FortissimoInterrupt {
     $this->cxt = $cxt;
     parent::__construct('Request forward.');
   }
-  
+
   /**
    * Get the name of the desired destination request.
    *
@@ -3454,7 +3454,7 @@ class FortissimoForwardRequest extends FortissimoInterrupt {
   public function destination() {
     return $this->destination;
   }
-  
+
   /**
    * Retrieve the context.
    *
@@ -3469,7 +3469,7 @@ class FortissimoForwardRequest extends FortissimoInterrupt {
 /**
  * This class is used for building configurations.
  *
- * 
+ *
  * Typical usage looks something like this:
  *
  * @code
@@ -3486,7 +3486,7 @@ class FortissimoForwardRequest extends FortissimoInterrupt {
  * ?>
  * @endcode
  *
- * This class is used to add requests, loggers, datasources, and cache handlers to 
+ * This class is used to add requests, loggers, datasources, and cache handlers to
  * a Fortissimo application. Typically, it is used in commands.php.
  *
  * - Config::request(): Add a new request with a chain of commands.
@@ -3496,19 +3496,19 @@ class FortissimoForwardRequest extends FortissimoInterrupt {
  * - Config::logger(): Add a new logging facility.
  * - Config::cache(): Add a new cache.
  *
- * In Fortissimo, the data that Config creates may be used only at the beginning of a 
- * request. Be careful of race conditions or other anomalies that might occur if you 
+ * In Fortissimo, the data that Config creates may be used only at the beginning of a
+ * request. Be careful of race conditions or other anomalies that might occur if you
  * attempt to use Config after Fortissimo has been bootstrapped.
  */
 class Config {
-  
+
   private static $instance = NULL;
-  
+
   private $config = NULL;
   private $currentCategory = NULL;
   private $currentRequest = NULL;
   private $currentName = NULL;
-  
+
   const REQUESTS = 'requests';
   const GROUPS = 'groups';
   const PATHS = 'paths';
@@ -3517,7 +3517,7 @@ class Config {
   const LOGGERS = 'loggers';
   const REQUEST_MAPPER = 'requestMapper';
   const LISTENERS = 'listeners';
-  
+
   public static function request($name, $description = '') {
     return self::set(self::REQUESTS, $name);
   }
@@ -3538,16 +3538,16 @@ class Config {
     $i->currentName = NULL;
     return $i;
   }
-  
+
   /**
    * Request mappers determine how input is mapped to internal request names.
    *
    * Fortissimo provides a default request mapper that assumes that the incoming identifier
-   * string is actually a request name. Thus http://example.com/?ff=foo is treated as if 
+   * string is actually a request name. Thus http://example.com/?ff=foo is treated as if
    * it was trying to execute the request named 'foo'.
    *
    * For some common website features (like Search Engine Friendly URLs, aka SEFs), a more
-   * robust mapper would be desirable. This allows developers to write a custom mapper and 
+   * robust mapper would be desirable. This allows developers to write a custom mapper and
    * use that instead.
    *
    * Example:
@@ -3595,7 +3595,7 @@ class Config {
   public static function group($name) {
     return self::set(self::GROUPS, $name);
   }
-  
+
   /**
    * Declare an event listener that will bind to ALL requests.
    *
@@ -3624,13 +3624,13 @@ class Config {
     //$i->config[self::LISTENERS] = arra();
     $i->currentCategory = self::LISTENERS;
     $i->currentName = NULL;
-    
+
     // Now register the callable.
     $i->config[self::LISTENERS][$klass][$event][] = $callable;
-    
+
     return $i;
   }
-  
+
   /**
    * Declare a new datasource.
    *
@@ -3670,7 +3670,7 @@ class Config {
   public static function cache($name) {
     return self::set(self::CACHES, $name);
   }
-  
+
   private static function set($cat, $name) {
     $i = self::inst();
     $i->currentCategory = $cat;
@@ -3696,7 +3696,7 @@ class Config {
     if (!is_null($config)) self::$instance->config = $config;
     return self::$instance;
   }
-  
+
   /**
    * Get the complete configuration array.
    *
@@ -3708,7 +3708,7 @@ class Config {
   public static function getConfiguration() {
     return self::inst()->config;
   }
-  
+
   /**
    * Get an instance of the configuration Config object.
    *
@@ -3723,7 +3723,7 @@ class Config {
     }
     return self::$instance;
   }
-  
+
   /**
    * Config is a singleton.
    */
@@ -3770,7 +3770,7 @@ class Config {
       case self::REQUESTS:
       case self::GROUPS:
         $this->config[$this->currentCategory][$this->currentName][$this->commandName]['class'] = $className;
-        
+
         // We need to bind global listeners to each request that invokes the class.
         if (!empty($this->config[self::LISTENERS][$className])) {
           foreach($this->config[self::LISTENERS][$className] as $event => $callable) {
@@ -3899,7 +3899,7 @@ class Config {
   /**
    * Turn on or off caching for a request or command.
    *
-   * Command-based caching caches the results of just a specific command. It makes it 
+   * Command-based caching caches the results of just a specific command. It makes it
    * possible to have certain parts of a request be cached while not caching the entire
    * request.
    *
@@ -3911,7 +3911,7 @@ class Config {
    *   ->whichUses('baz')->whoseValueIs('lurp')
    *   ->isCaching(TRUE);
    * ?>
-   *   
+   *
    * Request-based caching (EXPERIMENTAL) caches the output of an entire request.
    *
    * @code
@@ -3928,14 +3928,14 @@ class Config {
       $cat = $this->currentCategory;
       $name = $this->currentName;
       $this->config[$cat][$name]['#caching'] = $boolean;
-/*      
+/*
       if (!empty($this->commandName)) {
         $this->config[$cat][$name][$this->commandName]['cache'] = $boolean;
       }
       else {
         $this->config[$cat][$name]['#caching'] = $boolean;
       }
-      
+
     }
     // Add caching in group commands.
     elseif ($this->currentCategory == self::GROUPS && !empty($this->commandName)) {
@@ -3943,20 +3943,20 @@ class Config {
 */
     }
     return $this;
-    
+
   }
 }
 /**
  * The request mapper receives some part of a string or URI and maps it to a Fortissimo request.
  *
- * Mapping happens immediately before request handling (see Fortissimo::handleRequest()). 
+ * Mapping happens immediately before request handling (see Fortissimo::handleRequest()).
  * Typically, datasources and loggers are available by this point.
  *
  * Custom request mappers can be created by extending this one and then configuring commands.php
- * accordingly. 
+ * accordingly.
  *
  * @code
- * <?php 
+ * <?php
  * Config::useRequestMapper('ClassName');
  * ?>
  * @endcode
@@ -3964,15 +3964,15 @@ class Config {
  * For a user-oriented description, see Config::useRequestMapper().
  */
 class FortissimoRequestMapper {
-  
+
   protected $loggerManager;
   protected $cacheManager;
   protected $datasourceManager;
-  
+
   /**
    * Construct a new request mapper.
    *
-   * 
+   *
    *
    * @param FortissimoLoggerManager $loggerManager
    *  The logger manager.
@@ -3986,7 +3986,7 @@ class FortissimoRequestMapper {
     $this->cacheManager = $cacheManager;
     $this->datasourceManager = $datasourceManager;
   }
-  
+
 
   /**
    * Map a given string to a request name.
@@ -4000,7 +4000,7 @@ class FortissimoRequestMapper {
   public function uriToRequest($uri) {
     return $uri;
   }
-  
+
   /**
    * Map a request into a URI (usually a URL).
    *
@@ -4010,22 +4010,22 @@ class FortissimoRequestMapper {
     // base
     $baseURL = $this->baseURL();
     $fragment = empty($fragment) ? '' : '#' . $fragment;
-    
+
     $buffer = $baseURL . $fragment;
-    
-    
+
+
     // FIXME: Need to respect Apache rewrite rules.
     if ($request != 'default') $params['ff'] = $request;
-    
+
     if (!empty($params)) {
       // XXX: Do & need to be recoded as &amp; here?
       $qstr = http_build_query($params);
-      $buffer .= '?' . $qstr;      
+      $buffer .= '?' . $qstr;
     }
-    
+
     return $buffer;
   }
-  
+
   /**
    * The canonical host name to be used in Fortissimo.
    *
@@ -4035,13 +4035,13 @@ class FortissimoRequestMapper {
    *
    * This can be used in URLs and other references.
    *
-   * @return string 
+   * @return string
    *  The hostname.
    */
   public function hostname() {
     return !empty($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : $_SERVER['SERVER_NAME'];
   }
-  
+
   /**
    * Get the base URL for this instance.
    *
@@ -4052,13 +4052,13 @@ class FortissimoRequestMapper {
     $uri = empty($_SERVER['REQUEST_URI']) ? '/' : $_SERVER['REQUEST_URI'];
     $host = $this->hostname();
     $scheme = empty($_SERVER['HTTPS']) ? 'http://' : 'https://';
-    
+
     $default_port = empty($_SERVER['HTTPS']) ? 80 : 443;
-    
+
     if ($_SERVER['SERVER_PORT'] != $default_port) {
       $host .= ':' . $_SERVER['SERVER_PORT'];
     }
-    
+
     return $scheme . $host . $uri;
   }
 }
@@ -4075,16 +4075,16 @@ class FortissimoRequestMapper {
   * Instead of using the MVC pattern, Fortissimo uses a pattern much more suited to web
   * development: Chain of Command.
   *
-  * In a "chain of command" (CoC) pattern, we map a <em>request</em> to a series of 
-  * <em>commands</em>. Each command is executed in sequence, and each command can build off of the 
+  * In a "chain of command" (CoC) pattern, we map a <em>request</em> to a series of
+  * <em>commands</em>. Each command is executed in sequence, and each command can build off of the
   * results of the previous commands.
   *
   * If you are new to Fortissimo, you should get to know the following:
   *
   * - commands.php: The configuration file.
   * - BaseFortissimoCommand: The base command that most of your classes will extend.
-  * 
-  * Take a look at the built-in Fortissimo commands in src/core/Fortissimo. In particular, 
+  *
+  * Take a look at the built-in Fortissimo commands in src/core/Fortissimo. In particular,
   * the FortissimoPHPInfo command is a good starting point, as it shows how to build a command
   * with parameters, and it simply outputs phpinfo().
   *
@@ -4094,19 +4094,19 @@ class FortissimoRequestMapper {
   * - Take a look at Fortissimo's unit tests
   *
   * @section getting_started Getting Started
-  * 
+  *
   * To start a new project, see the documentation in the README file. It explains how to run
   * the command-line project generator, which will stub out your entire application for you.
   *
-  * Once you have a base application, you should edit commands.php. While you can configure 
+  * Once you have a base application, you should edit commands.php. While you can configure
   * several things there (loggers, caches, include paths, etc.), the main purpose of this file
   * is to provide a location to map a request to a chain of commands.
   *
   * For the most part, developing a Fortissimo application should consist of only a few main tasks:
-  * define your requests in commands.php, and create commands by writing new classes that 
+  * define your requests in commands.php, and create commands by writing new classes that
   * extend BaseFortissimoCommand.
   *
-  * Your commands should go in src/includes/. As long as the classname and file name are the same, 
+  * Your commands should go in src/includes/. As long as the classname and file name are the same,
   * Fortissimo's autoloader will automatically find your commands and load them when necessary.
   *
   * @section default_facilities_explained Default Facilities
@@ -4117,16 +4117,16 @@ class FortissimoRequestMapper {
   *  storage systems such as relational SQL databases and NoSQL databases like MongoDB or even
   *  Memcached. Fortissimo comes with support for Mongo DB (FortissimoMongoDatasource) and
   *  PDO-based SQL drivers (FortissimoPDODatasource). Writing custom datasources is usally trivial.
-  * - Loggers: Fortissimo has a pluggable logging system with built-in loggers for printing 
+  * - Loggers: Fortissimo has a pluggable logging system with built-in loggers for printing
   *  straight to output (FortissimoOutputInjectionLogger), an array for later retrieval
   *  (FortissimoArrayInjectionLogger), or to a system logger (FortissimoSyslogLogger).
-  * - Caches: Fortissimo supports a very robust notion of caches: Requests can be cached, and 
-  *  any command can declare itself cacheable. Thus, individual commands can cache data. In 
+  * - Caches: Fortissimo supports a very robust notion of caches: Requests can be cached, and
+  *  any command can declare itself cacheable. Thus, individual commands can cache data. In
   *  addition, the caching layer is exposed to commands, which can cache arbitrary data. Extending
-  *  the caching system is trivial. A PECL/Memcache implementation is provided in 
+  *  the caching system is trivial. A PECL/Memcache implementation is provided in
   *  FortissimoMemcacheCache.
   * - Request Mapper: With the popularity of search-engine-friendly (SEF) URLs, Fortissimo provides
-  *  a generic method by which application developers can write their own URL mappers. The 
+  *  a generic method by which application developers can write their own URL mappers. The
   *  default FortissimoRequestMapper provides basic support for mapping a URL to a request. You
   *  can extend this to perform more advanced URL handling, including looking up path aliases
   *  in a datasource.
