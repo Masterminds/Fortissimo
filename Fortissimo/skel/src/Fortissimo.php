@@ -415,8 +415,16 @@ class Fortissimo {
    *  been overridden) the $identifier should be a request name.
    * @param FortissimoExecutionContext $initialCxt
    *  If an initialized context is necessary, it can be passed in here.
+   * @param boolean $allowInternalRequests
+   *  When this is TRUE, requests that are internal-only are allowed. Generally, this is TRUE under
+   *  the following circumstances:
+   *  - When a FortissimoRedirect is thrown, internal requests are allowed. This is so that
+   *    you can declare internal requests that assume that certain tasks have already been 
+   *    performed.
+   *  - Some clients can explicitly call handleRequest() with this flag set to TRUE. One example
+   *    is `fort`, which will allow command-line execution of internal requests.
    */
-  public function handleRequest($identifier = 'default', FortissimoExecutionContext $initialCxt = NULL) {
+  public function handleRequest($identifier = 'default', FortissimoExecutionContext $initialCxt = NULL, $allowInternalRequests = FALSE) {
     
     // Experimental: Convert errors (E_ERROR | E_USER_ERROR) to exceptions.
     set_error_handler(array('FortissimoErrorException', 'initializeFromError'), 257);
@@ -425,15 +433,15 @@ class Fortissimo {
     try {
       // Use the mapper to determine what the real request name is.
       $requestName = $this->requestMapper->uriToRequest($identifier);
-      $request = $this->commandConfig->getRequest($requestName);
+      $request = $this->commandConfig->getRequest($requestName, $allowInternalRequests);
     }
     catch (FortissimoRequestNotFoundException $nfe) {
       // Need to handle this case.
       $this->logManager->log($nfe, self::LOG_USER);
       $requestName = $this->requestMapper->uriToRequest('404');
       
-      if ($this->commandConfig->hasRequest($requestName)) {
-        $request = $this->commandConfig->getRequest($requestName);
+      if ($this->commandConfig->hasRequest($requestName, $allowInternalRequests)) {
+        $request = $this->commandConfig->getRequest($requestName, $allowInternalRequests);
       }
       else {
         header('HTTP/1.0 404 Not Found');
@@ -498,8 +506,9 @@ class Fortissimo {
         // For now we just stop caching.
         $this->stopCaching();
         
-        // Forward the request to another handler.
-        $this->handleRequest($forward->destination(), $forward->context());
+        // Forward the request to another handler. Note that we allow forwarding
+        // to internal requests.
+        $this->handleRequest($forward->destination(), $forward->context(), TRUE);
         return;
       }
       // Kill the request, no error.
@@ -2023,11 +2032,16 @@ class FortissimoConfig {
   /**
    * Check whether the named request is known to the system.
    *
+   * @param string $requestName
+   *  The name of the request to check.
+   * @param boolean $allowInternalRequests
+   *  If this is TRUE, this will allow internal request names. Otherwise, it will flag internal
+   *  requests as having illegal names.
    * @return boolean
    *  TRUE if this is a known request, false otherwise.
    */
-  public function hasRequest($requestName){
-    if (!self::isLegalRequestName($requestName))  {
+  public function hasRequest($requestName, $allowInternalRequests = FALSE){
+    if (!self::isLegalRequestName($requestName, $allowInternalRequests))  {
       throw new FortissimoException('Illegal request name.');
     }
     return isset($this->config[Config::REQUESTS][$requestName]);
@@ -2042,11 +2056,15 @@ class FortissimoConfig {
    * @param string $requestName
    *  The name of the request. This value will be validated according to the rules
    *  explained above.
+   * @param boolean $allowInternalRequests
+   *  If this is set to TRUE, the checking will be relaxed to allow at-requests.
    * @return boolean
    *  TRUE if the name is legal, FALSE otherwise.
    */
-  public static function isLegalRequestName($requestName) {
-    return preg_match('/^[_a-zA-Z0-9\\-]+$/', $requestName) == 1;
+  public static function isLegalRequestName($requestName, $allowInternalRequests = FALSE) {
+    $regex = $allowInternalRequests ? '/^@?[_a-zA-Z0-9\\-]+$/' : '/^[_a-zA-Z0-9\\-]+$/';
+    
+    return preg_match($regex, $requestName) == 1;
   }
   
   /**
@@ -2136,17 +2154,21 @@ class FortissimoConfig {
    *
    * @param string $requestName
    *  The name of the request
+   * @param boolean $allowInternalRequests
+   *  If this is true, internal requests (@-requests, at-requests) will be allowed.
    * @return FortissimoRequest 
    *  A queue of commands that need to be executed. See {@link createCommandInstance()}.
    * @throws FortissimoRequestNotFoundException
    *  If no such request is found, or if the request is malformed, and exception is 
    *  thrown. This exception should be considered fatal, and a 404 error should be 
-   *  returned.
+   *  returned. Note that (provisionally) a FortissimoRequestNotFoundException is also thrown if
+   *  $allowInternalRequests if FALSE and the request name is for an internal request. This is 
+   *  basically done to prevent information leakage.
    */
-  public function getRequest($requestName) {
+  public function getRequest($requestName, $allowInternalRequests = FALSE) {
     
     // Protection against attempts at request hacking.
-    if (!self::isLegalRequestName($requestName))  {
+    if (!self::isLegalRequestName($requestName, $allowInternalRequests))  {
       throw new FortissimoRequestNotFoundException('Illegal request name.');
     }
     

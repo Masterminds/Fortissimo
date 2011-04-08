@@ -144,7 +144,11 @@ Config::group('bootstrap')
  * - 404: If a request named 404 exists, it will be used whenever a 404 error is encountered (e.g.
  *   when no request is found to match the incoming URI/string.) Your request mapper, should you use
  *   one, can redirect the 404 name to a different request name, too.
- *
+ * - @request: A request that begins with the at-sign (@) is considered INTERNAL. That means that
+ *   Fortissimo will refuse to answer this request if it is called directly. An INTERNAL request
+ *   can only be executed by another Fortissimo request or when Fortissimo::handleRequest() is
+ *   specifically told to $allowInternalRequests. The `fort` commandline client will, for example,
+ *   set this flag so that it can execute internal requests.
  *
  * @code
  * <?php
