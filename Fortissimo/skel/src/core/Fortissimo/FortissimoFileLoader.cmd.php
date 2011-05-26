@@ -36,12 +36,12 @@ class FortissimoFileLoader extends BaseFortissimoCommand {
     return $this
       ->description('Retrieve a posted file and make it available for accessing using a file function.')
       ->usesParam('inputName', 'The name of item to retrieve. Typically, the commands.xml uses "file:someName" for this.')
-      ->usesParam('types', 'Specifcy a list of MIME types as an array or a comma-separated list.')
+      ->usesParam('types', 'Specify a list of MIME types as an array or a comma-separated list.')
       ->usesParam('extensions', 'Specify a list (comma-separated string or an array) of extensions that are allowed. It is STRONGLY SUGGESTED that you use this. Example: "png,gif,jpg,jpeg"')
       ->usesParam('rewriteExtensions', 'Specify a list (comma-separated string or an array) of extensions that should be rewritten for security reasons')
-      ->usesParam('rewriteExtensionRule', 'The rule to be used for rewriting the extension. The first occurance of %s will be replaced by the original extension.')
+      ->usesParam('rewriteExtensionRule', 'The rule to be used for rewriting the extension. The first occurrence of %s will be replaced by the original extension.')
         ->whichHasDefault('_%s')
-      ->usesParam('moveTo', 'Specify a directory where this file should be premanently relocated. If none is specified, then the file will be kept in the designated temp space, and will be unlinked automatically.')
+      ->usesParam('moveTo', 'Specify a directory where this file should be permanently relocated. If none is specified, then the file will be kept in the designated temp space, and will be unlinked automatically.')
         ->withFilter('string')
       ->andReturns('A filename on the file system.');
     
@@ -131,7 +131,7 @@ class FortissimoFileLoader extends BaseFortissimoCommand {
   /**
    * Check whether the given file has an allowed extension.
    *
-   * This is useful as a security precation. Make sure that 
+   * This is useful as a security precaution. Make sure that 
    * uploaded files don't have an extension that might
    * be cause for security concern (e.g. php, exe, cgi, etc.)
    *
@@ -149,7 +149,7 @@ class FortissimoFileLoader extends BaseFortissimoCommand {
    *  - Compound extensions (e.g. tar.gz) are not checked. Only the last extension (gz) is checked.
    * @return boolean
    *  Returns TRUE if the filename has an extension in the 
-   *  extentions list.
+   *  extensions list.
    */
   public function checkExtension($filename, $extensions) {
     if (is_string($extensions)) {
