@@ -324,6 +324,9 @@ class ThemeImpl {
       $hollaback = $this->registry[$target];
       $buffer = call_user_func($hollaback, $variables);
     }
+    else {
+      throw new FortissimoException("Theme $target is not in the registry.");
+    }
     
     // Postprocess
     if (!empty($this->postprocessors[$target])) {
