@@ -28,6 +28,7 @@ elseif ($argv[1] == '--help') {
   print "\t--config FILENAME.php: use config with given path/name". PHP_EOL;
   print "\t--explain: turn on explaining" . PHP_EOL;
   print "\t--no-internals: disallow execution of internal requests (aka at-requests)" . PHP_EOL;
+  print "\t--list: List all requests and exit." . PHP_EOL;
   exit(0);
 }
 
@@ -39,6 +40,7 @@ $opts = array(
   '--config' => TRUE,
   '--base' => TRUE,
   '--no-internals' => FALSE,
+  '--list' => FALSE,
 );
 
 /*
@@ -144,6 +146,14 @@ if (!empty($modifiers['--explain'])) {
 }
 
 $allowInternalRequests = !isset($modifiers['--no-internals']);
+
+if (!empty($modifiers['--list'])) {
+  $config = Config::getConfiguration();
+  foreach ($config[Config::REQUESTS] as $reqName => $data) {
+    printf("\t%s\n", $reqName);
+  }
+  exit;
+}
 
 /*
  * Build a new Fortissimo server and execute the command. 
