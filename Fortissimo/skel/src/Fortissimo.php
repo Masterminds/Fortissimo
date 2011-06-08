@@ -165,6 +165,7 @@ class FortissimoAutoloader {
     $this->include_paths[] = $basePath . '/includes';
     $this->include_paths[] = $basePath . '/core';
     $this->include_paths[] = $basePath . '/core/Fortissimo';
+    $this->include_paths[] = $basePath . '/core/Fortissimo/Theme';
     $this->include_paths[] = $basePath . '/phar';
   }
 
