@@ -292,7 +292,7 @@ class ThemeImpl {
    *  TRUE if the target is registered, FALSE otherwise.
    */
   public function has($target) {
-    return isset($this->registry['target']);
+    return isset($this->registry[$target]);
   }
   
   /**
