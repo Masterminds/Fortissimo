@@ -44,5 +44,14 @@ if (empty($cmd)) {
 }
 
 $base = dirname(__FILE__);
+
+// Allow a preloading script that can alter include paths and
+// so on. Do this only to make it possible to load your own
+// code in commands.php. Don't do something stupid with this,
+// ok? kthxbye
+if (is_file($base . '/config/setup.php')) {
+  require $base . '/config/setup.php';
+}
+
 $ff = new Fortissimo($base . '/config/commands.php');
 $ff->handleRequest($cmd);
