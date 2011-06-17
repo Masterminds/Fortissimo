@@ -15,69 +15,77 @@
  * @endcode
  */
 
+// Options. 'value' indicates whether a value is required, 'help' is help text.
+$opts = array(
+  '--help' => array(
+    'value' => FALSE,
+    'help' => 'Print the help text',
+  ),
+  '--explain' => array(
+    'value' => FALSE,
+    'help' => 'Turn on explaining',
+  ),
+  '--config' => array(
+    'value' => TRUE,
+    'help' => 'Requires FILENAME.PHP: use config with given path/name'
+  ),
+  '--base' => array(
+    'value' => TRUE,
+    'help' => 'Requires DIRECTORY: Use the given directory as the root of Fortissimo. The app is run FROM this directory.'
+  ),
+  '--no-internals' => array(
+    'value' => FALSE,
+    'help' => 'Disallow execution of internal requests (aka at-requests)',
+  ),
+  '--list' => array(
+    'value' => FALSE,
+    'help' => 'List all requests and exit.',
+  ),
+  '--ini' => array(
+    'value' => TRUE,
+    'help' => 'Requires CONF.INI. The path to a Fort INI file.',
+  ),
+  '--alias' => array(
+    'value' => TRUE,
+    'help' => 'Requires ALIAS. The configuration alias to read from the INI file.'
+  ),
+);
+
+$examples = array(
+  "%s default" => 'Bootstrap the application in this directory and run the "default" request',
+  "%s --config config/fort.php @create-bundle" => 'Bootstrap the application, use the fort.php instead of commands.php, and run the @create-bundle request.',
+  "%s --ini my_fort.ini --alias MySite default" => 'Load settings from my_fort.ini, using the MySite section, and then execute the default request.',
+);
+
+
 if ($argc <= 1) {
   printf('%s expects at least one parameter. Try --help.'. PHP_EOL, $argv[0]);
   exit(1);
 }
 elseif ($argv[1] == '--help') {
-  printf('This is a command-line Fortissimo command runner.'. PHP_EOL);
-  printf('Syntax: %s [OPTIONS] COMMAND [ARGUMENTS]'. PHP_EOL, $argv[0]);
-  print 'Options:' . PHP_EOL; 
-  print "\t--help: get help" . PHP_EOL;
-  print "\t--base DIRECTORY: Use the given directory as the root of Fortissimo" . PHP_EOL;
-  print "\t--config FILENAME.php: use config with given path/name". PHP_EOL;
-  print "\t--explain: turn on explaining" . PHP_EOL;
-  print "\t--no-internals: disallow execution of internal requests (aka at-requests)" . PHP_EOL;
-  print "\t--list: List all requests and exit." . PHP_EOL;
+  fort_help($opts, $examples);
   exit(0);
 }
 
-// If TRUE, then we must have a value (e.g. --config filename.php). Otherwise, if FALSE
-// we assume this is a flag, and we set it to TRUE.
-$opts = array(
-  '--help' => FALSE,
-  '--explain' => FALSE,
-  '--config' => TRUE,
-  '--base' => TRUE,
-  '--no-internals' => FALSE,
-  '--list' => FALSE,
-);
+$modifiers = fort_parse_args($opts);
+$ini = fort_load_ini($modifiers);
+$config = fort_setup_configuration($modifiers, $ini);
+//print_r($argv);
+//print_r($config); exit;
 
-/*
- * Process command-line arguments. 
- */
-$modifiers = array();
-$endOpts = 1;
-for ($i = 1; $i < $argc; ++$i) {
-  if (isset($opts[$argv[$i]])) {
-    $modifiers[$argv[$i]] = $opts[$argv[$i]] ? $argv[++$i] : TRUE;
-  }
-  elseif ($argv[$i] == '--') {
-    $endOpts = ++$i;
-    break;
-  }
-  elseif (strpos($argv[$i], '--') === 0) {
-    printf("Unrecognized option %s.", $argv[$i]);
-    exit;
-  }
-  else {
-    $endOpts = $i;
-    break;
-  }
-}
 
 // Set command name.
-$commandName = $argv[$endOpts];
+$commandName = $argv[1];
 
 // Set config file.
-$config = empty($modifiers['--config']) ? 'config/commands.php' : $modifiers['--config'];
+$commands = empty($config['config']) ? 'config/commands.php' : $config['config'];
 
 /*
  * Set Base path. 
  */
 $basedir = getcwd();
-if (isset($modifiers['--base'])) {
-  $basedir = $modifiers['--base'];
+if (isset($config['base'])) {
+  $basedir = $config['base'];
   
   if (!is_dir($basedir)) {
     print "ERROR: Not a directory: " . $basedir;
@@ -103,10 +111,10 @@ require 'Fortissimo.php';
 /*
  * Set configuration file. 
  */
-if (strpos($config, '/') === 0) {
+if (strpos($commands, '/') === 0) {
   // If absolute path, include directly.
-  $basedir = dirname($config);
-  require $config;
+  $basedir = dirname($commands);
+  require $commands;
 }
 else {
   $cwd = getcwd();
@@ -117,14 +125,14 @@ else {
 
   $basedir = NULL;
   foreach ($bases as $base) {
-    if (is_file($base . $config)) {
+    if (is_file($base . $commands)) {
       //$practicalBase = $base;
       $basedir = $base;// . '/config/commands.php';
       break;
     }
   }
   //chdir($basedir);
-  require $basedir . DIRECTORY_SEPARATOR . $config;
+  require $basedir . DIRECTORY_SEPARATOR . $commands;
   //chdir($cwd);
 }
 
@@ -136,7 +144,7 @@ if (empty($basedir)) {
 /*
  * See if we are explaining. 
  */
-if (!empty($modifiers['--explain'])) {
+if (!empty($config['explain'])) {
   $config = Config::getConfiguration();
   
   foreach ($config[Config::REQUESTS] as $reqName => $payload) {
@@ -145,9 +153,9 @@ if (!empty($modifiers['--explain'])) {
   Config::initialize($config);
 }
 
-$allowInternalRequests = !isset($modifiers['--no-internals']);
+$allowInternalRequests = !isset($config['no-internals']);
 
-if (!empty($modifiers['--list'])) {
+if (!empty($config['list'])) {
   $config = Config::getConfiguration();
   foreach ($config[Config::REQUESTS] as $reqName => $data) {
     printf("\t%s\n", $reqName);
@@ -161,4 +169,94 @@ if (!empty($modifiers['--list'])) {
 $ff = new Fortissimo();
 $ff->handleRequest($commandName, NULL, $allowInternalRequests);
 
+/**
+ * Parse command line args.
+ *
+ * This makes me wish I didn't hate getopt.
+ */
+function fort_parse_args($opts) {
+  global $argv, $argc;
+  
+  $modifiers = array();
+  $endOpts = 1;
+    
+  for ($i = 1; $i < $argc; ++$i) {
+    if (isset($opts[$argv[$i]])) {
+      $flag = substr($argv[$i], 2);
+      $modifiers[$flag] = $opts[$argv[$i]]['value'] ? $argv[++$i] : TRUE;
+    }
+    elseif ($argv[$i] == '--') {
+      $endOpts = ++$i;
+      break;
+    }
+    elseif (strpos($argv[$i], '--') === 0) {
+      printf("Unrecognized option %s.", $argv[$i]);
+      exit;
+    }
+    else {
+      $endOpts = $i;
+      break;
+    }
+  }
+  
+  // Now we shift argv and fix argc
+  array_splice($argv, 1, $endOpts - 1);
+  $argc = count($argv);
+  
+  return $modifiers;
+}
 
+/**
+ * Load an INI file.
+ */
+function fort_load_ini(array $options) {
+  if (!empty($options['ini'])) {
+    $file = $options['ini'];
+    return parse_ini_file($file, TRUE);
+  }
+  elseif(is_file('./fort.ini')) {
+    return parse_ini_file('./fort.ini', TRUE);
+  }
+  return array();
+}
+
+/**
+ * Merge fort INI and options.
+ */
+function fort_setup_configuration(array $options, array $ini) {
+  
+  if (empty($ini)) {
+    return $options;
+  }
+  
+  if (isset($options['alias'])) {
+    $alias = $options['alias'];
+    if (!isset($ini[$alias])) {
+      die('No alias found in ini: ' . $alias);
+    }
+    $ini = $ini[$alias];
+  }
+  
+  if (empty($options)) {
+    return $ini;
+  }
+  return array_merge($ini, $options);
+}
+
+function fort_help($options, $examples) {
+  global $argv;
+  printf('This is a command-line Fortissimo command runner.'. PHP_EOL);
+  printf('Syntax: %s [OPTIONS] COMMAND [ARGUMENTS]'. PHP_EOL, $argv[0]);
+  print 'Options:' . PHP_EOL;
+  
+  $ofmt = "\t%s: %s" . PHP_EOL;
+  foreach ($options as $opt => $data) {
+    printf($ofmt, $opt, $data['help']);
+  }
+  
+  print 'Examples:' . PHP_EOL;
+  foreach ($examples as $cmd => $exp) {
+    printf ($cmd, $argv[0]);
+    print ":\t" . $exp . PHP_EOL;
+  }
+}
