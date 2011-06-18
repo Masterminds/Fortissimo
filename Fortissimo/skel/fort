@@ -49,6 +49,10 @@ $opts = array(
     'value' => TRUE,
     'help' => 'Requires ALIAS. The configuration alias to read from the INI file.'
   ),
+  '--get' => array(
+    'value' => TRUE,
+    'help' => 'Requires NAME=VALUE[,NAME=VALUE[,NAME=VALUE]]. Pass a name/value pair in as GET arguments.'
+  ),
 );
 
 $examples = array(
@@ -57,7 +61,7 @@ $examples = array(
   "%s --ini my_fort.ini --alias MySite default" => 'Load settings from my_fort.ini, using the MySite section, and then execute the default request.',
 );
 
-
+// Print help.
 if ($argc <= 1) {
   printf('%s expects at least one parameter. Try --help.'. PHP_EOL, $argv[0]);
   exit(1);
@@ -67,19 +71,16 @@ elseif ($argv[1] == '--help') {
   exit(0);
 }
 
+// Get configuration.
 $modifiers = fort_parse_args($opts);
 $ini = fort_load_ini($modifiers);
 $config = fort_setup_configuration($modifiers, $ini);
-//print_r($argv);
-//print_r($config); exit;
 
 
-// Set config file.
+// Set Fortissimo commands file.
 $commands = empty($config['config']) ? 'config/commands.php' : $config['config'];
 
-/*
- * Set Base path. 
- */
+// Set the base directory for Fortissimo.
 $basedir = getcwd();
 if (isset($config['base'])) {
   $basedir = $config['base'];
@@ -142,25 +143,24 @@ if (empty($basedir)) {
  * See if we are explaining. 
  */
 if (!empty($config['explain'])) {
-  $config = Config::getConfiguration();
+  $conf = Config::getConfiguration();
   
-  foreach ($config[Config::REQUESTS] as $reqName => $payload) {
-    $config[Config::REQUESTS][$reqName]['#explaining'] = TRUE;
+  foreach ($conf[Config::REQUESTS] as $reqName => $payload) {
+    $conf[Config::REQUESTS][$reqName]['#explaining'] = TRUE;
   }
-  Config::initialize($config);
+  Config::initialize($conf);
 }
 
 $allowInternalRequests = !isset($config['no-internals']);
 
 if (!empty($config['list'])) {
-  $config = Config::getConfiguration();
-  foreach ($config[Config::REQUESTS] as $reqName => $data) {
+  $conf = Config::getConfiguration();
+  foreach ($conf[Config::REQUESTS] as $reqName => $data) {
     printf("\t%s\n", $reqName);
   }
   exit;
 }
 
-print_r($argv);
 if ($argc < 2) {
   die('No command name specified.');
 }
@@ -168,11 +168,18 @@ if ($argc < 2) {
 // Set command name.
 $commandName = $argv[1];
 
+if(isset($config['get'])) {
+  fort_handle_get_params($config['get']);
+}
+
 /*
  * Build a new Fortissimo server and execute the command. 
  */
 $ff = new Fortissimo();
 $ff->handleRequest($commandName, NULL, $allowInternalRequests);
+
+
+/////////////////////////// FUNCTIONS //////////////////////////////////
 
 /**
  * Parse command line args.
@@ -188,16 +195,18 @@ function fort_parse_args($opts) {
   for ($i = 1; $i < $argc; ++$i) {
     if (isset($opts[$argv[$i]])) {
       $flag = substr($argv[$i], 2);
+      
+      // If option needs a value...
       if ($opts[$argv[$i]]['value']) {
         if (!isset($argv[$i + 1])) {
           die($argv[$i] . ' requires a valid value. Try --help.' . PHP_EOL);
         }
         $modifiers[$flag] = $argv[++$i];
       }
+      // Option doesn't need a value
       else {
         $modifiers[$flag] = TRUE;
       }
-      $modifiers[$flag] = $opts[$argv[$i]]['value'] ? $argv[++$i] : TRUE;
       $endOpts = $i + 1;
     }
     elseif ($argv[$i] == '--') {
@@ -274,5 +283,13 @@ function fort_help($options, $examples) {
     print "\t";
     printf ($cmd, $argv[0]);
     print ":  " . $exp . PHP_EOL;
+  }
+}
+
+function fort_handle_get_params($data) {
+  $pairs = explode(',', $data);
+  foreach ($pairs as $pair) {
+    list($name, $value) = explode('=', $pair, 2);
+    $_GET[$name] = $value;
   }
 }
