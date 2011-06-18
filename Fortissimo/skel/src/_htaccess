@@ -1,5 +1,5 @@
 # Configuration directives for Apache 2.
-<FilesMatch "build.xml$|\.(inc|sh|.*sql|cache)$">
+<FilesMatch "build.xml$|\.(inc|sh|.*sql|cache|ini)$">
   Order allow,deny
 </FilesMatch>
 
