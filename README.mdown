@@ -22,34 +22,17 @@ package. For now, though, it must be installed manually.
 
 ### Prerequisites ###
 
-Install Phing, PHPDocumentor, and PHPUnit. For template support, install Twig. All of these are PEAR packages.
+Install Phing and PHPUnit.
 
 * [Phing](http://phing.info)
-* [PHPDocumentor](http://phpdoc.org)
 * [PHPUnit](http://phpunit.de)
-* [Twig Template engine](http://www.twig-project.org)
 
-Phing is absolutely required. PhpDocumentor and PHPUnit are good to have, but are not strictly necessary. They may become required later.
+Phing is absolutely required. It currently powers the Fortissimo isntaller. PHPUnit is for unit testing, but is not strictly necessary.
 
-Twig is a template engine, and the FortissimoTemplate command requires Twig. See 
-the next section for more.
+When you *deploy* a Fortissimo application, there are no required libraries. You are encouraged, however, to use PHPUnit
+to unit test your code.
 
-When you *deploy* a Fortissimo application, only Twig is required (and it is only required if you are using Fortissimo's built-in template support). Thus, on a production environment, you will probably only need Twig.
-
-You can install all of these using the bin/install.sh script that comes with Fortissimo. You may need to be root or use 'sudo' on some systems.
-
-### Installing Twig ###
-
-[Twig](http://www.twig-project.org) is a template engine for PHP, and is similar to Django's template engine, as well as the Java Velocity engine. However, it adds many speed, internationalization, and security features, which makes it a better alternative for Fortissimo than plain PHP templates.
-
-To install Twig, you should run the following commands:
-
-  $ pear channel-discover pear.twig-project.org
-  $ pear install twig/Twig
-  
-(At the time of this writing, one must install twig/Twig-beta, as it has not yet reached its final release.)
-  
-If you do not have PEAR, you can find alternate installation instructions [in the Twig documentation](http://www.twig-project.org/installation). Make sure that Twig is in the PHP library path, though, if you installed manually.
+In addition, there are several options (and supported) packages, such as Twig and PhpDocumentor. You can install all of these using the `bin/install.sh` script that comes with Fortissimo. You may need to be root or use 'sudo' on some systems.
 
 ### Installing Fortissimo ###
 
@@ -60,11 +43,11 @@ project called `MyProject`, run this command:
 
   $ /path/to/fff.php MyProject
   
-This will create a directory called MyProject/ and stub it out with the appropriate
+This will create a directory called `MyProject/` and stub it out with the appropriate
 files.
 
 From there, you can begin by editing the `commands.xml` file. You can write your 
-own commands and put them in the project's includes/ directory, where Fortissimo
+own commands and put them in the project's `includes/` directory, where Fortissimo
 will automatically find them. For examples, see the commands in `src/core/Fortissimo`.
 
 To run a Fortissimo application as a web app, simply ensure that the project directory is visible to the web server, and that the web server can correctly execute PHP files.
@@ -79,7 +62,7 @@ default request.
 Your project will contain its own documentation in MyProject/doc
 
 Projects are also self-documenting (assuming you write commands using 
-`BaseFortissimoCommand`). You can run `phing explain` in your project's root, and 
+`BaseFortissimoCommand`). You can run `phing explain` or `fort --explain` in your project's root, and 
 documentation on all requests (and their commands) will be automatically generated
 and displayed.
 
@@ -93,12 +76,23 @@ and execute the following:
 This will generate robust HTML-formatted API documentation, which will be available in 
 `doc/api/`.
 
+Documentation support is currently being moved from PhpDocumentor to doxygen.
+
 ### Getting Started ###
 
 Get started here: Fortissimo/skel/doc/QUICKSTART.mdown or [online](http://github.com/technosophos/Fortissimo/blob/master/Fortissimo/skel/doc/QUICKSTART.mdown)
 
 If you have already created a project, the above will be available in your project's
-doc/ directory.
+`doc/` directory.
+
+### Optional Packages ###
+
+THe following PEAR packages have built-in support in Fortissimo:
+
+* [PHPDocumentor](http://phpdoc.org) Doxygen is actually the preferred doc tool, now, and PHPDocumentor support is being phased out. However, it still works.
+* [Twig Template engine](http://www.twig-project.org)
+
+
 
 ## ABOUT THE LICENSE ##
 Fortissimo is licensed under the MIT license. The version of QueryPath that is
