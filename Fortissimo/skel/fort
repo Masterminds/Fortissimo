@@ -73,8 +73,8 @@ elseif ($argv[1] == '--help') {
 
 // Get configuration.
 $modifiers = fort_parse_args($opts);
-$ini = fort_load_ini($modifiers);
-$config = fort_setup_configuration($modifiers, $ini);
+$ini       = fort_load_ini($modifiers);
+$config    = fort_setup_configuration($modifiers, $ini);
 
 
 // Set Fortissimo commands file.
@@ -99,6 +99,7 @@ if (!file_exists('Fortissimo.php') && is_dir('src/')) {
   chdir('src');
 }
 
+// Die if we cannot load Fortissimo.php
 if (!file_exists('Fortissimo.php')) {
   print "ERROR: Could not find Fortissimo.php in " . getcwd();
   exit(1);
@@ -115,6 +116,7 @@ if (strpos($commands, '/') === 0) {
   require $commands;
 }
 else {
+  // Look in common places for commands file.
   $cwd = getcwd();
   $bases = array(
     $cwd . '/',
@@ -134,14 +136,14 @@ else {
   //chdir($cwd);
 }
 
+// If $basedir is not set, it means we never found a config file.
 if (empty($basedir)) {
   print 'No configuration file found. Quitting.' . PHP_EOL;
   exit(1);
 }
 
-/*
- * See if we are explaining. 
- */
+// If we are explaining, then mark all requests
+// as being in explain mode.
 if (!empty($config['explain'])) {
   $conf = Config::getConfiguration();
   
@@ -151,8 +153,11 @@ if (!empty($config['explain'])) {
   Config::initialize($conf);
 }
 
+// If this is set, we don't allow @-requests.
 $allowInternalRequests = !isset($config['no-internals']);
 
+// If 'list' is set, we list all of the available
+// requests and then exit.
 if (!empty($config['list'])) {
   $conf = Config::getConfiguration();
   foreach ($conf[Config::REQUESTS] as $reqName => $data) {
@@ -161,6 +166,8 @@ if (!empty($config['list'])) {
   exit;
 }
 
+// If we don't have a command name, we can't execute 
+// anything, so we exit.
 if ($argc < 2) {
   die('No command name specified.');
 }
@@ -168,7 +175,9 @@ if ($argc < 2) {
 // Set command name.
 $commandName = $argv[1];
 
+// Convert --get args to $_GET params.
 if(isset($config['get'])) {
+  print "Extracting GET params.\n";
   fort_handle_get_params($config['get']);
 }
 
@@ -185,6 +194,12 @@ $ff->handleRequest($commandName, NULL, $allowInternalRequests);
  * Parse command line args.
  *
  * This makes me wish I didn't hate getopt.
+ *
+ * If you want to chain options, see ParseOptions in Fortissimo/CLI.
+ *
+ * @param array $opts
+ *  An options array.
+ * @see ParseOptions
  */
 function fort_parse_args($opts) {
   global $argv, $argc;
@@ -232,6 +247,12 @@ function fort_parse_args($opts) {
 
 /**
  * Load an INI file.
+ *
+ * Check the options for 'ini', and (if found) load that INI file, parsing
+ * it with parse_ini_file().
+ *
+ * @param array $options
+ *  The options. This looks for an option called 'ini'.
  */
 function fort_load_ini(array $options) {
   if (!empty($options['ini'])) {
@@ -246,6 +267,11 @@ function fort_load_ini(array $options) {
 
 /**
  * Merge fort INI and options.
+ *
+ * @param array $options
+ *  The CLI options.
+ * @param array $ini
+ *  A parsed INI file.
  */
 function fort_setup_configuration(array $options, array $ini) {
   
@@ -266,7 +292,13 @@ function fort_setup_configuration(array $options, array $ini) {
   }
   return array_merge($ini, $options);
 }
-
+/**
+ * Print help text.
+ * @param array $options
+ *  Options array.
+ * @param array $examples
+ *  Additional examples to display.
+ */
 function fort_help($options, $examples) {
   global $argv;
   printf('This is a command-line Fortissimo command runner.'. PHP_EOL);
@@ -285,11 +317,16 @@ function fort_help($options, $examples) {
     print ":  " . $exp . PHP_EOL;
   }
 }
-
+/**
+ * Parse commandline GET options and put them in $_GET.
+ *
+ * @param string $data
+ *  The data to parse.
+ */
 function fort_handle_get_params($data) {
   $pairs = explode(',', $data);
   foreach ($pairs as $pair) {
     list($name, $value) = explode('=', $pair, 2);
-    $_GET[$name] = $value;
+    $_GET[$name] = urldecode($value);
   }
 }

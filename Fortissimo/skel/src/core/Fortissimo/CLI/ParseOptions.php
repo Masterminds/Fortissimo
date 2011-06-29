@@ -181,7 +181,7 @@ class ParseOptions extends BaseFortissimoCommand {
     $buffer = array();    
     $command = array_shift($args);
     
-    // Loop through all of hte flags.
+    // Loop through all of the flags.
     while ($keep_going && $flag = array_shift($args)) {
       if (isset($optionSpec[$flag])) {
         $key = substr($flag, 2);
