@@ -67,6 +67,9 @@
  */
 Config::includePath('core/Fortissimo/Theme'); // Include the Theme classes, which are optional.
 
+// Uncomment this to support advanced CLI commands.
+// Config::includePath('core/Fortissimo/CLI');
+
 /**
  * @page datasource_config Datasources
  * Fortissimo provides a very thin database abstraction layer.
