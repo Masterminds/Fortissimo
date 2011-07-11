@@ -485,7 +485,8 @@ class Fortissimo {
         $this->initialConfig,
         $this->logManager,
         $this->datasourceManager,
-        $this->cacheManager
+        $this->cacheManager,
+        $this->requestMapper
       );
     }
 
@@ -2321,7 +2322,7 @@ class FortissimoExecutionContext implements IteratorAggregate {
    *  The request mapper used on this request. A request mapper should know how to construct
    *  a URL to the app.
    */
-  public function __construct($initialContext = array(), FortissimoLoggerManager $logger = NULL, FortissimoDatasourceManager $datasources = NULL, FortissimoCacheManager $cacheManager = NULL, $requestMapper = NULL) {
+  public function __construct($initialContext = array(), FortissimoLoggerManager $logger = NULL, FortissimoDatasourceManager $datasources = NULL, FortissimoCacheManager $cacheManager = NULL, FortissimoRequestMapper $requestMapper = NULL) {
     if ($initialContext instanceof FortissimoExecutionContext) {
       $this->data = $initialContext->toArray();
     }
