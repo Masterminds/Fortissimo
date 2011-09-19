@@ -71,7 +71,7 @@
 /**
  * This constant contains the request start time.
  *
- * For optimal performance, use this instead of {@link time()}
+ * For optimal performance, use this instead of time()
  * to generate the NOW time.
  */
 define('FORTISSIMO_REQ_TIME', time());
