@@ -37,18 +37,31 @@ class FortissimoMongoDatasource extends FortissimoDatasource {
    * database.
    *
    * It expects two parameters:
-   * - server: The server (default: 'mongodb://localhost:27017' or a php.ini override)
+   * - server: The server (default: 'mongodb://localhost:27017' or a php.ini override). 
+   *   This can have user/pw info in it.
    * - defaultDB: The default database to use (required)
+   *
+   * The following parameters are passed on to Mongo: 'username', 'password', 'connect', 'timeout', 'replicaSet'.
    */
   public function init() {
     if (!isset($this->params['defaultDB'])) {
       throw new FortissimoInterruptException("'defaultDB' is a required parameter.");
     }
     
+    $optionKeys = array('username', 'password', 'connect', 'timeout', 'replicaSet');
+    
     // Avoid E_STRICT warning.
     $this->server = isset($this->params['server']) ? $this->params['server'] : NULL;
     
     $this->dbName = $this->params['defaultDB'];
+    
+    // Pass options in.
+    $mongoOptions = array();
+    foreach ($optionKeys as $pname) {
+      if (isset($this->params[$pname])) {
+        $mongoOptions[$pname] = $this->params[$pname];
+      }
+    }
     
     $this->mongoInstance = new Mongo($this->server);
     $this->mongoDB = $this->mongoInstance->selectDB($this->dbName);
