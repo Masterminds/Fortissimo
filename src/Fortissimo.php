@@ -1233,19 +1233,3 @@ class BaseFortissimoCommandParameter {
   public function getName() { return $this->name; }
   public function getDescription() { return $this->description; }
 }
-
-/**
- * Any class that implements Explainable must return a string that describes,
- * in human readable language, what it does.
- *
- * @see BaseFortissimoCommand
- */
-interface Explainable {
-  /**
-   * Provides a string explaining what this class does.
-   *
-   * @return string
-   *  A string explaining the role of the class.
-   */
-  public function explain();
-}
