@@ -4,7 +4,7 @@
  *
  * The datasource manager.
  */
-namespace Fortissimo;
+namespace Fortissimo\Datasource;
 
 /**
  * Manages data sources.
@@ -15,7 +15,7 @@ namespace Fortissimo;
  * This class manages multiple data sources, providing the execution context
  * with a simple way of retrieving datasources by name.
  */
-class DatasourceManager {
+class Manager {
 
   protected $datasources = NULL;
   protected $initMap = array();
@@ -32,11 +32,11 @@ class DatasourceManager {
     $this->datasources = &$config;
   }
 
-  public function setCacheManager(\Fortissimo\CacheManager $manager) {
+  public function setCacheManager(\Fortissimo\Cache\Manager $manager) {
     foreach ($this->datasources as $name => $obj) $obj->setCacheManager($manager);
   }
 
-  public function setLogManager(\Fortissimo\LoggerManager $manager) {
+  public function setLogManager(\Fortissimo\Logger\Manager $manager) {
     foreach ($this->datasources as $name => $obj) $obj->setLogManager($manager);
   }
 

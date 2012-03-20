@@ -3,13 +3,13 @@
  * @file
  * The cache manager.
  */
-namespace Fortissimo;
+namespace Fortissimo\Cache;
 
 /**
  * Manage caches.
  *
  * This manages top-level Fortissimo::RequestCache. Just as with
- * Fortissimo::LoggerManager, a Fortissimo::CacheManager can manage
+ * Fortissimo::LoggerManager, a Fortissimo::Cache::Manager can manage
  * multiple caches. It will proceed from cache to cache in order until it
  * finds a hit. (Order is determined by the order returned from the
  * configuration object.)
@@ -24,7 +24,7 @@ namespace Fortissimo;
  *
  * @see FortissimoRequestCache For details on caching.
  */
-class CacheManager {
+class Manager {
   protected $caches = NULL;
 
   public function __construct($caches) {
