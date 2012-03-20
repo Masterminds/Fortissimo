@@ -132,7 +132,10 @@ else {
     }
   }
   //chdir($basedir);
-  require $basedir . DIRECTORY_SEPARATOR . $commands;
+  $ret = @include $basedir . DIRECTORY_SEPARATOR . $commands;
+  if ($ret == FALSE) {
+    die('Could not find configuration file at: ' . $basedir . DIRECTORY_SEPARATOR . $commands . PHP_EOL);
+  }
   //chdir($cwd);
 }
 
