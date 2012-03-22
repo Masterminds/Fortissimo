@@ -11,6 +11,16 @@ namespace Fortissimo;
  *
  * @code
  * <?php
+ * $reg = new \Fortissimo\Registry();
+ * $reg->route('foo')
+ *     ->does('\Foo\Bar\Command', 'command1')
+ *       ->uses('query')->from('get:q')
+ *       ->uses('template', 'mytemplate.tpl.php')
+ *     ->does('\Bar\Baz\OtherCommand', 'command2')
+ *       ->uses('results')->from('cxt:command1')
+ *
+ *
+ *
  * App::request('foo')
  *  ->doesCommand('command1')
  *  ->whichInvokes('MyCommandClass')
@@ -37,7 +47,7 @@ namespace Fortissimo;
  * request. Be careful of race conditions or other anomalies that might occur if you
  * attempt to use App after Fortissimo has been bootstrapped.
  */
-class App {
+class Registry {
 
   private static $instance = NULL;
 
@@ -55,9 +65,26 @@ class App {
   const REQUEST_MAPPER = 'requestMapper';
   const LISTENERS = 'listeners';
 
-  public static function request($name, $description = '') {
-    return self::set(self::REQUESTS, $name);
+  /**
+   * Create a new registry.
+   */
+  public function __construct() {
+    $this->config = array(
+      self::REQUESTS => array(),
+      self::LOGGERS => array(),
+      self::CACHES => array(),
+      self::PATHS => array(),
+      self::GROUPS => array(),
+      self::DATASOURCES => array(),
+      self::LISTENERS => array(),
+      self::REQUEST_MAPPER => NULL,
+    );
   }
+
+  public function route($name, $description = '') {
+    return $this->set(self::REQUESTS, $name);
+  }
+
   /**
    * Add an include path.
    *
@@ -68,12 +95,11 @@ class App {
    * @return App
    *  This object.
    */
-  public static function includePath($path) {
-    $i = self::inst();
-    $i->config[self::PATHS][] = $path;
-    $i->currentCategory = self::PATHS;
-    $i->currentName = NULL;
-    return $i;
+  public function includePath($path) {
+    $this->config[self::PATHS][] = $path;
+    $this->currentCategory = self::PATHS;
+    $this->currentName = NULL;
+    return $this;
   }
 
   /**
@@ -97,12 +123,11 @@ class App {
    *
    * For implementation details, see FortissimoRequestMapper and Fortissimo::handleRequest().
    */
-  public static function useRequestMapper($class) {
-    $i = self::inst();
-    $i->config[self::REQUEST_MAPPER] = $class;
-    $i->currentCategory = self::REQUEST_MAPPER;
-    $i->currentName = NULL;
-    return $i;
+  public function useRequestMapper($class) {
+    $this->config[self::REQUEST_MAPPER] = $class;
+    $this->currentCategory = self::REQUEST_MAPPER;
+    $this->currentName = NULL;
+    return $this;
   }
   /**
    * Declare a new group of commands.
@@ -129,8 +154,8 @@ class App {
    * @param string $name
    *  The name of the group.
    */
-  public static function group($name) {
-    return self::set(self::GROUPS, $name);
+  public function group($name) {
+    return $this->set(self::GROUPS, $name);
   }
 
   /**
@@ -156,16 +181,15 @@ class App {
    * @return
    *  The config instance.
    */
-  public static function listener($klass, $event, $callable) {
-    $i = self::inst();
+  public function listener($klass, $event, $callable) {
     //$i->config[self::LISTENERS] = arra();
-    $i->currentCategory = self::LISTENERS;
-    $i->currentName = NULL;
+    $this->currentCategory = self::LISTENERS;
+    $this->currentName = NULL;
 
     // Now register the callable.
-    $i->config[self::LISTENERS][$klass][$event][] = $callable;
+    $this->config[self::LISTENERS][$klass][$event][] = $callable;
 
-    return $i;
+    return $this;
   }
 
   /**
@@ -177,8 +201,8 @@ class App {
    * @return App
    *  This object.
    */
-  public static function datasource($name) {
-    return self::set(self::DATASOURCES, $name);
+  public function datasource($name) {
+    return $this->set(self::DATASOURCES, $name);
   }
   /**
    * Declare a new logger.
@@ -192,8 +216,8 @@ class App {
    * @return App
    *  The object.
    */
-  public static function logger($name) {
-    return self::set(self::LOGGERS, $name);
+  public function logger($name) {
+    return $this->set(self::LOGGERS, $name);
   }
   /**
    * Declare a new cache.
@@ -208,12 +232,14 @@ class App {
     return self::set(self::CACHES, $name);
   }
 
-  private static function set($cat, $name) {
-    $i = self::inst();
-    $i->currentCategory = $cat;
-    $i->currentName = $name;
-    $i->config[$cat][$name] = array();
-    return $i;
+  /**
+   * Internal helper.
+   */
+  protected function set($cat, $name) {
+    $this->currentCategory = $cat;
+    $this->currentName = $name;
+    $this->config[$cat][$name] = array();
+    return $this;
   }
 
   /**
@@ -228,10 +254,9 @@ class App {
    * @return App
    *  This object.
    */
-  public static function initialize(array $config = NULL) {
-    self::$instance = new App();
-    if (!is_null($config)) self::$instance->config = $config;
-    return self::$instance;
+  public function initialize(array $config = NULL) {
+    if (!is_null($config)) $this->config = $config;
+    return $this;
   }
 
   /**
@@ -243,39 +268,10 @@ class App {
    *  The configuration.
    */
   public static function getConfiguration() {
-    return self::inst()->config;
+    return $this->config;
   }
 
-  /**
-   * Get an instance of the configuration App object.
-   *
-   * This controls access to the singleton.
-   *
-   * @return App
-   *  An instance of the App object.
-   */
-  private static function inst() {
-    if (empty(self::$instance)) {
-      self::$instance = new App();
-    }
-    return self::$instance;
-  }
 
-  /**
-   * App is a singleton.
-   */
-  private function __construct() {
-    $this->config = array(
-      self::REQUESTS => array(),
-      self::LOGGERS => array(),
-      self::CACHES => array(),
-      self::PATHS => array(),
-      self::GROUPS => array(),
-      self::DATASOURCES => array(),
-      self::LISTENERS => array(),
-      self::REQUEST_MAPPER => NULL,
-    );
-  }
   public function usesGroup($name) {
     if ($this->currentCategory = self::REQUESTS) {
       // In PHP, ths will copy the array. But any objects in the array
@@ -291,6 +287,21 @@ class App {
       */
     }
     return $this;
+  }
+  /**
+   * Attach a command (with an optional name) to a route.
+   *
+   * @param string $klass
+   *   The fully qualified name of a class, or an instance.
+   * @param string $name
+   *   The name of the command. If no name is supplied, one will automatically be generated.
+   */
+  public function does($klass, $name = NULL) {
+    if (empty($name)) {
+      // There's probably a more sensical name.
+      $name = md5(rand());
+    }
+    return $this->doesCommand($name)->whichInvokes($klass);
   }
   public function doesCommand($name) {
     $this->commandName = $name;
@@ -320,6 +331,19 @@ class App {
         throw new FortissimoConfigurationException($msg);
     }
     return $this;
+  }
+
+  /**
+   * Attach parameters to a command.
+   *
+   * @param string $param
+   *   The name of the param to pass to the command.
+   * @param mixed $value
+   *   The default value. NULL if none is supplied.
+   */
+  public function uses($param, $value = NULL) {
+    $this->withParam($param)->whoseDefaultIs($value);
+
   }
   /**
    * Set a parameter for a class.
