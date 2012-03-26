@@ -57,7 +57,7 @@ $opts = array(
 
 $examples = array(
   "%s default" => 'Bootstrap the application in this directory and run the "default" request',
-  "%s --config config/fort.php @create-bundle" => 'Bootstrap the application, use the fort.php instead of commands.php, and run the @create-bundle request.',
+  "%s --config config/fort.php @create-bundle" => 'Bootstrap the application, use the fort.php instead of registry.php, and run the @create-bundle request.',
   "%s --ini my_fort.ini --alias MySite default" => 'Load settings from my_fort.ini, using the MySite section, and then execute the default request.',
 );
 
@@ -77,8 +77,8 @@ $ini       = fort_load_ini($modifiers);
 $config    = fort_setup_configuration($modifiers, $ini);
 
 
-// Set Fortissimo commands file.
-$commands = empty($config['config']) ? 'config/commands.php' : $config['config'];
+// Set Fortissimo registry file.
+$registry = empty($config['config']) ? 'config/registry.php' : $config['config'];
 
 // Set the base directory for Fortissimo.
 $basedir = getcwd();
@@ -110,13 +110,13 @@ require 'Fortissimo.php';
 /*
  * Set configuration file. 
  */
-if (strpos($commands, '/') === 0) {
+if (strpos($registry, '/') === 0) {
   // If absolute path, include directly.
-  $basedir = dirname($commands);
-  require $commands;
+  $basedir = dirname($registry);
+  require $registry;
 }
 else {
-  // Look in common places for commands file.
+  // Look in common places for registry file.
   $cwd = getcwd();
   $bases = array(
     $cwd . '/',
@@ -125,16 +125,17 @@ else {
 
   $basedir = NULL;
   foreach ($bases as $base) {
-    if (is_file($base . $commands)) {
+    if (is_file($base . $registry)) {
       //$practicalBase = $base;
-      $basedir = $base;// . '/config/commands.php';
+      $basedir = $base;// . '/config/registry.php';
       break;
     }
   }
   //chdir($basedir);
-  $ret = @include $basedir . DIRECTORY_SEPARATOR . $commands;
+  //$ret = @include $basedir . DIRECTORY_SEPARATOR . $registry;
+  $ret = @include $basedir . $registry;
   if ($ret == FALSE) {
-    die('Could not find configuration file at: ' . $basedir . DIRECTORY_SEPARATOR . $commands . PHP_EOL);
+    die('Could not find configuration file at: ' . $basedir . DIRECTORY_SEPARATOR . $registry . PHP_EOL);
   }
   //chdir($cwd);
 }
