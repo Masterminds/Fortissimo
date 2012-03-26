@@ -56,6 +56,8 @@ class Registry {
   private $currentRequest = NULL;
   private $currentName = NULL;
 
+  protected $appName;
+
   const REQUESTS = 'requests';
   const GROUPS = 'groups';
   const PATHS = 'paths';
@@ -67,8 +69,12 @@ class Registry {
 
   /**
    * Create a new registry.
+   *
+   * @param string $name
+   *   The name of the application being built.
    */
-  public function __construct() {
+  public function __construct($name = NULL) {
+    $this->appName = $name;
     $this->config = array(
       self::REQUESTS => array(),
       self::LOGGERS => array(),
