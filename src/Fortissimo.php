@@ -81,13 +81,9 @@ define('FORTISSIMO_REQ_TIME', time());
  * The Fortissimo front controller.
  *
  * This class is used to bootstrap Fortissimo and oversee execution of a
- * Fortissimo request. Unlike Rhizome, there is no split between the
- * front controller and the request handler. The front controller assumes that
- * the application will be run either as a CLI or as a web application. And it
- * is left to commands to execute behaviors specific to their execution
- * environment.
+ * Fortissimo request.
  *
- * Typically, the entry point for this class is {@link handleRequest()}, which
+ * Typically, the entry point for this class is Fortissimo::handleRequest(), which
  * takes a request name and executes all associated commands.
  *
  * For more details, see {@link __construct()}.

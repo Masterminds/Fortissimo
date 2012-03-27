@@ -21,7 +21,7 @@ namespace Fortissimo;
  *
  *
  *
- * App::request('foo')
+ * Registry::request('foo')
  *  ->doesCommand('command1')
  *  ->whichInvokes('MyCommandClass')
  *    ->withParam('arg1')
@@ -36,20 +36,18 @@ namespace Fortissimo;
  * This class is used to add requests, loggers, datasources, and cache handlers to
  * a Fortissimo application. Typically, it is used in commands.php.
  *
- * - App::request(): Add a new request with a chain of commands.
- * - App::includePath(): Add a new path that will be used by the autoloader.
- * - App::group(): Add a new group that can be referenced from within a request.
- * - App::datasource(): Add a new datasource, such as a database or document store.
- * - App::logger(): Add a new logging facility.
- * - App::cache(): Add a new cache.
+ * - Registry::request(): Add a new request with a chain of commands.
+ * - Registry::includePath(): Add a new path that will be used by the autoloader.
+ * - Registry::group(): Add a new group that can be referenced from within a request.
+ * - Registry::datasource(): Add a new datasource, such as a database or document store.
+ * - Registry::logger(): Add a new logging facility.
+ * - Registry::cache(): Add a new cache.
  *
  * In Fortissimo, the data that App creates may be used only at the beginning of a
  * request. Be careful of race conditions or other anomalies that might occur if you
  * attempt to use App after Fortissimo has been bootstrapped.
  */
 class Registry {
-
-  private static $instance = NULL;
 
   private $config = NULL;
   private $currentCategory = NULL;
@@ -123,7 +121,7 @@ class Registry {
    *
    * @code
    * <?php
-   * App::useRequestMapper('MyMapperClass');
+   * Registry::useRequestMapper('MyMapperClass');
    * ?>
    * @endcode
    *
@@ -142,11 +140,11 @@ class Registry {
    *
    * @code
    * <?php
-   * App::group('myGroup')
+   * Registry::group('myGroup')
    *  ->doesCommand('a')->whichInvokes('MyA')
    * ;
    *
-   * App::request('myRequest')
+   * Registry::request('myRequest')
    *  ->doesCommand('b')->whichInvokes('MyB')
    *  ->usesGroup('myGroup')
    * ;
@@ -169,12 +167,12 @@ class Registry {
    *
    * @code
    * <?php
-   * App::listener('FooClass', 'load', function ($e) {});
+   * Registry::listener('FooClass', 'load', function ($e) {});
    *
    * // ...
    *
    * // The above will automatically bind to this.
-   * App::request('foo')->hasCommand('bar')->whichInvokes('FooClass');
+   * Registry::request('foo')->hasCommand('bar')->whichInvokes('FooClass');
    * ?>
    * @endcode
    *
@@ -273,7 +271,7 @@ class Registry {
    * @return array
    *  The configuration.
    */
-  public static function configuration() {
+  public function configuration() {
     return $this->config;
   }
 
@@ -472,7 +470,7 @@ class Registry {
    *
    * @code
    * <?php
-   * App::request('foo')
+   * Registry::request('foo')
    *   ->doesCommand('bar')
    *   ->whichInvokes('MyBarClass')
    *   ->whichUses('baz')->whoseValueIs('lurp')
@@ -483,7 +481,7 @@ class Registry {
    *
    * @code
    * <?php
-   * App::request('foo')->isCaching(TRUE);
+   * Registry::request('foo')->isCaching(TRUE);
    * ?>
    * @endcode
    *
