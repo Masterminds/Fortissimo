@@ -1,6 +1,6 @@
 {
   "name": "technosophos/Fortissimo",
-  "description": "A Chain-of-Command framework."
+  "description": "A Chain-of-Command framework.",
   "autoload": {
     "psr-0": {"Fortissimo": "src"}
   }
