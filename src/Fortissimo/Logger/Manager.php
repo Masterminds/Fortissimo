@@ -33,11 +33,11 @@ class Manager {
     $this->loggers = &$config;
   }
 
-  public function setCacheManager(\Fortissimo\CacheManager $manager) {
+  public function setCacheManager(\Fortissimo\Cache\Manager $manager) {
     foreach ($this->loggers as $name => $obj) $obj->setCacheManager($manager);
   }
 
-  public function setDatasourceManager(\Fortissimo\DatasourceManager $manager) {
+  public function setDatasourceManager(\Fortissimo\Datasource\Manager $manager) {
     foreach ($this->loggers as $name => $obj) $obj->setDatasourceManager($manager);
   }
 
