@@ -124,7 +124,7 @@ class Fortissimo {
    */
   const LOG_USER = 'User Error';
 
-  protected $commandConfig = NULL;
+  protected $regReader = NULL;
   protected $initialConfig = NULL;
   protected $logManager = NULL;
   protected $cxt = NULL;
@@ -160,10 +160,10 @@ class Fortissimo {
     $this->initialConfig = $configData;
 
     // Parse configuration file.
-    $this->commandConfig = new \Fortissimo\Config($configuration);
+    $this->regReader = new \Fortissimo\RegistryReader($configuration);
 
     // Add additional files to the include path:
-    $paths = $this->commandConfig->getIncludePaths();
+    $paths = $this->regReader->getIncludePaths();
     $this->addIncludePaths($paths);
 
     /*
@@ -171,13 +171,13 @@ class Fortissimo {
      */
 
     // Create the log manager.
-    $this->logManager = new \Fortissimo\Logger\Manager($this->commandConfig->getLoggers());
+    $this->logManager = new \Fortissimo\Logger\Manager($this->regReader->getLoggers());
 
     // Create the datasource manager.
-    $this->datasourceManager = new \Fortissimo\Datasource\Manager($this->commandConfig->getDatasources());
+    $this->datasourceManager = new \Fortissimo\Datasource\Manager($this->regReader->getDatasources());
 
     // Create cache manager.
-    $this->cacheManager = new \Fortissimo\Cache\Manager($this->commandConfig->getCaches());
+    $this->cacheManager = new \Fortissimo\Cache\Manager($this->regReader->getCaches());
 
     // Set up the log manager
     $this->logManager->setDatasourceManager($this->datasourceManager);
@@ -192,7 +192,7 @@ class Fortissimo {
     $this->cacheManager->setDatasourceManager($this->datasourceManager);
 
     // Create a request mapper. We do this last so that it can access the other facilities.
-    $mapperClass = $this->commandConfig->getRequestMapper();
+    $mapperClass = $this->regReader->getRequestMapper();
     if (!is_string($mapperClass) && !is_object($mapperClass)) {
       throw new \Fortissimo\InterruptException('Could not find a valid command mapper.');
     }
@@ -302,15 +302,15 @@ class Fortissimo {
     try {
       // Use the mapper to determine what the real request name is.
       $requestName = $this->requestMapper->uriToRequest($identifier);
-      $request = $this->commandConfig->getRequest($requestName, $allowInternalRequests);
+      $request = $this->regReader->getRequest($requestName, $allowInternalRequests);
     }
     catch (FortissimoRequestNotFoundException $nfe) {
       // Need to handle this case.
       $this->logManager->log($nfe, self::LOG_USER);
       $requestName = $this->requestMapper->uriToRequest('404');
 
-      if ($this->commandConfig->hasRequest($requestName, $allowInternalRequests)) {
-        $request = $this->commandConfig->getRequest($requestName, $allowInternalRequests);
+      if ($this->regReader->hasRequest($requestName, $allowInternalRequests)) {
+        $request = $this->regReader->getRequest($requestName, $allowInternalRequests);
       }
       else {
         header('HTTP/1.0 404 Not Found');

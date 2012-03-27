@@ -144,7 +144,7 @@ class RegistryReader {
    * Internal helper function.
    *
    * @param string $type
-   *  The type of item to retrieve. Use the Config class constants.
+   *  The type of item to retrieve. Use the Registry class constants.
    * @return array
    *  An associative array of the form <code>array('name' => object)</code>, where
    *  the object is an instance of the respective 'invoke' class.
@@ -279,8 +279,18 @@ class RegistryReader {
    *
    * @return array
    *  The configuration information
+   * @deprecated Use configuration();
    */
   public function getConfig() {
+    return $this->configuration();
+  }
+
+  /**
+   * Get the configuration as an array.
+   * @retval array
+   *   The configuration.
+   */
+  public function configuration() {
     return $this->config;
   }
 
