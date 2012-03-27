@@ -4,10 +4,12 @@
  * The logger manager.
  */
 
+namespace Fortissimo\Logger;
+
 /**
  * Manage loggers for a server.
  *
- * A {@link Fortissimo} instance may have zero or more loggers. Loggers
+ * A Fortissimo instance may have zero or more loggers. Loggers
  * perform the standard task of handling messages that need recording for
  * review by administrators.
  *
@@ -15,7 +17,7 @@
  * tasks.
  *
  */
-class LoggerManager {
+class Manager {
 
   protected $loggers = NULL;
 
