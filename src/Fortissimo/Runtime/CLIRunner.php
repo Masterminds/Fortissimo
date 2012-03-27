@@ -5,13 +5,12 @@
  * Generic CLI support.
  */
 
-namespace Fortissimo;
+namespace Fortissimo\Runtime;
 
-class CLIRunner {
+class CLIRunner extends Runner {
   protected $input;
   protected $output;
   protected $args;
-  protected $registry;
 
 
   /**
@@ -47,23 +46,7 @@ class CLIRunner {
     $this->output = $out;
   }
 
-  /**
-   * Use the given registry.
-   *
-   * @param object $registry
-   *   The Fortissimo::Registry for this app.
-   * @retval object THIS
-   */
-  public function useRegistry($registry) {
-    $this->registry = $registry;
-    return $this;
-  }
 
-  public function run($route = 'default') {
-    $ff = new \Fortissimo();
-    $cxt = $this->initialContext();
-    $ff->handleRequest($route);
-  }
 
   public function initialContext() {
     return array();
