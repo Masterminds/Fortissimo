@@ -8,6 +8,8 @@
  * Created by Matt Butcher on 2011-06-18.
  */
 
+namespace Fortissimo\Command;
+
 /**
  * Parse options (flags) from ARGV or another source.
  *

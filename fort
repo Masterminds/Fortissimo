@@ -84,11 +84,11 @@ $registry = empty($config['config']) ? 'config/registry.php' : $config['config']
 $basedir = getcwd();
 if (isset($config['base'])) {
   $basedir = $config['base'];
-  
+
   if (!is_dir($basedir)) {
     print "ERROR: Not a directory: " . $basedir;
     exit(1);
-  }  
+  }
 }
 
 // Go to the base directory.
