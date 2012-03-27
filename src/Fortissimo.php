@@ -171,13 +171,13 @@ class Fortissimo {
      */
 
     // Create the log manager.
-    $this->logManager = new FortissimoLoggerManager($this->commandConfig->getLoggers());
+    $this->logManager = new \Fortissimo\Logger\Manager($this->commandConfig->getLoggers());
 
     // Create the datasource manager.
-    $this->datasourceManager = new FortissimoDatasourceManager($this->commandConfig->getDatasources());
+    $this->datasourceManager = new \Fortissimo\Datasource\Manager($this->commandConfig->getDatasources());
 
     // Create cache manager.
-    $this->cacheManager = new FortissimoCacheManager($this->commandConfig->getCaches());
+    $this->cacheManager = new \Fortissimo\Cache\Manager($this->commandConfig->getCaches());
 
     // Set up the log manager
     $this->logManager->setDatasourceManager($this->datasourceManager);
@@ -194,7 +194,7 @@ class Fortissimo {
     // Create a request mapper. We do this last so that it can access the other facilities.
     $mapperClass = $this->commandConfig->getRequestMapper();
     if (!is_string($mapperClass) && !is_object($mapperClass)) {
-      throw new FortissimoInterruptException('Could not find a valid command mapper.');
+      throw new \Fortissimo\InterruptException('Could not find a valid command mapper.');
     }
 
     $this->requestMapper =
@@ -248,13 +248,13 @@ class Fortissimo {
   public function explainRequest($request) {
 
     if (empty($request)) {
-      throw new FortissimoException('Request not found.');
+      throw new \Fortissimo\Exception('Request not found.');
     }
 
     $out = sprintf('REQUEST: %s', $request->getName()) . PHP_EOL;
     foreach($request as $name => $command) {
       // If this command as an explain() method, use it.
-      if ($command['instance'] instanceof Explainable) {
+      if ($command['instance'] instanceof \Fortissimo\Explainable) {
         $out .= $command['instance']->explain();
       }
       else {
@@ -349,7 +349,7 @@ class Fortissimo {
     }
     // This sets up the default context.
     else {
-      $this->cxt = new FortissimoExecutionContext(
+      $this->cxt = new \Fortissimo\ExecutionContext(
         $this->initialConfig,
         $this->logManager,
         $this->datasourceManager,
@@ -499,7 +499,7 @@ class Fortissimo {
 
     $params = $this->fetchParameters($commandArray, $this->cxt);
     //print $commandArray['name'] . ' is ' . ($inst instanceof Observable ? 'Observable' : 'Not observable') . PHP_EOL;
-    if ($inst instanceof Observable && !empty($commandArray['listeners'])) {
+    if ($inst instanceof \Fortissimo\Observable && !empty($commandArray['listeners'])) {
       $this->setEventHandlers($inst, $commandArray['listeners']);
     }
 
