@@ -86,9 +86,6 @@ define('FORTISSIMO_REQ_TIME', time());
  * Typically, the entry point for this class is Fortissimo::handleRequest(), which
  * takes a request name and executes all associated commands.
  *
- * For more details, see {@link __construct()}.
- *
- * @see Fortissimo.php
  */
 class Fortissimo {
 
@@ -214,8 +211,13 @@ class Fortissimo {
    * @see get_include_path()
    */
   public function addIncludePaths($paths) {
+
+    // This is from the older autoloader design.
+    // FIXME: Should this be removed?
     global $loader;
-    $loader->addIncludePaths($paths);
+    if (!empty($loader)) {
+      $loader->addIncludePaths($paths);
+    }
 
     array_unshift($paths, get_include_path());
 
