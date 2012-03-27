@@ -1,43 +1,41 @@
 <?php
 /**
  * @file
- * Fortissimo::Config class.
+ * Fortissimo::RegistryReader class.
  */
 namespace Fortissimo;
 
 /**
- * Stores information about Fortissimo commands.
+ * Provides a data access layer to the registry.
  *
- * The configuration is typically created by the Config class, which provides a
- * fluent interface for configuring Fortissimo.
+ * The Fortissimo::Registry provides a fluent interface for writing registry
+ * files. The RegistryReader provides an interface for accessing registry
+ * information. The two are loosely coupled so that registries can be built
+ * by another tool, yet still read by the RegistryReader.
+ *
+ * For legacy reasons, and for performance, the core registry is a well-defined
+ * array structure.
  */
-class Config {
+class RegistryReader {
 
   protected $config;
 
   /**
    * Construct a new configuration object.
    *
-   * This loads a PHP file containing a configuration
+   * This loads a registry into the reader.
    *
-   * @param string $configurationFile
-   *  A file with configuration data. This will be included into the running program.
+   * @param mixed $registry
+   *   The registry.
    *
-   * @see http://api.querypath.org/docs
    */
-  public function __construct($configurationFile = NULL) {
-
-    if (is_string($configurationFile)) {
-      include $configurationFile;
+  public function __construct($registry = array()) {
+    if (is_array($registry)) {
+      $this->config = $registry;
     }
-    // This is useful for embedded Fortissimo instances and for unit testing.
-    /* Also, it's unnecessary.
-    elseif (is_array($configurationFile)) {
-      Config::initialize($configurationFile);
+    else {
+      $this->config = $registry->configuration();
     }
-    */
-
-    $this->config = Config::getConfiguration();
   }
 
   /**
@@ -52,12 +50,12 @@ class Config {
    *  (commands.xml).
    */
   public function getIncludePaths() {
-    return $this->config[Config::PATHS];
+    return $this->config[Registry::PATHS];
   }
 
   public function getRequestMapper($default = '\Fortissimo\RequestMapper') {
-    if (isset($this->config[Config::REQUEST_MAPPER])) {
-      return $this->config[Config::REQUEST_MAPPER];
+    if (isset($this->config[Registry::REQUEST_MAPPER])) {
+      return $this->config[Registry::REQUEST_MAPPER];
     }
     return $default;
   }
@@ -77,7 +75,7 @@ class Config {
     if (!self::isLegalRequestName($requestName, $allowInternalRequests))  {
       throw new \Fortissimo\Exception('Illegal request name.');
     }
-    return isset($this->config[Config::REQUESTS][$requestName]);
+    return isset($this->config[Registry::REQUESTS][$requestName]);
   }
 
   /**
@@ -113,7 +111,7 @@ class Config {
    * @see Fortissimo::Logger
    */
   public function getLoggers() {
-    $loggers = $this->getFacility(Config::LOGGERS);
+    $loggers = $this->getFacility(Registry::LOGGERS);
 
     foreach ($loggers as $logger) $logger->init();
 
@@ -133,13 +131,13 @@ class Config {
    * @see Fortissimo::RequestCache
    */
   public function getCaches() {
-    $caches = $this->getFacility(Config::CACHES);
+    $caches = $this->getFacility(Registry::CACHES);
     foreach ($caches as $cache) $cache->init();
     return $caches;
   }
 
   public function getDatasources() {
-    return $this->getFacility(Config::DATASOURCES);
+    return $this->getFacility(Registry::DATASOURCES);
   }
 
   /**
@@ -151,7 +149,7 @@ class Config {
    *  An associative array of the form <code>array('name' => object)</code>, where
    *  the object is an instance of the respective 'invoke' class.
    */
-  protected function getFacility($type = Config::LOGGERS) {
+  protected function getFacility($type = Registry::LOGGERS) {
     $facilities = array();
     foreach ($this->config[$type] as $name => $facility) {
       $klass = $facility['class'];
@@ -205,13 +203,13 @@ class Config {
       throw new \Fortissimo\RequestNotFoundException('Illegal request name.');
     }
 
-    if (empty($this->config[Config::REQUESTS][$requestName])) {
+    if (empty($this->config[Registry::REQUESTS][$requestName])) {
       // This should be treated as a 404.
       throw new \Fortissimo\RequestNotFoundException(sprintf('Request %s not found', $requestName));
-      //$request = $this->config[Config::REQUESTS]['default'];
+      //$request = $this->config[Registry::REQUESTS]['default'];
     }
     else {
-      $request = $this->config[Config::REQUESTS][$requestName];
+      $request = $this->config[Registry::REQUESTS][$requestName];
     }
 
     $isCaching = isset($request['#caching']) && filter_var($request['#caching'], FILTER_VALIDATE_BOOLEAN);

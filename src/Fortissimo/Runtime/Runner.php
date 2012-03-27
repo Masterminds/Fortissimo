@@ -35,7 +35,7 @@ class Runner {
   }
 
   public function run($route = 'default') {
-    $ff = new \Fortissimo();
+    $ff = new \Fortissimo($this->registry);
     $cxt = $this->initialContext();
     $ff->handleRequest($route, $initialContext, $this->allowInternalRequests);
   }

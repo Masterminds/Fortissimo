@@ -273,7 +273,7 @@ class Registry {
    * @return array
    *  The configuration.
    */
-  public static function getConfiguration() {
+  public static function configuration() {
     return $this->config;
   }
 
