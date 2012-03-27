@@ -190,7 +190,7 @@ class ParseOptions extends BaseFortissimoCommand {
         if($optionSpec[$flag]['value']) {
           $value = array_shift($args);
           if (!isset($value) || strpos($value, '--') === 0) {
-            throw new \Villain\Exception($flag . ' requires a valid value.');
+            throw new \Fortissimo\Exception($flag . ' requires a valid value.');
           }
           $buffer[$key] = $value;
         }
@@ -202,7 +202,7 @@ class ParseOptions extends BaseFortissimoCommand {
         $keep_going = FALSE;
       }
       elseif(strpos($flag, '--') === 0) {
-        throw new \Villain\Exception(sprintf("Unrecognized option %s.", $flag));
+        throw new \Fortissimo\Exception(sprintf("Unrecognized option %s.", $flag));
       }
       else {
         array_unshift($args, $flag);
