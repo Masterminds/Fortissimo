@@ -2,6 +2,7 @@
 /** @file
  * This file contains the code for the FAIL logger.
  */
+namespace Fortissimo\Logger;
 
 /**
  * The FAIL logger maintains an array of messages to be retrieved later.
@@ -26,7 +27,7 @@
  *
  * @ingroup Fortissimo
  */
-class FortissimoArrayInjectionLogger extends FortissimoLogger {
+class ArrayInjectionLogger extends Base {
   protected $logItems = array();
   protected $filter;
   

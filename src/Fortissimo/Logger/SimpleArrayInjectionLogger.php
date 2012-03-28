@@ -2,7 +2,7 @@
 /** @file
  * This file provides the SAIL logger, a very simple user-friendly log.
  */
-
+namespace Fortissimo\Logger;
 /**
  * Provide a simple user-friendly (non-trace) error message.
  * 
@@ -12,7 +12,7 @@
  *
  * @ingroup Fortissimo
  */
-class SimpleArrayInjectionLogger extends FortissimoArrayInjectionLogger {
+class SimpleArrayInjectionLogger extends ArrayInjectionLogger {
   public function log($message, $category, $details) {
     $severity = str_replace(' ', '-', $category);
     $filter = '<div class="log-item %s"><strong>%s</strong> %s</div>';

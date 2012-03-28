@@ -2,7 +2,7 @@
 /** @file
  * This file contains the FOIL logger.
  */
- 
+namespace Fortissimo\Logger; 
 /**
  * The FOIL logger sends messages directly to STDOUT.
  *
@@ -15,17 +15,17 @@
  *
  * @ingroup Fortissimo
  */
-class FortissimoOutputInjectionLogger extends FortissimoLogger {
+class OutputInjectionLogger extends Base {
   protected $filter;
   protected $isHTML = FALSE;
-  
+
   public function init() {
-    
+
     $this->isHTML = isset($this->params['html']) ? filter_var($this->params['html'], FILTER_VALIDATE_BOOLEAN) : FALSE;
     $this->filter = empty($this->params['html']) ? '%s %s %s' : '<div class="log-item %s"><strong>%s</strong> %s</div>';
   }
   public function log($message, $category, $details) {
-    
+
     if ($this->isHTML) {
       $severity = strtr($category, ' ', '-');
       $message = strtr($message, array("\n" => '<br/>'));

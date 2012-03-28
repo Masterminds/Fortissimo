@@ -2,7 +2,7 @@
 /** @file
  * Provides a simple user-facing output injection logger.
  */
-
+namespace Fortissimo\Logger;
 /**
  * Provide a simple user-friendly (non-trace) error message.
  *
@@ -15,8 +15,8 @@
  *
  * @ingroup Fortissimo
  */
-class SimpleOutputInjectionLogger extends FortissimoOutputInjectionLogger {
-  
+class SimpleOutputInjectionLogger extends OutputInjectionLogger {
+
   public function log($message, $category, $details) {
     $severity = strtr($category, ' ', '-');
     $filter = '<div class="log-item %s"><strong>%s</strong> %s</div>';
