@@ -30,8 +30,12 @@ class TestCase extends \PHPUnit_Framework_TestCase {
     include_once $path;
   }
 
-  public function runner() {
-    return new TestRunner();
+  public function runner($reg = NULL) {
+    $runner = new TestRunner();
+    if (!empty($reg)) {
+      $runner->useRegistry($reg);
+    }
+    return $runner;
   }
 
   public function registry($name = 'test') {
