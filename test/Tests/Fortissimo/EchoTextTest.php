@@ -2,6 +2,9 @@
 namespace Fortissimo\Tests;
 require 'TestCase.php';
 
+/**
+ * @group Command
+ */
 class EchoTextTest extends TestCase {
 
   public function testDoCommand() {
