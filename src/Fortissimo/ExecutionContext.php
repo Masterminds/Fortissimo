@@ -35,7 +35,7 @@ namespace Fortissimo;
  *
  * @see Fortissimo
  */
-class ExecutionContext implements IteratorAggregate {
+class ExecutionContext implements \IteratorAggregate {
 
   // Why do we create a class that is basically a thin wrapper around an array?
   // Three reasons:
@@ -70,7 +70,7 @@ class ExecutionContext implements IteratorAggregate {
    *  The request mapper used on this request. A request mapper should know how to construct
    *  a URL to the app.
    */
-  public function __construct($initialContext = array(), \Fortissimo\LoggerManager $logger = NULL, \Fortissimo\DatasourceManager $datasources = NULL, \Fortissimo\CacheManager $cacheManager = NULL, \Fortissimo\RequestMapper $requestMapper = NULL) {
+  public function __construct($initialContext = array(), \Fortissimo\Logger\Manager $logger = NULL, \Fortissimo\Datasource\Manager $datasources = NULL, \Fortissimo\Cache\Manager $cacheManager = NULL, \Fortissimo\RequestMapper $requestMapper = NULL) {
     if ($initialContext instanceof ExecutionContext) {
       $this->data = $initialContext->toArray();
     }
