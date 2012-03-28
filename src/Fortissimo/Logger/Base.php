@@ -121,7 +121,7 @@ abstract class Base {
     // If we shouldn't log this category, skip this step.
     if (!$this->isLoggingThisCategory($category)) return;
 
-    if ($message instanceof Exception) {
+    if ($message instanceof \Exception) {
       $buffer = $message->getMessage();
 
       if (empty($details)) {
@@ -132,7 +132,7 @@ abstract class Base {
 
     }
     elseif (is_object($message)) {
-      $buffer = $mesage->toString();
+      $buffer = $message->toString();
     }
     else {
       $buffer = $message;
