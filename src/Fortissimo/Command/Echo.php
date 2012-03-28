@@ -5,11 +5,13 @@
  * @ingroup Fortissimo
  */
 
+namespace Fortissimo\Command;
+
 /**
- * This command prints 
- */ 
-class FortissimoEcho extends BaseFortissimoCommand {
-  
+ * This command prints a message to output.
+ */
+class Echo extends Base {
+
   public function expects() {
     return $this
       ->description('Echo the contents of the "text" parameter to standard output.')
@@ -20,20 +22,20 @@ class FortissimoEcho extends BaseFortissimoCommand {
       //->withFilter('string')
       ;
   }
-  
+
   public function doCommand() {
-    
+
     $type = $this->param('type', NULL);
     $headers = $this->param('headers', array());
-    
+
     if (!empty($type)) {
       header('Content-Type: ' . $type);
     }
-    
+
     foreach ($headers as $header) {
       header($header);
     }
-    
+
     print $this->parameters['text'];
   }
 }
