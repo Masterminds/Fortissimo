@@ -19,7 +19,9 @@ class Runner {
   protected $allowInternalRequests = FALSE;
 
   public function initialContext() {
-    return new \Fortissimo\ExecutionContext();
+    $cxt = new \Fortissimo\ExecutionContext();
+
+    return $cxt;
   }
 
   /**
