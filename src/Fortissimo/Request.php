@@ -10,7 +10,7 @@ namespace Fortissimo;
  *
  * This class represents a single request.
  */
-class Request implements IteratorAggregate {
+class Request implements \IteratorAggregate {
 
   protected $commandQueue = NULL;
   protected $isCaching = FALSE;
