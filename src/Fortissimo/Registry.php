@@ -372,8 +372,7 @@ class Registry {
    *   The default value. NULL if none is supplied.
    */
   public function using($param, $value = NULL) {
-    $this->withParam($param)->whoseValueIs($value);
-
+    return $this->withParam($param)->whoseValueIs($value);
   }
   /**
    * Set a parameter for a class.
