@@ -1,28 +1,20 @@
 <?php
-/** Test the FortissimoContextDump class. */
-require_once 'PHPUnit/Framework.php';
-require_once 'Fortissimo/skel/src/Fortissimo.php';
+namespace Fortissimo\Tests;
+require 'TestCase.php';
 
-class FortissimoEchoTest extends PHPUnit_Framework_TestCase {
+class EchoTextTest extends TestCase {
 
-  public function setUp() {
-    Config::initialize();
-    Config::request('testDoCommand')
-      ->doesCommand('echo')
-        ->whichInvokes('FortissimoEcho')
-        ->withParam('text')->whoseValueIs('Echo')
-    ;
-  }
-  
-    
   public function testDoCommand() {
-    $ff = new FortissimoHarness();
+    $reg = $this->registry(__CLASS__);
+    $reg->route('default')->does('\Fortissimo\Command\EchoText', 'echo')->using('text', 'Echo');
+
+    $runner = $this->runner($reg);
+
     ob_start();
-    $ff->handleRequest('testDoCommand');
+    $runner->run('default');
     $c = ob_get_contents();
     ob_end_clean();
     $c = trim($c);
-    
     $this->assertEquals('Echo', $c);
   }
 }
