@@ -36,9 +36,23 @@ class Runner {
     return $this;
   }
 
+  /**
+   * Execute a request (route).
+   *
+   * This executes the named request and returns
+   * the final context.
+   *
+   * @param string $route
+   *   The name of the request.
+   * @retval object Fortissimo::ExecutionContext
+   *   The final context, containing whatever modifications were
+   *   made during running.
+   */
   public function run($route = 'default') {
     $ff = new \Fortissimo($this->registry);
     $cxt = $this->initialContext();
     $ff->handleRequest($route, $cxt, $this->allowInternalRequests);
+
+    return $cxt;
   }
 }
