@@ -13,20 +13,25 @@ class CLIRunnerTest extends TestCase {
     $registry = new Registry('load-objects');
 
     $registry->route('default')
-      ->does('\Fortissimo\Command\Echo', 'echo')
+      ->does('\Fortissimo\Command\EchoText', 'echo')
         ->using('text', 'TEST')
-    ;
+        ;
+
+    $registry->logger('\Fortissimo\Logger\OutputInjectionLogger');
 
 
     // Run the commandline runner.
     global $argv;
     $runner = new CLIRunner($argv, STDOUT, STDIN);
     $runner->useRegistry($registry);
-    fprintf(STDOUT, 'TEST');
-    $runner->run('default');
-    fprintf(STDOUT, 'DONE');
 
-    $this->assertTrue(TRUE);
+    ob_flush();
+    ob_start();
+    $runner->run('default');
+    $out = ob_get_clean();
+
+    $this->assertEquals('TEST', $out);
+
 
   }
 }

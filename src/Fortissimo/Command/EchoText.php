@@ -24,7 +24,6 @@ class EchoText extends Base {
   }
 
   public function doCommand() {
-
     $type = $this->param('type', NULL);
     $headers = $this->param('headers', array());
 
