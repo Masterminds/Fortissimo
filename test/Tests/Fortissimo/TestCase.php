@@ -8,6 +8,9 @@ class TestCase extends \PHPUnit_Framework_TestCase {
 
   /**
    * Minimalist classloader.
+   *
+   * This is designed to trigger an error any time a class
+   * fails to load.
    */
   public static function autoloader($klass) {
 
@@ -15,7 +18,7 @@ class TestCase extends \PHPUnit_Framework_TestCase {
 
     $load = __DIR__ . '/../../../src/';
     $path = $load . str_replace('\\', '/', $klass) . '.php';
-    @include_once $path;
+    include_once $path;
   }
 
 
