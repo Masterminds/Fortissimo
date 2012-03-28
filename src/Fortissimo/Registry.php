@@ -226,8 +226,8 @@ class Registry {
    * @return App
    *  This object.
    */
-  public function datasource($name) {
-    return $this->set(self::DATASOURCES, $name);
+  public function datasource($klass, $name) {
+    return $this->set(self::DATASOURCES, $name)->whichInvokes($klass);
   }
   /**
    * Declare a new logger.
@@ -258,8 +258,8 @@ class Registry {
    * @return App
    *  The object.
    */
-  public static function cache($name) {
-    return self::set(self::CACHES, $name);
+  public static function cache($klass, $name) {
+    return self::set(self::CACHES, $name)->whichInvokes($klass);
   }
 
   /**
