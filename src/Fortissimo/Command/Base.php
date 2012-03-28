@@ -32,7 +32,7 @@ namespace Fortissimo\Command;
  *  doCommand().
  *
  */
-abstract class Base implements \Fortissimo\Command, Explainable, Observable {
+abstract class Base implements \Fortissimo\Command, \Fortissimo\Explainable, \Fortissimo\Observable {
 
   protected $paramsCollection;
 
