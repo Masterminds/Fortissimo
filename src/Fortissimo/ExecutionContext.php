@@ -37,15 +37,6 @@ namespace Fortissimo;
  */
 class ExecutionContext implements \IteratorAggregate {
 
-  // Why do we create a class that is basically a thin wrapper around an array?
-  // Three reasons:
-  // 1. It gives us the ability to control access to the objects in the context.
-  // 2. It gives us the ability to add validation and other features
-  // 3. It eliminates the need to do overt pass-by-reference of a context array,
-  //   which is likely to cause confusion with less experienced developers.
-  // However, we do provide the to/from array methods to allow developers to make
-  // use of the richer array library without our re-inventing the wheel.
-
   protected $data = NULL;
   protected $logger = NULL;
   protected $datasources = NULL;
