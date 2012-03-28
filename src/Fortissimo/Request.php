@@ -90,6 +90,6 @@ class Request implements \IteratorAggregate {
    * @return Iterator
    */
   public function getIterator() {
-    return new ArrayIterator($this->commandQueue);
+    return new \ArrayIterator($this->commandQueue);
   }
 }

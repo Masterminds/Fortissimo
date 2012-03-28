@@ -238,7 +238,7 @@ class ExecutionContext implements \IteratorAggregate {
    */
   public function getIterator() {
     // Does this work?
-    return new ArrayIterator($this->data);
+    return new \ArrayIterator($this->data);
   }
 
   /**
