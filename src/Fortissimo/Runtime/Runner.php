@@ -19,7 +19,7 @@ class Runner {
   protected $allowInternalRequests = FALSE;
 
   public function initialContext() {
-    return array();
+    return new \Fortissimo\ExecutionContext();
   }
 
   /**
@@ -37,6 +37,6 @@ class Runner {
   public function run($route = 'default') {
     $ff = new \Fortissimo($this->registry);
     $cxt = $this->initialContext();
-    $ff->handleRequest($route, $initialContext, $this->allowInternalRequests);
+    $ff->handleRequest($route, $cxt, $this->allowInternalRequests);
   }
 }
