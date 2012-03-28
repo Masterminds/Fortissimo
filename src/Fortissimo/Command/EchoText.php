@@ -10,7 +10,7 @@ namespace Fortissimo\Command;
 /**
  * This command prints a message to output.
  */
-class Echo extends Base {
+class EchoText extends Base {
 
   public function expects() {
     return $this
