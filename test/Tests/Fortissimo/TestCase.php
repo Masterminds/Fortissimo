@@ -16,9 +16,29 @@ class TestCase extends \PHPUnit_Framework_TestCase {
 
     if (strpos($klass, 'Fortissimo') !== 0) return;
 
-    $load = __DIR__ . '/../../../src/';
+    if (strpos($klass, 'Fortissimo\\Tests') === 0) {
+      $load = __DIR__ . '/';
+      $parts = explode('\\', $klass);
+      $parts = array_slice($parts, 2);
+      $klass = implode('/', $parts);
+    }
+    else {
+      $load = __DIR__ . '/../../../src/';
+    }
+
     $path = $load . str_replace('\\', '/', $klass) . '.php';
     include_once $path;
+  }
+
+  public function runner() {
+    return new TestRunner();
+  }
+
+  public function registry($name = 'test') {
+    $reg = new \Fortissimo\Registry($name);
+    $reg->logger('\Fortissimo\Tests\FatalErrorLogger', 'testlogger');
+
+    return $reg;
   }
 
 

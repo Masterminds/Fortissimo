@@ -1,6 +1,5 @@
 <?php
 namespace Fortissimo\Tests;
-
 require 'TestCase.php';
 
 use Fortissimo\Runtime\CLIRunner;
@@ -10,14 +9,12 @@ class CLIRunnerTest extends TestCase {
 
   public function testRun() {
     // Build the registry.
-    $registry = new Registry('load-objects');
-
+    $registry = $this->registry(__CLASS__);
     $registry->route('default')
       ->does('\Fortissimo\Command\EchoText', 'echo')
         ->using('text', 'TEST')
         ;
 
-    $registry->logger('\Fortissimo\Logger\OutputInjectionLogger');
 
 
     // Run the commandline runner.
