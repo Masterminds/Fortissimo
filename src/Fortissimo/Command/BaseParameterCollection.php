@@ -17,7 +17,7 @@ namespace Fortissimo\Command;
  * @see Fortissimo::Command::Base
  * @see Fortissimo::Command::BaseParameter
  */
-class BaseParameterCollection implements IteratorAggregate {
+class BaseParameterCollection implements \IteratorAggregate {
   protected $params = array();
   protected $events = array();
   protected $description = '';
@@ -161,6 +161,6 @@ class BaseParameterCollection implements IteratorAggregate {
   }
 
   public function getIterator() {
-    return new ArrayIterator($this->params);
+    return new \ArrayIterator($this->params);
   }
 }
