@@ -89,7 +89,7 @@ class Registry {
    * An alias for Registry::request().
    */
   public function route($name, $description = '') {
-    $this->request($name, $description);
+    return $this->request($name, $description);
   }
 
   /**
@@ -235,14 +235,19 @@ class Registry {
    * Fortissimo can use numerous loggers. You can declare
    * one or more loggers in your configuration.
    *
+   * @param string $klass
+   *   The fully qualified class name.
    * @param string $name
    *  The name of the logger. This is for other parts of the application
    *  to reference.
    * @return App
    *  The object.
    */
-  public function logger($name) {
-    return $this->set(self::LOGGERS, $name);
+  public function logger($klass, $name = '') {
+    if (empty($name)) {
+      $name = str_replace('\\','_', $klass);
+    }
+    return $this->set(self::LOGGERS, $name)->whichInvokes($klass);
   }
   /**
    * Declare a new cache.
