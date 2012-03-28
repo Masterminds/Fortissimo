@@ -26,8 +26,8 @@
  *
  * Each request will kick off a chain of zero or more commands, which are
  * executed in sequence. A command is simply a class that implements the
- * FortissimoCommand class. Most commands will extend the abstract
- * BaseFortissimoCommand class, which provides a baseline of
+ * Fortissimo::Command class. Most commands will extend the abstract
+ * Fortissimo::Command::Base class, which provides a baseline of
  * functionality.
  *
  * A command can take zero or more parameters. Parameters can be retrieved from
@@ -42,7 +42,7 @@
  *
  * To get started with Fortissimo, take a look at some of the unit testing
  * classes or read the online documentation. Then write a custom class implementing
- * the BaseFortissimoCommand.
+ * the BaseFortissimo::Command.
  *
  * <b>The Fortissimo Autoloader</b>
  * Fortissimo uses the default SPL autoloader to find and load classes. For that
@@ -99,7 +99,7 @@ class Fortissimo {
    * Used by Fortissimo when logging failures.
    * Fatal errors are those that should not be caught by anything other than the request
    * handler. Or, to phrase it another way, these are errors that should rightly stop the
-   * execution of the app. Typically, FortissimoInterruptException
+   * execution of the app. Typically, Fortissimo::InterruptException
    * exceptions represent this category.
    */
   const LOG_FATAL = 'Fatal Error';
@@ -144,7 +144,7 @@ class Fortissimo {
    *  configuration data externally.
    * @param array $configData
    *  Any additional configuration data can be added here. This information
-   *  will be placed into the {@link FortissimoExecutionContext} that is passed
+   *  will be placed into the {@link Fortissimo::ExecutionContext} that is passed
    *  into each command. In this way, information passed here should be available
    *  to every command, as well as to the overarching framework.
    */
@@ -238,7 +238,7 @@ class Fortissimo {
    * Fortissimo will use other methods, such as introspection, to attempt to
    * self-document.
    *
-   * @param FortissimoRequest $request
+   * @param Fortissimo::Registry $request
    *  A request object.
    * @return string
    *  An explanation string in plain text.
@@ -280,21 +280,21 @@ class Fortissimo {
    * @param string $identifier
    *  A named identifier, typically a URI. By default (assuming ForitissimoRequestMapper has not
    *  been overridden) the $identifier should be a request name.
-   * @param FortissimoExecutionContext $initialCxt
+   * @param Fortissimo::ExecutionContext $initialCxt
    *  If an initialized context is necessary, it can be passed in here.
    * @param boolean $allowInternalRequests
    *  When this is TRUE, requests that are internal-only are allowed. Generally, this is TRUE under
    *  the following circumstances:
-   *  - When a FortissimoRedirect is thrown, internal requests are allowed. This is so that
+   *  - When a Fortissimo::Redirect is thrown, internal requests are allowed. This is so that
    *    you can declare internal requests that assume that certain tasks have already been
    *    performed.
    *  - Some clients can explicitly call handleRequest() with this flag set to TRUE. One example
    *    is `fort`, which will allow command-line execution of internal requests.
    */
-  public function handleRequest($identifier = 'default', FortissimoExecutionContext $initialCxt = NULL, $allowInternalRequests = FALSE) {
+  public function handleRequest($identifier = 'default', \Fortissimo\ExecutionContext $initialCxt = NULL, $allowInternalRequests = FALSE) {
 
     // Experimental: Convert errors (E_ERROR | E_USER_ERROR) to exceptions.
-    set_error_handler(array('FortissimoErrorException', 'initializeFromError'), 257);
+    set_error_handler(array('\Fortissimo\ErrorException', 'initializeFromError'), 257);
 
     // Load the request.
     try {
@@ -302,7 +302,7 @@ class Fortissimo {
       $requestName = $this->requestMapper->uriToRequest($identifier);
       $request = $this->regReader->getRequest($requestName, $allowInternalRequests);
     }
-    catch (FortissimoRequestNotFoundException $nfe) {
+    catch (\Fortissimo\RequestNotFoundException $nfe) {
       // Need to handle this case.
       $this->logManager->log($nfe, self::LOG_USER);
       $requestName = $this->requestMapper->uriToRequest('404');
@@ -363,13 +363,13 @@ class Fortissimo {
         $this->execCommand($command);
       }
       // Kill the request and log an error.
-      catch (FortissimoInterruptException $ie) {
+      catch (\Fortissimo\InterruptException $ie) {
         $this->logManager->log($ie, self::LOG_FATAL);
         $this->stopCaching();
         return;
       }
       // Forward any requests.
-      catch (FortissimoForwardRequest $forward) {
+      catch (\Fortissimo\ForwardRequest $forward) {
         // Not sure what to do about caching here.
         // For now we just stop caching.
         $this->stopCaching();
@@ -380,18 +380,18 @@ class Fortissimo {
         return;
       }
       // Kill the request, no error.
-      catch (FortissimoInterrupt $i) {
+      catch (\Fortissimo\Interrupt $i) {
         $this->stopCaching();
         return;
       }
       // Log the error, but continue to the next command.
-      catch (FortissimoException $e) {
+      catch (\Fortissimo\Exception $e) {
         // Note that we don't cache if a recoverable error occurs.
         $this->stopCaching();
         $this->logManager->log($e, self::LOG_RECOVERABLE);
         continue;
       }
-      catch (Exception $e) {
+      catch (\Exception $e) {
         $this->stopCaching();
         // Assume that a non-caught exception is fatal.
         $this->logManager->log($e, self::LOG_FATAL);
@@ -446,11 +446,10 @@ class Fortissimo {
    * The logger manager proxies data to the underlying logging facilities
    * as defined in the command configuration.
    *
-   * @return FortissimoLoggerManager
+   * @return Fortissimo::Logger::Manager
    *  The logger manager overseeing logs for this server.
-   * @see FortissimoLogger
-   * @see FortissimoLoggerManager
-   * @see FortissimoOutputInjectionLogger
+   * @see Fortissimo::Logger
+   * @see Fortissimo::OutputInjectionLogger
    */
   public function loggerManager() {
     return $this->logManager;
@@ -459,7 +458,7 @@ class Fortissimo {
   /**
    * Get the caching manager for this server.
    *
-   * @return FortissimoCacheManager
+   * @return Fortissimo::Cache::Manager
    *  The cache manager for this server.
    */
   public function cacheManager() {
@@ -484,10 +483,10 @@ class Fortissimo {
    * - Handle any errors that arise
    *
    * @param array $commandArray
-   *  An associative array, as described in FortissimoConfig::createCommandInstance.
-   * @throws FortissimoException
+   *  An associative array, as described in Fortissimo::Config::createCommandInstance.
+   * @throws Fortissimo::Exception
    *  Thrown if the command failed, but execution should continue.
-   * @throws FortissimoInterrupt
+   * @throws Fortissimo::Interrupt
    *  Thrown if the command wants to interrupt the normal flow of execution and
    *  immediately return to the client.
    */
@@ -501,13 +500,13 @@ class Fortissimo {
       $this->setEventHandlers($inst, $commandArray['listeners']);
     }
 
-    //set_error_handler(array('FortissimoErrorException', 'initializeFromError'), 257);
-    set_error_handler(array('FortissimoErrorException', 'initializeFromError'), self::ERROR_TO_EXCEPTION);
+    //set_error_handler(array('Fortissimo::ErrorException', 'initializeFromError'), 257);
+    set_error_handler(array('\Fortissimo\ErrorException', 'initializeFromError'), self::ERROR_TO_EXCEPTION);
     try {
       $inst->execute($params, $this->cxt);
     }
-    // Only catch a FortissimoException. Allow FortissimoInterupt to go on.
-    catch (FortissimoException $e) {
+    // Only catch a Fortissimo::Exception. Allow Fortissimo::Interupt to go on.
+    catch (\Fortissimo\Exception $e) {
       restore_error_handler();
       $this->logManager->log($e, 'Recoverable Error');
     }
@@ -530,7 +529,7 @@ class Fortissimo {
    *
    * @param array $commandArray
    *  Associative array of information about a command, as described
-   *  in FortissimoConfig::createCommandInstance().
+   *  in Fortissimo::RegistryReader::createCommandInstance().
    */
   protected function fetchParameters($commandArray) {
     $params = array();
