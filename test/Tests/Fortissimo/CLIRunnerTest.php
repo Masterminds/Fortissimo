@@ -13,10 +13,8 @@ class CLIRunnerTest extends TestCase {
     $registry = new Registry('load-objects');
 
     $registry->route('default')
-      // Parse arguments
-      // Show help if necessary
-      // Parse INI file
-      // Execute command
+      ->does('\Fortissimo\Command\Echo', 'echo')
+        ->using('text', 'TEST')
     ;
 
 
@@ -24,7 +22,11 @@ class CLIRunnerTest extends TestCase {
     global $argv;
     $runner = new CLIRunner($argv, STDOUT, STDIN);
     $runner->useRegistry($registry);
+    fprintf(STDOUT, 'TEST');
     $runner->run('default');
+    fprintf(STDOUT, 'DONE');
+
+    $this->assertTrue(TRUE);
 
   }
 }

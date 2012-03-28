@@ -345,7 +345,7 @@ class Registry {
    * @param mixed $value
    *   The default value. NULL if none is supplied.
    */
-  public function uses($param, $value = NULL) {
+  public function using($param, $value = NULL) {
     $this->withParam($param)->whoseDefaultIs($value);
 
   }
