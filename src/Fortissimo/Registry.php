@@ -85,7 +85,28 @@ class Registry {
     );
   }
 
+  /**
+   * An alias for Registry::request().
+   */
   public function route($name, $description = '') {
+    $this->request($name, $description);
+  }
+
+  /**
+   * Declare a new request.
+   *
+   * A request is a named chain of commands. It roughly maps
+   * to a "route" in other frameworks. Unlike routes
+   * in other frameworks, though, a request does not point
+   * to a controller, but to a chain of commands which will
+   * be run sequentially.
+   *
+   * @param string $name
+   *   The name of the request.
+   * @param string $description
+   *   The human-readable description of the request.
+   */
+  public function request($name, $description = '') {
     return $this->set(self::REQUESTS, $name);
   }
 
