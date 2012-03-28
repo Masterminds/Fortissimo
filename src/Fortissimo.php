@@ -494,6 +494,7 @@ class Fortissimo {
     // We should already have a command object in the array.
     $inst = $commandArray['instance'];
 
+
     $params = $this->fetchParameters($commandArray, $this->cxt);
     //print $commandArray['name'] . ' is ' . ($inst instanceof Observable ? 'Observable' : 'Not observable') . PHP_EOL;
     if ($inst instanceof \Fortissimo\Observable && !empty($commandArray['listeners'])) {
@@ -510,7 +511,7 @@ class Fortissimo {
       restore_error_handler();
       $this->logManager->log($e, 'Recoverable Error');
     }
-    catch (Exception $fatal) {
+    catch (\Exception $fatal) {
       restore_error_handler();
       throw $fatal;
     }
