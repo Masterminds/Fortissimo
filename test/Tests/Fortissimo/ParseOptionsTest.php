@@ -26,7 +26,7 @@ class ParseOptionsTest extends TestCase {
 
     $spec = $this->spec();
 
-    $opts = array('--flag1', 'test1', '--flag2', '--flag3', 'test3', 'data');
+    $opts = array('command','--flag1', 'test1', '--flag2', '--flag3', 'test3', 'data');
     $r
     ->route('test1')
       ->does('\Fortissimo\Command\CLI\ParseOptions', 'opts')
@@ -35,10 +35,10 @@ class ParseOptionsTest extends TestCase {
         ->using('help', 'OH HAI')
 
     ->route('test2')
-      ->does('\Fortissimo\Command\ParseOptions', 'opts')
+      ->does('\Fortissimo\Command\CLI\ParseOptions', 'opts')
         ->using('optionSpec', $spec)
         ->using('options', $opts)
-        ->using('offset', 1)
+        ->using('offset', 2)
     ;
 
 
@@ -47,6 +47,16 @@ class ParseOptionsTest extends TestCase {
     $cxt = $runner->run('test1');
 
     $this->assertNotEmpty($cxt);
+    $this->assertEquals('command', $cxt->get('opts-command'));
+    $this->assertEquals('test1', $cxt->get('flag1'));
+    $this->assertTrue($cxt->get('flag2'));
+    $extra = $cxt->get('opts-extra');
+    $this->assertEquals('data', $extra[0]);
+
+    $cxt = $runner->run('test2');
+    $this->assertEquals('test1', $cxt->get('opts-command'));
+    $this->assertFalse($cxt->has('flag1'));
+
   }
 
 }
