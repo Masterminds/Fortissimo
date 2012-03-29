@@ -231,15 +231,17 @@ class ParseOptions extends \Fortissimo\Command\Base {
     $buffer = array();
     $format = "\t%s:  %s" . PHP_EOL;
 
-    printf('%s supports the following' . PHP_EOL, $options[$this->name . '-command']);
+    printf('%s supports the following options:' . PHP_EOL . PHP_EOL, $options[$this->name . '-command']);
     foreach ($optionSpec as $flag => $spec) {
       $help = isset($spec['help']) ? $spec['help'] : '(undocumented)';
       printf($format, $flag, $help);
     }
     if (!empty($extraHelp)) {
-      print $extraHelp . PHP_EOL;
+      print PHP_EOL . $extraHelp . PHP_EOL;
     }
     print PHP_EOL;
+
+    // Stop processing early.
     throw new \Fortissimo\Interrupt();
   }
 }
