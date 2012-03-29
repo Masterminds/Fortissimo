@@ -14,6 +14,6 @@ class AddINITest extends TestCase {
     $cxt = $runner->run('ini');
 
     $this->assertEquals('foo', $cxt->get('test.param'));
-    $this->assertEquals('Long text', $cxt->get('test2.param'));
+    $this->assertEquals('long text', $cxt->get('test2.param'));
   }
 }
