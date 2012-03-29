@@ -5,6 +5,7 @@
  *
  * Created by Matt Butcher on 2011-04-07.
  */
+namespace Fortissimo\Logger;
 
 /**
  * Logger using a capped MongoDB collection.
@@ -20,7 +21,7 @@
  *
  * @author Matt Butcher
  */
-class FortissimoMongoCappedLogger extends FortissimoLogger {
+class MongoCappedLogger extends Base {
 
   protected $maxEntries = 1000;
   protected $maxSize = 1048576;
@@ -35,37 +36,37 @@ class FortissimoMongoCappedLogger extends FortissimoLogger {
     if (isset($this->params['maxEntries'])) {
       $this->maxEntries = (int)$this->params['maxEntries'];
     }
-    
+
     // Defaults to 1M.
     if (isset($this->params['maxSize'])) {
       $this->maxSize = (int)$this->params['maxSizeInBytes'];
     }
-    
+
     // Get the datasource name.
     if (empty($this->params['mongoDatasourceName'])) {
-      throw new FortissimoInterruptException('No mongoDatasourceName was supplied to ' . $this->name);
+      throw new \Fortissimo\InterruptException('No mongoDatasourceName was supplied to ' . $this->name);
     }
     $this->dsName = $this->params['mongoDatasourceName'];
-    
+
     // Get the collection name.
     if (empty($this->params['collectionName'])) {
-      throw new FortissimoInterruptException('No collectionName was set for ' . $this->name);
+      throw new \Fortissimo\InterruptException('No collectionName was set for ' . $this->name);
     }
     $this->collectionName = $this->params['collectionName'];
   }
-  
+
   // Override this to do some initialization when the datasources are set.
   public function setDatasourceManager(FortissimoDatasourceManager $manager) {
     parent::setDatasourceManager($manager);
-    
+
     // Try to get the datasource:
     $dsWrapper = $this->datasourceManager->datasource($this->dsName);
     $this->ds = $dsWrapper->get();
     if (empty($this->ds)) {
-      throw new FortissimoInterruptException('Could not get datasource named ' . $this->dsName);
+      throw new \Fortissimo\InterruptException('Could not get datasource named ' . $this->dsName);
     }
-    if (!($this->ds instanceof mongoDB)) {
-      throw new FortissimoInterruptException('Expected a MongoDB for ' . $this->dsName);
+    if (!($this->ds instanceof \MongoDB)) {
+      throw new \Fortissimo\InterruptException('Expected a MongoDB for ' . $this->dsName);
     }
     $this->ds->createCollection($this->collectionName, TRUE, $this->maxSize, $this->maxEntries);
   }
