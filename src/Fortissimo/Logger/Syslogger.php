@@ -2,6 +2,7 @@
 /** @file
  * This file contains the classes required for logging Fortissimo output to syslog.
  */
+namespace Fortissimo\Logger;
 
 /**
  * Provides Syslog support for Fortissimo's loggers.
@@ -27,43 +28,43 @@
  *
  * @ingroup Fortissimo
  */
-class FortissimoSyslogLogger extends FortissimoLogger {
-  
+class Syslogger extends Base {
+
   protected $catmap = array();
   protected $ident, $opts, $verbose, $facility;
-  
+
   public function init() {
-    
+
     // If there is a map, set it.
     if (isset($this->params['category2priority'])) {
       $this->catmap = $this->params['category2priority'];
     }
-    
+
     // Set the app's identity.
     $this->ident = (isset($this->params['ident'])) ? $this->params['ident'] : 'Fortissimo';
-    
+
     // See if verbose logging is on.
     $this->verbose = isset($this->params['verbose']) 
       && filter_var($this->params['verbose'], FILTER_VALIDATE_BOOLEAN);
-    
+
     // Set log options:
     $this->opts = isset($this->params['logOptions']) ? $this->params['logOptions'] : 0;
-    
+
     $this->facility = isset($this->params['facility']) ? (int)$this->params['facility'] : LOG_USER;
-    
+
     openlog($this->ident, $this->opts, $this->facility);
   }
-  
+
   public function log($msg, $category, $details) {
-    
+
     $level = $this->getLogLevel($category);
     if ($this->verbose) {
       $msg .= ' ' . $details;
     }
-    
+
     syslog($level, $msg);
   }
-  
+
   /**
    * Get the Syslog logging level.
    * 
