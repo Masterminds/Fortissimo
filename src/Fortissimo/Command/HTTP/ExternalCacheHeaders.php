@@ -9,7 +9,7 @@
  *
  * Created by Matt Butcher on 2011-03-03.
  */
-
+namespace Fortissimo\Command\HTTP;
 /**
  * Provide cache control headers for Fortissimo.
  *
@@ -19,8 +19,8 @@
  *
  * @author Matt Butcher
  */
-class ExternalCacheHeaders extends BaseFortissimoCommand {
-  
+class ExternalCacheHeaders extends \Fortissimo\Command\Base {
+
   /**
    * The date format for an Expires header.
    */
@@ -32,11 +32,11 @@ class ExternalCacheHeaders extends BaseFortissimoCommand {
       ->usesParam('no_cache', 'Explicitly set headers to prevent caching.')
       ->withFilter('boolean')
       ->whichHasDefault(FALSE)
-      
+
       ->usesParam('ttl', 'Time to live (in seconds). Defaults to two minutes.')
       ->withFilter('number_int')
       ->whichHasDefault(120)
-      
+
       //->usesParam('name', 'desc')
       //->withFilter('string')
       //->whichIsRequired()
@@ -46,14 +46,14 @@ class ExternalCacheHeaders extends BaseFortissimoCommand {
   }
 
   public function doCommand() {
-    
+
     // If no_cache is TRUE, we set the nocache headers and return.
     if ($this->isNotCacheable() || $this->param('no_cache', FALSE)) {
       return $this->noCacheHeaders();
     }
     return $this->cacheHeaders();
   }
-  
+
   /**
    * Generate cache headers.
    *
@@ -67,13 +67,13 @@ class ExternalCacheHeaders extends BaseFortissimoCommand {
     $ttl = $this->param('ttl', 120);
     $exp_time = $_SERVER['REQUEST_TIME'] + $ttl;
     $exp_date = gmdate(self::EXPIRES_DATE_FORMAT,$exp_time);
-    
+
     header(sprintf('Cache-Control: max-age=%d, must-revalidate, public', $ttl));
     header(sprintf('Expires: %s', $exp_date));
-    
+
     return $exp_time;
   }
-  
+
   /**
    * Sets headers to tell caches not to cache.
    *
@@ -91,10 +91,10 @@ class ExternalCacheHeaders extends BaseFortissimoCommand {
     foreach($headers as $header) {
       header($header, TRUE);
     }
-    
+
     return 0;
   }
-  
+
   /**
    * Indicate if this request cannot be cached.
    *
@@ -112,9 +112,9 @@ class ExternalCacheHeaders extends BaseFortissimoCommand {
       'GET' => 1,
       'HEAD' => 1,
     );
-    
+
     return empty($cacheable_methods[$_SERVER['REQUEST_METHOD']]);
-    
+
   }
 }
 
