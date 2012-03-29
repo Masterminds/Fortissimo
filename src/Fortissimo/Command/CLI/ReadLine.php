@@ -7,7 +7,7 @@
  *
  * Created by Matt Butcher on 2011-07-01.
  */
-
+namespace Fortissimo\Command\CLI;
 /**
  * Prompts the user for input and waits for a response.
  *
@@ -29,8 +29,8 @@
  * @endcode
  * @author Matt Butcher
  */
-class ReadLine extends BaseFortissimoCommand {
-  
+class ReadLine extends \Fortissimo\Command\Base {
+
   protected $cursor;
 
   public function expects() {
@@ -48,9 +48,9 @@ class ReadLine extends BaseFortissimoCommand {
 
   public function doCommand() {
     $this->cursor = $this->param('promptFormat');
-    
+
     $prompts = $this->param('prompts', array());
-    
+
     $this->doPromptSequence($prompts);
   }
   
@@ -58,13 +58,13 @@ class ReadLine extends BaseFortissimoCommand {
     foreach ($prompts as $prompt => $desc) {
       $help = isset($desc['help']) ? $desc['help'] : '';
       $default = isset($desc['default']) ? $desc['default'] : NULL; // Avoid E_STRICT violation
-      
+
       $value = $this->doPrompt($prompt, $help, $default);
-      
+
       $this->context->add($prompt, $value);
     }
   }
-  
+
   public function doPrompt($name, $help, $default) {
     print $help . PHP_EOL;
     if (function_exists('readline')) {
