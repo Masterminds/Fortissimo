@@ -2,16 +2,8 @@
 /**
  * A command for using the Twig template engine from within Fortissimo.
  *
- * @ingroup Fortissimo
  */
- 
-/**
- * This uses the Twig autoloader for loading templates and the Twig engine.
- * Typically, Twig is installed via Pear, and is automatically added to the 
- * PHP library path.
- */
-require_once 'Twig/Autoloader.php'; 
- 
+namespace Fortissimo\Command\Twig; 
 /**
  * This command provides Twig template engine support.
  *
@@ -33,63 +25,63 @@ require_once 'Twig/Autoloader.php';
  *
  * @ingroup Fortissimo
  */
-class FortissimoTemplate extends BaseFortissimoCommand {
-  
+class Template extends \Fortissimo\Command\Base {
+
   public function expects() {
     return $this
     ->description('Renders variables into a Twig template.')
-    
+
     ->usesParam('variables', 'Variables to be passed to the template. These should be an associative array or a FortissimoExecutionContext (i.e. a context).')
-    
+
     ->usesParam('template', 'The template to use. This name is appended to the template directory (if supplied) and then loaded from the file system.')
     ->withFilter('string')
     ->whichIsRequired()
-    
+
     ->usesParam('templateDir', 'The main directory for templates. Paths to templates are created by adding base path to (optional) template dir, and then appending the template. No leading or trailing slashes! To search multiple directories, separate the directories by a comma, and order from most to least important.')
     ->withFilter('string')
-    
+
     ->usesParam('templateCache', 'The location for cached compiled templates. Must be writable by application.')
-    
+
     ->usesParam('disableCache', 'If this is true, the template cache will be disabled.')
     ->withFilter('boolean')
-    
+
     ->usesParam('debug', 'A flag indicating whether debugging output should be enabled.')
     ->withFilter('boolean')
-    
+
     ->usesParam('trim_blocks', 'Mimicks the behavior of PHP by removing the newline that follows instructions if present (default to false).')
     ->withFilter('boolean')
-    
+
     ->usesParam('base_template_class', 'Base class for templates (Default: Twig_Template)')
-    
+
     ->usesParam('charset', 'Character set to use. Default: utf-8')
     ->withFilter('string')
-    
+
     ->usesParam('auto_reload', 'If this is true, templates will be automatically rebuilt each time the source code is updated.')
     ->withFilter('boolean')
-    
+
     ->andReturns('A string containing the content as rendered through a template.')
     ;
   }
-  
+
   public function doCommand() {
-    
+
     $baseDir = $this->param('templateDir', '');
     $template = $this->param('template');
     $variables = $this->param('variables', $this->context);
     $cache = $this->param('templateCache', './cache');
-    
+
     if (!is_array($variables)) {
-      if ($variables instanceof FortissimoExecutionContext) {
+      if ($variables instanceof \Fortissimo\ExecutionContext) {
         $variables = $variables->toArray();
       }
       else {
-        throw new FortissimoInterruptException('Variable data was not passed to the command.');
+        throw new \Fortissimo\InterruptException('Variable data was not passed to the command.');
       }
     }
-    
+
     // Twig supports multiple base template directories.
     $templateDir = explode(',', $baseDir);
-    
+
     // Set up the Twig configuration array.
     $cache_val = $this->param('disableCache', FALSE) ? FALSE : $this->param('templateCache', NULL);
     $twigConfig = array(
@@ -100,14 +92,14 @@ class FortissimoTemplate extends BaseFortissimoCommand {
       'auto_reload' => $this->param('auto_reload', FALSE),
       'trim_blocks'  => $this->param('trim_blocks', FALSE),
     );
-    
+
     // Render the template into a buffer
     $buffer = $this->renderTemplate($template, $variables, $templateDir, $twigConfig);
-    
+
     // Return the buffer.
     return $buffer;
   }
-  
+
   /**
    * Inject the variables into the template and render the results.
    *
@@ -128,14 +120,14 @@ class FortissimoTemplate extends BaseFortissimoCommand {
    *   The rendered content.
    */
   public function renderTemplate($template, $variables, $templateDir,  $twigConfig) {
-    
-    Twig_Autoloader::register();
 
-    $loader = new Twig_Loader_Filesystem($templateDir);
-    $twig = new Twig_Environment($loader, $twigConfig);
+    //Twig_Autoloader::register();
+
+    $loader = new \Twig_Loader_Filesystem($templateDir);
+    $twig = new \Twig_Environment($loader, $twigConfig);
     $tpl = $twig->loadTemplate($template);
-    
+
     return $tpl->render($variables);
-    
+
   }
 }
