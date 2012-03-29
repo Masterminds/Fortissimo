@@ -130,7 +130,7 @@ class ParseOptions extends \Fortissimo\Command\Base {
 
   public function doCommand() {
     $optionSpec = $this->param('optionSpec');
-    $help = $this->param('help');
+    $helpText = $this->param('help');
     $argArray = $this->param('options', NULL);
     $offset = $this->param('offset', 0);
 
@@ -149,13 +149,13 @@ class ParseOptions extends \Fortissimo\Command\Base {
       $options = $this->extractOptions($optionSpec, $argArray);
     }
 
-    print_r($options);
+    //print_r($options);
 
     // What do we do with leading args?
     //print_r($this->leadingArgs);
 
     if (isset($options['help'])) {
-      $this->generateHelp($optionSpec, $options);
+      $this->generateHelp($optionSpec, $options, $helpText);
     }
 
     $this->context->addAll($options);
@@ -240,7 +240,7 @@ class ParseOptions extends \Fortissimo\Command\Base {
       print $extraHelp . PHP_EOL;
     }
     print PHP_EOL;
-    throw new \FortissimoInterrupt();
+    throw new \Fortissimo\Interrupt();
   }
 }
 
