@@ -1,20 +1,20 @@
 <?php
 /**
+ * @file
  * This file contains the command for dumping context.
- *
- * @ingroup Fortissimo
  */
+namespace Fortissimo\Command;
 
 /**
  * This command dumps the contents of the context to standard out.
  *
- * It performs this operation by running {@link var_dump()} on the
- * contents of the {@link FortissimoExecutionContext}.
+ * It performs this operation by running `var_dump()` on the
+ * contents of the Fortissimo::ExecutionContext.
  *
  * This is useful (occasionally) for debugging.
  */
-class FortissimoContextDump extends BaseFortissimoCommand {
-  
+class DumpContext extends Base {
+
   public function expects() {
     return $this
       ->description('Dumps everything in the context to STDOUT.')
@@ -24,14 +24,14 @@ class FortissimoContextDump extends BaseFortissimoCommand {
       ->withFilter('string')
       ;
   }
-  
+
   /**
    * Dump the context to STDOUT.
    */
   public function doCommand() {
     $pretty = $this->param('html', FALSE);
     $item = $this->param('item', NULL);
-    
+
     if (!empty($item)) {
       $format = '<div class="fortissimo-context-dump-header">Dumping Context Item "%s"</div>';
       printf($format, $item);
@@ -40,7 +40,7 @@ class FortissimoContextDump extends BaseFortissimoCommand {
     else {
       $dump = $this->context;
     }
-    
+
     if ($pretty) {
       print '<div class="fortissimo-context-dump"><pre>';
       var_dump($dump);
@@ -49,6 +49,6 @@ class FortissimoContextDump extends BaseFortissimoCommand {
     else {
       var_dump($dump);
     }
-    
+
   }
 }
