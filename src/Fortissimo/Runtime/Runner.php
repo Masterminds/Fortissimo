@@ -47,8 +47,14 @@ class Runner {
    * @retval object Fortissimo::ExecutionContext
    *   The final context, containing whatever modifications were
    *   made during running.
+   * @throws Fortissimo::Runtime::Exception
+   *   Thrown when the runtime cannot be initialized or executed.
    */
   public function run($route = 'default') {
+    if (empty($this->registry)) {
+      throw new \Fortissimo\Runtime\Exception('No registry found.');
+    }
+
     $ff = new \Fortissimo($this->registry);
     $cxt = $this->initialContext();
     $ff->handleRequest($route, $cxt, $this->allowInternalRequests);
