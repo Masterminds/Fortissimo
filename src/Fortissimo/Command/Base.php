@@ -318,6 +318,9 @@ abstract class Base implements \Fortissimo\Command, \Fortissimo\Explainable, \Fo
     // Gets the list of Fortissimo::Command::BaseParameter objects and loops
     // through them, loading the parameters into the object.
     $expecting = $this->expects();
+    if (!isset($expecting)) {
+      throw new \Fortissimo\Runtime\Exception(__CLASS__ . '::expects() returned nothing.');
+    }
     foreach ($expecting as $paramObj) {
       $name = $paramObj->getName();
       $filters = $paramObj->getFilters();
