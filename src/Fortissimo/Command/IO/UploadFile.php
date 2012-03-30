@@ -4,7 +4,7 @@
  *
  * @ingroup Fortissimo
  */
-
+namespace Fortissimo\Command\IO;
 /**
  * Deal with an uploaded file.
  *
@@ -30,8 +30,8 @@
  * This will inject the FULL PATH to the file back into the context. You can then use standard file
  * functions to work with it.
  */
-class FortissimoFileLoader extends BaseFortissimoCommand {
-  
+class UploadFile extends \Fortissimo\Command\Base {
+
   public function expects() {
     return $this
       ->description('Retrieve a posted file and make it available for accessing using a file function.')
@@ -44,49 +44,49 @@ class FortissimoFileLoader extends BaseFortissimoCommand {
       ->usesParam('moveTo', 'Specify a directory where this file should be permanently relocated. If none is specified, then the file will be kept in the designated temp space, and will be unlinked automatically.')
         ->withFilter('string')
       ->andReturns('A filename on the file system.');
-    
+
   }
-  
+
   public function doCommand() {
-    
-    // Get parameters.    
+
+    // Get parameters.
     $fileData = $this->param('inputName');
     $acceptedTypes = $this->param('types', NULL);
     $moveTo = $this->param('moveTo', NULL);
     $extensions = $this->param('extensions', NULL);
     $rewriteExtensions = $this->param('rewriteExtensions', NULL);
     $rewriteRule = $this->param('rewriteExtensionRule');
-    
+
     // Check to see if file data was supplied.
     if (empty($fileData)) {
-      throw new FortissimoException('No file uploaded.');
+      throw new \Fortissimo\Exception('No file uploaded.');
     }
-    
+
     // Check for errors.
     if (!empty($fileData['error'])) {
-      throw new FortissimoException('Upload failed: ' . $this->getUploadError($fileData['error']));
+      throw new \Fortissimo\Exception('Upload failed: ' . $this->getUploadError($fileData['error']));
     }
-    
+
     // Check that FILE array wasn't hijacked.
     if (!is_uploaded_file($fileData['tmp_name'])) {
-      throw new FortissimoException('Upload failed: File failed security check.');
+      throw new \Fortissimo\Exception('Upload failed: File failed security check.');
     }
-    
+
     // Check that MIME type is allowed.
     if (!empty($acceptedTypes) && !$this->checkMIMEType($fileData['type'], $acceptedTypes)) {
-      throw new FortissimoException('Upload failed: Incorrect file type.');
+      throw new \Fortissimo\Exception('Upload failed: Incorrect file type.');
     }
-    
+
     // Check that extension is allowed.
     if (!empty($extensions) && !$this->checkExtension($fileData['name'], $extensions)) {
-      throw new FortissimoException('Upload failed: Incorrect file extension.');
+      throw new \Fortissimo\Exception('Upload failed: Incorrect file extension.');
     }
-    
+
     // Rewrite extensions if necessary.
     if (!empty($rewriteExtensions)) {
       $fileData['name'] = $this->replaceExtension($fileData['name'], $rewriteExtensions, $rewriteRule);
     }
-    
+
     // Check to see if we need to move this file.
     if (!empty($moveTo)) {
       $filename = $this->relocateFile($fileData, $moveTo);
@@ -94,10 +94,10 @@ class FortissimoFileLoader extends BaseFortissimoCommand {
     else {
       $filename = $fileData['tmp_name'];
     }
-    
+
     return $filename;
   }
-  
+
   /**
    * Move a file to a new location.
    *
@@ -105,29 +105,29 @@ class FortissimoFileLoader extends BaseFortissimoCommand {
    *  The array of file data from $_FILES.
    * @param string $destination
    *  A directory on the file system. This must be writable.
-   * @throws FortissimoException
+   * @throws \Fortissimo\Exception
    *  Throws an exception when the file cannot be written.
    * @return string
    *  Returns the filename (path and all) of the returned file.
    */
   protected function relocateFile($fileData, $destination) {
     if (!is_dir($destination) || !is_writable($destination)) {
-      throw new FortissimoException('Could not write to the destination directory.');
+      throw new \Fortissimo\Exception('Could not write to the destination directory.');
     }
-    
+
     $destFilename = $destination . DIRECTORY_SEPARATOR . $fileData['name'];
     if (file_exists($destFilename)) {
       // FIXME: Should we try to automatically rename the file instead of doing this?
-      throw new FortissimoException('File already exists and cannot be overwritten.');
+      throw new \Fortissimo\Exception('File already exists and cannot be overwritten.');
     }
-    
+
     if (!move_uploaded_file($fileData['tmp_name'], $destFilename)) {
-      throw new FortissimoException('Failed to move uploaded file.');
+      throw new \Fortissimo\Exception('Failed to move uploaded file.');
     }
-    
+
     return $destFilename;
   }
-  
+
   /**
    * Check whether the given file has an allowed extension.
    *
@@ -155,22 +155,22 @@ class FortissimoFileLoader extends BaseFortissimoCommand {
     if (is_string($extensions)) {
       $extensions = array_map('trim', explode(',', $extensions));
     }
-    
+
     // Checking isset() is faster than in_array(), so we flip.
     $extensions = array_flip($extensions);
-    
+
     // Always pass in this case.
     if (isset($extensions['*'])) return TRUE;
-    
+
     // Get the extension.
     //$fileInfo = pathinfo($filename);
     //$ext = $fileInfo['extension'];
-    
+
     $ext = pathinfo($filename, PATHINFO_EXTENSION);
-    
+
     return isset($extensions[$ext]);
   }
-  
+
   /**
    * Given a filename and a list of extensions and a rule, rewrite any problematic extensions.
    *
@@ -191,28 +191,28 @@ class FortissimoFileLoader extends BaseFortissimoCommand {
     if (is_string($extensions)) {
       $extensions = array_map('trim', explode(',', $extensions));
     }
-    
+
     // Checking isset() is faster than in_array(), so we flip.
     $extensions = array_flip($extensions);
-    
+
     // Get the extension.
     $fileInfo = pathinfo($filename);
     $ext = $fileInfo['extension'];
-    
+
     if (isset($extensions[$ext])) {
       $newExt = sprintf($rewriteRule, $ext);
       $fname = $fileInfo['filename'] . '.' . $newExt;
-      
+
       // Prepend base dir if necessary.
       if (!empty($fileInfo['dirname'])) {
         $fname = $fileInfo['dirname'] . DIRECTORY_SEPARATOR . $fname;
       }
       return $fname;
     }
-    
+
     return $filename;
   }
-  
+
   /**
    * Check that a given file type is allowed.
    *
@@ -230,17 +230,17 @@ class FortissimoFileLoader extends BaseFortissimoCommand {
     if (is_string($allowed)) {
       $allowed = array_map('trim', explode(',', $allowed));
     }
-    
+
     // We do this for a speedier lookup, though it only makes
     // a difference on very large lists of $allowed.
     $allowed = array_flip($allowed);
-    
+
     // */* matches everything.
     if (isset($allowed['*/*'])) return TRUE;
-    
+
     return isset($allowed[$given]);
   }
-  
+
   /**
    * Ascertain the cause of the upload error.
    *
@@ -268,8 +268,8 @@ class FortissimoFileLoader extends BaseFortissimoCommand {
     }
     return 'An unknown error occured while processing the file.';
   }
-  
-  
+
+
   /**
    * Utility function to get the original file name.
    * This is useful for error reporting.
