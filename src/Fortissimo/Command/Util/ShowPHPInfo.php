@@ -2,7 +2,7 @@
 /** @file
  * Provides PHP info.
  */
-
+namespace Fortissimo\Command\Util;
 /**
  * A simple command for printing PHP information.
  *
@@ -10,8 +10,8 @@
  *
  * @ingroup Fortissimo
  */
-class FortissimoPHPInfo extends BaseFortissimoCommand {
-  
+class ShowPHPInfo extends \Fortissimo\Command\Base {
+
   public function expects() {
     return $this
       ->description('Provides debugging information about PHP.')
@@ -22,14 +22,14 @@ class FortissimoPHPInfo extends BaseFortissimoCommand {
       ->whichHasDefault('all')
       ->andReturns('Nothing. Prints data straight to output.');
   }
-    
+
   public function doCommand() {
     $categoryName = $this->param('category');
     $category = $this->getCategoryCode($categoryName);
-    
+
     phpinfo($category);
   }
-  
+
   /**
    * Get the category ID, given a string name.
    *
