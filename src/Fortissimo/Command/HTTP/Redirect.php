@@ -4,7 +4,7 @@
  *
  * @author mbutcher
  */
-
+namespace Fortissimo\Command\HTTP;
 /**
  * Issue a redirect.
  *
@@ -22,8 +22,8 @@
  *
  * @ingroup Fortissimo
  */
-class FortissimoRedirect extends BaseFortissimoCommand {
-  
+class Redirect extends \Fortissimo\Command\Base {
+
   public function expects() {
     return $this
       ->description('Redirect the user agent using an HTTP 3xx')
@@ -37,15 +37,15 @@ class FortissimoRedirect extends BaseFortissimoCommand {
       ->andReturns('Nothing; It throws an Interrupt, which terminates the request.')
       ;
   }
-  
+
   public function doCommand() {
     $code = $this->param('redirect_type');
     $url = $this->param('url');
-    
+
     // Set the location HTTP header.
     header('Location:' . $url, TRUE, $code);
-    
+
     // Stop processing of this request.
-    throw new FortissimoInterrupt('Redirect to ' . $url . ' using HTTP ' . $code);
+    throw new \Fortissimo\Interrupt('Redirect to ' . $url . ' using HTTP ' . $code);
   }
 }
