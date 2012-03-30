@@ -2,7 +2,7 @@
 /** @file
  * Datasource providng PDO access to SQL databases.
  */
-
+namespace Fortissimo\Datasource;
 /**
  * Provides a datasource access layer for PDO.
  *
@@ -13,7 +13,7 @@
  *
  * @code
  * <?php
- * Config::datasource('pdo')
+ * $registry->datasource('pdo')
  *   ->whichInvokes('FortissimoPDODatasource')
  *   ->withParam('dsn')
  *     ->whoseValueIs('mysql:host=localhost;dbname=test')
@@ -32,7 +32,7 @@
  *
  * @code
  * <?php
- * class FooClass extends BaseFortissimoCommand {
+ * class FooClass extends \Fortissimo\Command\Base {
  *
  *  public function expects() {
  *    return $this
@@ -58,31 +58,31 @@
  *
  * @ingroup Fortissimo
  */
-class FortissimoPDODatasource extends FortissimoDatasource {
-  
+class PDO extends \Fortissimo\Datasource {
+
   /**
    * The connection object, which is opened during init().
    */
   protected $con = NULL;
-  
+
 
   public function init() {
-    
+
     if (empty($this->params['dsn'])) {
-      throw new FortissimoInterruptException('Missing DSN in ' . __CLASS__);
+      throw new \Fortissimo\InterruptException('Missing DSN in ' . __CLASS__);
     }
-    
+
     $dsn = $this->params['dsn'];
-    
+
     $user = isset($this->params['user']) ? $this->params['user'] : NULL;
     $pass = isset($this->params['password']) ? $this->params['password'] : NULL;
     $options = isset($this->params['driver_options']) ? $this->params['driver_options'] : NULL;
-    
-    $this->con = new PDO($dsn, $user, $pass, $options);
+
+    $this->con = new \PDO($dsn, $user, $pass, $options);
   }
-  
+
   public function get() {
     return $this->con;
   }
-  
+
 }

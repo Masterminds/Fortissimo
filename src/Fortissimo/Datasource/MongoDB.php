@@ -4,9 +4,8 @@
  *
  * This datasource wraps a MongoDB database instance.
  *
- * @ingroup Fortissimo
  */
- 
+namespace Fortissimo\Datasource;
 /**
  * The MongoDB Datasource
  *
@@ -18,10 +17,9 @@
  * - server: The server URL (e.g. 'mongodb://localhost:27017')
  * - defaultDB: The database (e.g. 'myDB')
  *
- * @ingroup Fortissimo
  */
-class FortissimoMongoDatasource extends FortissimoDatasource {
-  
+class MongoDB extends \Fortissimo\Datasource {
+
   /**
    * The MongoDB instance.
    */
@@ -29,7 +27,7 @@ class FortissimoMongoDatasource extends FortissimoDatasource {
   protected $mongoDB = NULL;
   protected $server = NULL;
   protected $dbName = NULL;
-  
+
   /**
    * Initialize the database connection.
    *
@@ -45,16 +43,16 @@ class FortissimoMongoDatasource extends FortissimoDatasource {
    */
   public function init() {
     if (!isset($this->params['defaultDB'])) {
-      throw new FortissimoInterruptException("'defaultDB' is a required parameter.");
+      throw new \Fortissimo\InterruptException("'defaultDB' is a required parameter.");
     }
-    
+
     $optionKeys = array('username', 'password', 'connect', 'timeout', 'replicaSet');
-    
+
     // Avoid E_STRICT warning.
     $this->server = isset($this->params['server']) ? $this->params['server'] : NULL;
-    
+
     $this->dbName = $this->params['defaultDB'];
-    
+
     // Pass options in.
     $mongoOptions = array();
     foreach ($optionKeys as $pname) {
@@ -62,11 +60,11 @@ class FortissimoMongoDatasource extends FortissimoDatasource {
         $mongoOptions[$pname] = $this->params[$pname];
       }
     }
-    
-    $this->mongoInstance = new Mongo($this->server);
+
+    $this->mongoInstance = new \Mongo($this->server);
     $this->mongoDB = $this->mongoInstance->selectDB($this->dbName);
   }
-  
+
   /**
    * Get a MongoDB object.
    * 
@@ -76,7 +74,7 @@ class FortissimoMongoDatasource extends FortissimoDatasource {
   public function get() {
     return $this->mongoDB;
   }
-  
+
   /**
    * Get the Mongo instance.
    * 
@@ -90,4 +88,4 @@ class FortissimoMongoDatasource extends FortissimoDatasource {
   public function getMongoInstance() {
     return $this->mongoInstance;
   }
-} 
+}
