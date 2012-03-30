@@ -7,10 +7,10 @@ class DumpContextTest extends TestCase {
   public function testDoCommand() {
     $reg = $this->registry('test');
 
-    $reg->route('default')->does('\Fortissimo\Command\DumpContext', 'dump');
+    $reg->route('default')->does('\Fortissimo\Command\Context\DumpContext', 'dump');
 
     $reg->route('test2')
-      ->does('\Fortissimo\Command\DumpContext', 'dump')
+      ->does('\Fortissimo\Command\Context\DumpContext', 'dump')
       ->using('item', 'test')
       ;
 

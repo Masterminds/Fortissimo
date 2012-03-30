@@ -4,7 +4,7 @@
  * of the current request.
  * @ingroup Fortissimo
  */
-namespace Fortissimo\Command;
+namespace Fortissimo\Command\Context;
 
 /**
  * Command to add arbitrary data to the context.

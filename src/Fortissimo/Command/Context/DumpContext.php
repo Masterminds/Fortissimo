@@ -3,7 +3,7 @@
  * @file
  * This file contains the command for dumping context.
  */
-namespace Fortissimo\Command;
+namespace Fortissimo\Command\Context;
 
 /**
  * This command dumps the contents of the context to standard out.
@@ -13,7 +13,7 @@ namespace Fortissimo\Command;
  *
  * This is useful (occasionally) for debugging.
  */
-class DumpContext extends Base {
+class DumpContext extends \Fortissimo\Command\Base {
 
   public function expects() {
     return $this

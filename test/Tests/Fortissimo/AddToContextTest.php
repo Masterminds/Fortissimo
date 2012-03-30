@@ -6,7 +6,7 @@ class AddToContextTest extends TestCase {
   public function testDoCommand() {
     $reg = $this->registry('test');
     $reg->route('test')
-      ->does('\Fortissimo\Command\AddToContext', 'add')
+      ->does('\Fortissimo\Command\Context\AddToContext', 'add')
       ->using('test1', 'foo')
       ->using('test2', 'bar')
       ;
