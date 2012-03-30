@@ -116,5 +116,6 @@ class ExternalCacheHeaders extends \Fortissimo\Command\Base {
     return empty($cacheable_methods[$_SERVER['REQUEST_METHOD']]);
 
   }
+
 }
 
