@@ -42,20 +42,7 @@
  *
  * To get started with Fortissimo, take a look at some of the unit testing
  * classes or read the online documentation. Then write a custom class implementing
- * the BaseFortissimo::Command.
- *
- * <b>The Fortissimo Autoloader</b>
- * Fortissimo uses the default SPL autoloader to find and load classes. For that
- * reason, if you follow the convention of storing classes inside of files
- * named with the class name, you will not need to use {@link include()} or any
- * other such functions.
- *
- * Current benchmarks indicate that the SPL autoloader is slightly faster than
- * using require/require_once, both with and without an opcode cache.
- *
- * You can augment the autoloader's default paths using <code>include</code>
- * elements in the command.xml file (or manually loading them in via the
- * config object).
+ * the Fortissimo::Command::Base.
  *
  * The code in the Fortissimo project is released under an MIT-style license.
  *
