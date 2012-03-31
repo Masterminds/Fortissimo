@@ -15,5 +15,9 @@ namespace Fortissimo;
  * - A fatal error has occurred, and a 500-level error should be returned to the user.
  * - Access is denied to the user.
  * - A request name cannot be found.
+ *
+ * Note that an InterruptException does *not* extend a Fortissimo::Exception. This
+ * is because Fortissimo::Exception is recoverable, while Fortissimo::InterruptException
+ * is not.
  */
-class InterruptException extends Exception {}
+class InterruptException extends \Exception {}
