@@ -1,0 +1,51 @@
+# TODO
+
+## Fortissimo and Runners
+- Create CachingRunner and move request caching to that (not command
+  caching)
+- Create WebRunner extends CachingRunner
+- Runners should handle Explain mode -- maybe an ExplainRunner?
+- Runners should handle RequestNotFoundException condition
+- Replace $_ENV with get_env.
+- Extend fetchParameterFromSource to search datasources.
+- Do we need an autoloader?
+
+## Event Handlers
+
+- Test event handlers
+
+## Commands
+
+- Theme commands need updating.
+- Twig commands need updating.
+- Base needs better explain support.
+- Add Context\AddJSON command.
+
+## Caches
+
+- Cache implementations need testing
+
+## Mappers
+
+- Need a CLI mapper
+- Determine whether mappers should be handled in runner, context
+  or fortissimo.
+
+## Datasources
+
+- Test PDO datasource
+- Should MongoDB datasources be moved to separate project?
+
+## Fort
+
+- Default registry.php to build projects
+- Refactor fort to run off of registry
+
+## Tests
+
+- Clean up tests
+- Remove unused fixtures and stubs
+
+# Misc
+
+- Composer needs to treat fort as a bin
