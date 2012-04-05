@@ -52,31 +52,4 @@ class CLIRunner extends Runner {
     $cxt = parent::initialContext();
     return $cxt;
   }
-
-  /**
-   * Print help text.
-   * @param array $options
-   *  Options array.
-   * @param array $examples
-   *  Additional examples to display.
-   */
-  public function showHelp($options, $examples) {
-    global $argv;
-    printf('This is a command-line Fortissimo command runner.'. PHP_EOL);
-    printf('Syntax: %s [OPTIONS] COMMAND [ARGUMENTS]'. PHP_EOL, $argv[0]);
-    print 'Options:' . PHP_EOL;
-
-    $ofmt = "\t%s: %s" . PHP_EOL;
-    foreach ($options as $opt => $data) {
-      printf($ofmt, $opt, $data['help']);
-    }
-
-    print 'Examples:' . PHP_EOL;
-    foreach ($examples as $cmd => $exp) {
-      print "\t";
-      printf ($cmd, $argv[0]);
-      print ":  " . $exp . PHP_EOL;
-    }
-  }
-
 }

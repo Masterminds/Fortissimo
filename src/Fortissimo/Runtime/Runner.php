@@ -2,10 +2,30 @@
 /**
  * @file
  *
- * Generic abstract runner.
+ * Generic runner.
+ *
  */
 namespace Fortissimo\Runtime;
 
+/**
+ * The generic Fortissimo runner.
+ *
+ * This is an untuned runner. It will run Fortissimo, but it is not
+ * particularly tuned to a web or CLI environment. It is useful for
+ * embedding, or for handling basic tasks.
+ *
+ * The Fortissimo::Runtime::CLIRunner is tuned for running command line apps,
+ * and the Fortissimo::Runtime::WebRunner is tuned for running web
+ * services.
+ *
+ * When extending Runner, the typical points of entry are as follows:
+ *
+ * - Runner::initialContext() -- Specify the context that the server will
+ *   begin with. This is by far the most commonly overridden method.
+ * - Runner::useRegistry() -- Set the Fortissimo::Registry that should
+ *   be used by this runner. Rarely overridden.
+ * - Runner::run() -- Pass a request into Fortissimo.
+ */
 class Runner {
 
   protected $registry;
