@@ -1,9 +1,12 @@
 # TODO
 
+** The runner should not need to scan the config. **
+
 ## Fortissimo and Runners
 - Create CachingRunner and move request caching to that (not command
-  caching)
-- Create WebRunner extends CachingRunner
+  caching) - I don't think we want to do this. We want all of this logic
+  to be encapsulated in Fortissimo.
+- Create WebRunner
 - Runners should handle Explain mode -- maybe an ExplainRunner?
 - Runners should handle RequestNotFoundException condition
 - Replace $_ENV with get_env.
