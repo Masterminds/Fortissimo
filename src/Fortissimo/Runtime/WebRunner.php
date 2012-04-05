@@ -19,11 +19,18 @@ class WebRunner extends Runner {
   }
 
   public function run($route = 'default') {
-    $cxt = NULL;
+    if (empty($this->registry)) {
+      throw new \Fortissimo\Runtime\Exception('No registry found.');
+    }
+
+    $cxt = $this->initialContext();
+    $cxt->attachFortissimo($this->ff);
+
     try {
-      $cxt = parent::run($route);
+      $this->ff->handleRequest($route, $cxt, $this->allowInternalRequests);
     }
     catch(\Fortissimo\RequestNotFoundException $nfe) {
+      $cxt->log($nfe, Fortissimo::LOG_USER);
       if ($this->ff->hasRequest($route, '@404')) {
         return $this->run('@404');
       }
