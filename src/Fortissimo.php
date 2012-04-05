@@ -251,6 +251,11 @@ class Fortissimo {
     return $out . PHP_EOL;
   }
 
+  public function hasRequest($identifier, $allowInternalRequests = FALSE) {
+      $requestName = $this->requestMapper->uriToRequest($identifier);
+      return $this->regReader->hasRequest($requestName, $allowInternalRequests);
+  }
+
   /**
    * Handles a request.
    *
@@ -292,16 +297,7 @@ class Fortissimo {
     catch (\Fortissimo\RequestNotFoundException $nfe) {
       // Need to handle this case.
       $this->logManager->log($nfe, self::LOG_USER);
-      $requestName = $this->requestMapper->uriToRequest('404');
-
-      if ($this->regReader->hasRequest($requestName, $allowInternalRequests)) {
-        $request = $this->regReader->getRequest($requestName, $allowInternalRequests);
-      }
-      else {
-        header('HTTP/1.0 404 Not Found');
-        print '<h1>Not Found</h1>';
-        return;
-      }
+      throw $nfe;
     }
 
     $cacheKey = NULL; // This is set only if necessary.
