@@ -46,22 +46,25 @@ class ExecutionContext implements \IteratorAggregate {
   protected $cache = array();
   protected $caching = FALSE;
 
+  /** Internal Fortissimo pointer. */
+  protected $fortissimo = NULL;
+
   /**
    * Create a new context.
    *
    * @param array $initialContext
    *  An associative array of context pairs.
-   * @param FortissimoLoggerManager $logger
+   * @param Fortissimo::Logger::Manager $logger
    *  The logger.
-   * @param FortissimoDatasourceManager $datasources
+   * @param Fortissimo::Datasource::Manager $datasources
    *  The manager for all datasources declared for this request.
-   * @param FortissimoCacheManager $cacheManager
+   * @param Fortissimo::Cache::Manager $cacheManager
    *  The manager for all caches. Commands may use this to store or retrieve cached content.
-   * @param FortissimoRequestMapper $requestMapper
+   * @param Fortissimo::Request::Mapper $requestMapper
    *  The request mapper used on this request. A request mapper should know how to construct
    *  a URL to the app.
    */
-  public function __construct($initialContext = array(), \Fortissimo\Logger\Manager $logger = NULL, \Fortissimo\Datasource\Manager $datasources = NULL, \Fortissimo\Cache\Manager $cacheManager = NULL, \Fortissimo\RequestMapper $requestMapper = NULL) {
+  public function __construct($initialContext = array(), $logger = NULL, $datasources = NULL, $cacheManager = NULL, $requestMapper = NULL) {
     if ($initialContext instanceof ExecutionContext) {
       $this->data = $initialContext->toArray();
     }
@@ -74,6 +77,41 @@ class ExecutionContext implements \IteratorAggregate {
     if (isset($datasources)) $this->datasources = $datasources;
     if (isset($cacheManager)) $this->cacheManager = $cacheManager;
     if (isset($requestMapper)) $this->requestMapper = $requestMapper;
+  }
+
+  /**
+   * Attach a Fortissimo server to this context.
+   *
+   * When a context has an attached Fortissimo instance, then commands can use
+   * this instance to execute additional commands. This allows for commands that
+   * support functional recursion and controlstructure simulation.
+   *
+   * @attention
+   *   This is an experimental feature of Fortissimo 2.x. It violates the
+   *   design principle of avoiding circular dependencies, but it does so in a
+   *   relatively quantified case that is unlikely to lead to memory gobbling.
+   *
+   * @param Fortissimo $fort
+   *   A Fortissimo server.
+   */
+  public function attachFortissimo($fortissimo) {
+    $this->fortissimo = $fortissimo;
+  }
+
+  /**
+   * Get the Fortissimo server instance.
+   *
+   * EXPERT: Misuse of the returned object can cause unexpected behavior. In general, the
+   * object should be used only to executed existing commands or chains.
+   *
+   * @attention
+   *   This is an experimental feature of Fortissimo 2.x.
+   *
+   * @retval object Fortissimo
+   *   The current Fortissimo instance.
+   */
+  public function fortissimo() {
+    return $this->fortissimo;
   }
 
   /**
