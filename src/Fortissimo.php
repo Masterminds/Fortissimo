@@ -592,6 +592,10 @@ class Fortissimo {
       case 'e':
       case 'env':
       case 'environment':
+        // Some UNIXes don't set ENV anymore.
+        if (empty($_ENV)) {
+          return getenv($paramName);
+        }
         return isset($_ENV[$paramName]) ? $_ENV[$paramName] : NULL;
       case 'server':
         return isset($_SERVER[$paramName]) ? $_SERVER[$paramName] : NULL;
