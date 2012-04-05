@@ -6,6 +6,9 @@
 require_once 'PHPUnit/Framework.php';
 require_once 'Fortissimo/skel/src/Fortissimo.php';
 
+/**
+ * @group deprecated
+ */
 class ConfigTest extends PHPUnit_Framework_TestCase {
   
   public function setUp() {

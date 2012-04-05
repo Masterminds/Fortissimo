@@ -1,6 +1,6 @@
 <?php
 namespace Fortissimo\Tests;
-require 'TestCase.php';
+require_once 'TestCase.php';
 
 use Fortissimo\Runtime\CLIRunner;
 use Fortissimo\Registry;

@@ -1,9 +1,9 @@
 <?php
 namespace Fortissimo\Tests;
-require 'TestCase.php';
+require_once 'TestCase.php';
 
 /**
- * @group Command
+ * @group command
  */
 class EchoTextTest extends TestCase {
 

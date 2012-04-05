@@ -1,7 +1,10 @@
 <?php
 namespace Fortissimo\Tests;
-require 'TestCase.php';
+require_once 'TestCase.php';
 
+/**
+ * @group command
+ */
 class ShowPHPInfoTest extends TestCase {
 
   public function testDoCommand() {
