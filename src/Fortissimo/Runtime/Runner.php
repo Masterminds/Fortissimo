@@ -18,14 +18,34 @@ class Runner {
    */
   protected $allowInternalRequests = FALSE;
 
+  /**
+   * The internal Fortissimo server.
+   *
+   * A new Fortissimo server is created each time a registry is set.
+   * (A Fortissimo server cannot have more than one registry).
+   */
+  protected $ff;
+
+  /**
+   * Attach an initial context.
+   *
+   * This method is commonly extended by specific runners.
+   *
+   * @attention
+   *   Implementation Note: You do not need to call
+   *   Fortissimo::ExecutionContext::attachFortissimo() in this
+   *   method. It is called in run().
+   */
   public function initialContext() {
     $cxt = new \Fortissimo\ExecutionContext();
-
     return $cxt;
   }
 
   /**
    * Use the given registry.
+   *
+   * Each time a registry is set, a new internal Fortissimo
+   * server is created -- specific to the registry.
    *
    * @param object $registry
    *   The Fortissimo::Registry for this app.
@@ -33,6 +53,7 @@ class Runner {
    */
   public function useRegistry($registry) {
     $this->registry = $registry;
+    $this->ff = new \Fortissimo($registry);
     return $this;
   }
 
@@ -55,9 +76,9 @@ class Runner {
       throw new \Fortissimo\Runtime\Exception('No registry found.');
     }
 
-    $ff = new \Fortissimo($this->registry);
     $cxt = $this->initialContext();
-    $ff->handleRequest($route, $cxt, $this->allowInternalRequests);
+    $cxt->attachFortissimo($this->ff);
+    $this->ff->handleRequest($route, $cxt, $this->allowInternalRequests);
 
     return $cxt;
   }
