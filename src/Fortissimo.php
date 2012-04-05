@@ -282,6 +282,7 @@ class Fortissimo {
    *    performed.
    *  - Some clients can explicitly call handleRequest() with this flag set to TRUE. One example
    *    is `fort`, which will allow command-line execution of internal requests.
+   * @throws Fortissimo::RequestNotFoundException if $identifier cannot be mapped to a request/route.
    */
   public function handleRequest($identifier = 'default', \Fortissimo\ExecutionContext $initialCxt = NULL, $allowInternalRequests = FALSE) {
 
@@ -289,16 +290,12 @@ class Fortissimo {
     set_error_handler(array('\Fortissimo\ErrorException', 'initializeFromError'), 257);
 
     // Load the request.
-    try {
-      // Use the mapper to determine what the real request name is.
-      $requestName = $this->requestMapper->uriToRequest($identifier);
-      $request = $this->regReader->getRequest($requestName, $allowInternalRequests);
-    }
-    catch (\Fortissimo\RequestNotFoundException $nfe) {
-      // Need to handle this case.
-      $this->logManager->log($nfe, self::LOG_USER);
-      throw $nfe;
-    }
+    // Use the mapper to determine what the real request name is.
+    $requestName = $this->requestMapper->uriToRequest($identifier);
+
+    // Throws RequestNotFounException if $requestName doesn't resolve. The
+    // Runner is responsible for handling this case.
+    $request = $this->regReader->getRequest($requestName, $allowInternalRequests);
 
     $cacheKey = NULL; // This is set only if necessary.
 
