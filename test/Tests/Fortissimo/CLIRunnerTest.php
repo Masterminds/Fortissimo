@@ -31,5 +31,21 @@ class CLIRunnerTest extends TestCase {
 
 
   }
+
+  /**
+   * @expectedException \Fortissimo\RequestNotFoundException
+   */
+  public function testRequestNotFound() {
+    // We don't want FOIL logger, so we create
+    // a registry froms scratch.
+    $registry = new \Fortissimo\Registry(__CLASS__);
+    $registry->route('default')
+      ->does('\Fortissimo\Command\EchoText', 'echo')
+        ->using('text', 'TEST')
+        ;
+    global $argv;
+    $runner = new CLIRunner($argv, STDOUT, STDIN);
+    $runner->useRegistry($registry)->run('noSuchRequest');
+  }
 }
 
