@@ -3,9 +3,6 @@
 ** The runner should not need to scan the config. **
 
 ## Fortissimo and Runners
-- Create CachingRunner and move request caching to that (not command
-  caching) - I don't think we want to do this. We want all of this logic
-  to be encapsulated in Fortissimo.
 X Create WebRunner
 - Runners should handle Explain mode -- maybe an ExplainRunner?
 X Runners should handle RequestNotFoundException condition
