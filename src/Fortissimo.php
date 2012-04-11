@@ -283,6 +283,9 @@ class Fortissimo {
    *  - Some clients can explicitly call handleRequest() with this flag set to TRUE. One example
    *    is `fort`, which will allow command-line execution of internal requests.
    * @throws Fortissimo::RequestNotFoundException if $identifier cannot be mapped to a request/route.
+   * @throws Fortissimo::InterruptException if a serious problem occurs.
+   * @throws Exception if something internally throws an exception and it is not caught. Since Fortissimo
+   *   does not know about the severity of an Exception, it treats it as fatal.
    */
   public function handleRequest($identifier = 'default', \Fortissimo\ExecutionContext $initialCxt = NULL, $allowInternalRequests = FALSE) {
 
@@ -346,6 +349,7 @@ class Fortissimo {
       catch (\Fortissimo\InterruptException $ie) {
         $this->logManager->log($ie, self::LOG_FATAL);
         $this->stopCaching();
+        throw $ie;
         return;
       }
       // Forward any requests.
@@ -364,6 +368,15 @@ class Fortissimo {
         $this->stopCaching();
         return;
       }
+      // We re-throw these, and they are transformed into
+      // 404s or whatever the platform calls for.
+      // (These can occur on nested requests.)
+      catch (\Fortissimo\RequestNotFoundException $nf) {
+        $this->stopCaching();
+        // Don't log. This will be logged by the internal call.
+        //$this->logManager->log($e, self::LOG_FATAL);
+        throw $nf;
+      }
       // Log the error, but continue to the next command.
       catch (\Fortissimo\Exception $e) {
         // Note that we don't cache if a recoverable error occurs.
@@ -371,11 +384,13 @@ class Fortissimo {
         $this->logManager->log($e, self::LOG_RECOVERABLE);
         continue;
       }
+      // Rethrow an \Exception, which is assumed to be fatal.
       catch (\Exception $e) {
         $this->stopCaching();
         // Assume that a non-caught exception is fatal.
         $this->logManager->log($e, self::LOG_FATAL);
         //print "Fatal error";
+        throw $e;
         return;
       }
     }
@@ -485,6 +500,11 @@ class Fortissimo {
     set_error_handler(array('\Fortissimo\ErrorException', 'initializeFromError'), self::ERROR_TO_EXCEPTION);
     try {
       $inst->execute($params, $this->cxt);
+    }
+    // Nested requests can throw this
+    catch (\Fortissimo\RequestNotFoundException $nfe) {
+      restore_error_handler();
+      throw $nfe;
     }
     // Only catch a Fortissimo::Exception. Allow Fortissimo::Interupt to go on.
     catch (\Fortissimo\Exception $e) {
