@@ -2,7 +2,7 @@
 /**
  * @file
  */
-namespace Fortissimo\Command\Util;
+namespace Fortissimo\Command\Flow;
 
 /**
  * The Until looping command.
