@@ -97,7 +97,8 @@ class Runner {
     }
 
     $cxt = $this->initialContext();
-    $cxt->attachFortissimo($this->ff);
+    //$cxt->attachFortissimo($this->ff);
+    $cxt->attachRegistry($this->registry);
     $this->ff->handleRequest($route, $cxt, $this->allowInternalRequests);
 
     return $cxt;

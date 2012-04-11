@@ -47,7 +47,8 @@ class ExecutionContext implements \IteratorAggregate {
   protected $caching = FALSE;
 
   /** Internal Fortissimo pointer. */
-  protected $fortissimo = NULL;
+  //protected $fortissimo = NULL;
+  protected $registry = NULL;
 
   /**
    * Create a new context.
@@ -79,7 +80,7 @@ class ExecutionContext implements \IteratorAggregate {
     if (isset($requestMapper)) $this->requestMapper = $requestMapper;
   }
 
-  /**
+  /* *
    * Attach a Fortissimo server to this context.
    *
    * When a context has an attached Fortissimo instance, then commands can use
@@ -93,16 +94,37 @@ class ExecutionContext implements \IteratorAggregate {
    *
    * @param Fortissimo $fort
    *   A Fortissimo server.
-   */
   public function attachFortissimo($fortissimo) {
     $this->fortissimo = $fortissimo;
+  }
+   */
+
+  /**
+   * Attach a registry.
+   *
+   * This can be used to construct a new Fortissimo instance. See fortissimo().
+   *
+   * Generally, the runtime (e.g. Fortissimo::Runtime::Runner) is responsible for
+   * calling this.
+   */
+  public function attachRegistry($registry) {
+    //$this->attachRegistryReader(new \Fortissimo\RegistryReader($registry));
+    $this->registry = $registry;
   }
 
   /**
    * Get the Fortissimo server instance.
    *
+   * The current implementation creates a new Fortissimo server for each call to this
+   * method. If no registry is passed in, the registry for the parent Fortissimo
+   * is used.
+   *
    * EXPERT: Misuse of the returned object can cause unexpected behavior. In general, the
    * object should be used only to executed existing commands or chains.
+   *
+   * @attention
+   *   Request caching may cause problems if enabled for inner instances of Fortissimo.
+   *   The current suggestion is to disable caching.
    *
    * @attention
    *   This is an experimental feature of Fortissimo 2.x.
@@ -110,8 +132,14 @@ class ExecutionContext implements \IteratorAggregate {
    * @retval object Fortissimo
    *   The current Fortissimo instance.
    */
-  public function fortissimo() {
-    return $this->fortissimo;
+  public function fortissimo($registry = NULL) {
+    if (empty($registry)) {
+      $registry = $this->registry;
+    }
+    $reader = new \Fortissimo\RegistryReader($registry);
+    // XXX: If request caching is on, should it be disabled here?
+    $ff = new \Fortissimo($reader);
+    return $ff;
   }
 
   /**
@@ -218,13 +246,18 @@ class ExecutionContext implements \IteratorAggregate {
    * $foo =& $context->get('foo');
    * @endcode
    *
+   * @param string $name
+   *   The name of the item to get.
+   * @param mixed $default
+   *   The default value to return if none is found.
+   *
    * @return mixed
    *  A reference to the value in the context, or NULL if $name was not found.
    */
-  public function &get($name) {
-    $var = NULL;
+  public function &get($name, $default = NULL) {
+    $var = $default;
     if (isset($this->data[$name])) {
-      $var =  &$this->data[$name];
+      $var =& $this->data[$name];
     }
     return $var;
   }

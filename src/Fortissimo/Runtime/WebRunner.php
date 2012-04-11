@@ -24,7 +24,8 @@ class WebRunner extends Runner {
     }
 
     $cxt = $this->initialContext();
-    $cxt->attachFortissimo($this->ff);
+    //$cxt->attachFortissimo($this->ff);
+    $cxt->attachRegistry($this->registry);
 
     try {
       $this->ff->handleRequest($route, $cxt, $this->allowInternalRequests);
