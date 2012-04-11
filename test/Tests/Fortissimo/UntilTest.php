@@ -18,7 +18,7 @@ class UntilTest extends TestCase {
     $r->route('outter')
       ->does('\Fortissimo\Command\Util\Until', 'till')
       ->using('request', '@inner')
-      ->using('condition', function ($cxt) { $i = $cxt->get('up', 0); return $i !== 3; })
+      ->using('condition', function ($cxt) { $i = $cxt->get('up', 0); return $i == 3; })
       ->using('allowInternal', TRUE)
       ->does('\Fortissimo\Command\Context\DumpContext')
       ;
@@ -41,7 +41,7 @@ class UntilTest extends TestCase {
     $r->route('outter')
       ->does('\Fortissimo\Command\Util\Until', 'till')
       ->using('request', '@inner')
-      ->using('condition', function ($cxt) { $i = $cxt->get('up', 0); return $i !== 3; })
+      ->using('condition', function ($cxt) { $i = $cxt->get('up', 0); return $i == 3; })
       ->does('\Fortissimo\Command\Context\DumpContext')
       ;
 
