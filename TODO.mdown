@@ -2,6 +2,11 @@
 
 ** The runner should not need to scan the config. **
 
+## Bundles
+
+- Code to scan specific directories for config.php files (dev mode)
+- Code to generate a compiled set of config.php files (prod mode)
+
 ## Fortissimo and Runners
 X Create WebRunner
 - Runners should handle Explain mode -- maybe an ExplainRunner?
