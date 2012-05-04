@@ -31,7 +31,7 @@ class WebRunner extends Runner {
       $this->ff->handleRequest($route, $cxt, $this->allowInternalRequests);
     }
     catch(\Fortissimo\RequestNotFoundException $nfe) {
-      $cxt->log($nfe, Fortissimo::LOG_USER);
+      $cxt->log($nfe, \Fortissimo::LOG_USER);
       if ($this->ff->hasRequest($route, '@404')) {
         return $this->run('@404');
       }
