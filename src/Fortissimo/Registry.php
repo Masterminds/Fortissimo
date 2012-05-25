@@ -21,7 +21,7 @@ namespace Fortissimo;
  *
  *
  *
- * Registry::request('foo')
+ * $reg->request('foo')
  *  ->doesCommand('command1')
  *  ->whichInvokes('MyCommandClass')
  *    ->withParam('arg1')
@@ -36,7 +36,7 @@ namespace Fortissimo;
  * This class is used to add requests, loggers, datasources, and cache handlers to
  * a Fortissimo application. Typically, it is used in commands.php.
  *
- * - Registry::request(): Add a new request with a chain of commands.
+ * - Registry::route() (or request()): Add a new request with a chain of commands.
  * - Registry::includePath(): Add a new path that will be used by the autoloader.
  * - Registry::group(): Add a new group that can be referenced from within a request.
  * - Registry::datasource(): Add a new datasource, such as a database or document store.
