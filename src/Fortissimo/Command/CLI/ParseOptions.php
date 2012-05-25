@@ -124,6 +124,10 @@ class ParseOptions extends \Fortissimo\Command\Base {
       ->withFilter('string')
       ->whichHasDefault('')
 
+      ->usesParam('usage', 'Usage information, e.g. "%s [--OPTIONS] ARGS". The %s is filled with the command name.')
+      ->withFilter('string')
+      ->whichHasDefault('')
+
       ->andReturns('The remaining (unprocessed) values. Any parsed options are placed directly into the context.')
     ;
   }
@@ -231,7 +235,12 @@ class ParseOptions extends \Fortissimo\Command\Base {
     $buffer = array();
     $format = "\t%s:  %s" . PHP_EOL;
 
-    printf('%s supports the following options:' . PHP_EOL . PHP_EOL, $options[$this->name . '-command']);
+    $usage = $this->param('usage');
+    if (empty($usage)) {
+      $usage = '%s supports the following options:';
+    }
+
+    printf( PHP_EOL . $usage . PHP_EOL . PHP_EOL, $options[$this->name . '-command']);
     foreach ($optionSpec as $flag => $spec) {
       $help = isset($spec['help']) ? $spec['help'] : '(undocumented)';
       printf($format, $flag, $help);
