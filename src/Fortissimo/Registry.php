@@ -64,6 +64,7 @@ class Registry {
   const LOGGERS = 'loggers';
   const REQUEST_MAPPER = 'requestMapper';
   const LISTENERS = 'listeners';
+  const HELP = 'help';
 
   /**
    * Create a new registry.
@@ -82,6 +83,7 @@ class Registry {
       self::DATASOURCES => array(),
       self::LISTENERS => array(),
       self::REQUEST_MAPPER => NULL,
+      self::HELP => array(),
     );
   }
 
@@ -107,6 +109,7 @@ class Registry {
    *   The human-readable description of the request.
    */
   public function request($name, $description = '') {
+    $this->config[self::HELP][self::REQUESTS][$name] = $description;
     return $this->set(self::REQUESTS, $name);
   }
 
