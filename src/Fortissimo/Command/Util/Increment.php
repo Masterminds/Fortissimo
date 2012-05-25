@@ -25,6 +25,7 @@ class Increment extends \Fortissimo\Command\Base {
   public function doCommand() {
     $startWith= $this->param('startWith', 0);
     $incrementBy = $this->param('incrementBy', 1);
+    fprintf(STDOUT, "Start With %d and increment by %d\n", $startWith, $incrementBy);
     return $startWith + $incrementBy;
   }
 

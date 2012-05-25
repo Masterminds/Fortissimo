@@ -532,7 +532,7 @@ class Fortissimo {
    *  Associative array of information about a command, as described
    *  in Fortissimo::RegistryReader::createCommandInstance().
    */
-  protected function fetchParameters($commandArray) {
+  public function fetchParameters($commandArray) {
     $params = array();
     foreach ($commandArray['params'] as $name => $config) {
 

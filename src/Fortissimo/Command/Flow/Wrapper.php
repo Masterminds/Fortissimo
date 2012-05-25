@@ -38,9 +38,12 @@ namespace Fortissimo\Command\Flow;
 abstract class Wrapper extends \Fortissimo\Command\Base {
 
   protected $childParams = array();
+  protected $ff = NULL;
 
+  /*
   abstract public function doCommand();
   abstract public function expects();
+   */
 
   protected function prepareParameters($params) {
     parent::prepareParameters($params);
@@ -50,6 +53,8 @@ abstract class Wrapper extends \Fortissimo\Command\Base {
     foreach ($myParams as $name) {
       unset($params[$name]);
     }
+
+    fwrite(STDOUT, implode('===', array_keys($params)) . PHP_EOL);
 
     $this->childParams = $params;
   }
@@ -64,8 +69,13 @@ abstract class Wrapper extends \Fortissimo\Command\Base {
    *   An indexed array of parameters to be passed through. No
    *   validation has been run on these params.
    */
-  protected function passthruParams() {
-    return $this->childParams;
+  protected function passthruParams($commandCfg) {
+    if (empty($this->ff)) {
+      $ff = $this->context->fortissimo();
+    }
+
+    $params = $this->ff->fetchParameters($commandCfg);
+    return $params;
   }
 
   /**
