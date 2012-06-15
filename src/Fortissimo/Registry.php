@@ -145,7 +145,7 @@ class Registry {
    *
    * @code
    * <?php
-   * Registry::useRequestMapper('MyMapperClass');
+   * $registry->useRequestMapper('MyMapperClass');
    * ?>
    * @endcode
    *
