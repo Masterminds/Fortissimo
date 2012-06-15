@@ -18,5 +18,14 @@ class AddINITest extends TestCase {
 
     $this->assertEquals('foo', $cxt->get('test.param'));
     $this->assertEquals('long text', $cxt->get('test2.param'));
+
+    $reg->route('noini')->does('\Fortissimo\Command\Context\AddINI', 'i')
+      ->using('file', 'DOES_NOT_EXIST.ini')
+      ->using('optional', TRUE)
+      ;
+    $runner = $this->runner($reg);
+    $cxt = $runner->run('noini');
+
+    $this->assertEmpty($cxt->get('noini'));
   }
 }
