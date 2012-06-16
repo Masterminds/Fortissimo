@@ -37,6 +37,27 @@ namespace Fortissimo\Command\Context;
  *  );
  * ?>
  * @endcode
+ *
+ * This also supports more advanced scans. Here is an example from the
+ * unit tests:
+ *
+ *
+ * @code
+ * <?php
+ *  $path = 'start-foo-end/bar/id-123';
+ *  $template = 'start-%[a-z]-end/%s/id-%d';
+ * ?>
+ * @endcode
+ *
+ * When the above template is applied to the path, it will pick out:
+ *
+ *- foo
+ *- bar
+ *- 123
+ *
+ * For more information on that style of C++ scanning, see
+ * the stdio reference:
+ * http://www.cplusplus.com/reference/clibrary/cstdio/sscanf/
  */
 class AddPathToContext extends \Fortissimo\Command\Base {
   const RSEP = "\t";
@@ -60,8 +81,13 @@ class AddPathToContext extends \Fortissimo\Command\Base {
   }
 
   public function scan($path, $template, $names) {
+
+    // To make sscanf see a slash as a separator,
+    // we replace the slash with a whitespace
+    // character.
     $path = strtr($path, '/', self::RSEP);
     $template = strtr($template, '/', self::RSEP);
+
     $matches = sscanf($path, $template);
 
     // array_combine is not robust enough to handle
