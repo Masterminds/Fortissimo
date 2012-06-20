@@ -15,7 +15,7 @@ namespace Fortissimo;
  *
  * @code
  * <?php
- * App::useRequestMapper('ClassName');
+ * $registry->useRequestMapper('ClassName');
  * ?>
  * @endcode
  *

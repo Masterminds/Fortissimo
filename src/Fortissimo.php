@@ -217,6 +217,19 @@ class Fortissimo {
   }
 
   /**
+   * Return a list of requests.
+   *
+   * Currently this returns the configuration. The
+   * request names are not currently adjusted
+   * by the request mapper.
+   */
+  public function getRequestPaths() {
+    $conf = $this->regReader->configuration();
+    return $conf;
+
+  }
+
+  /**
    * Explain all of the commands in a request.
    *
    * This will explain the request, and then attempt to explain
