@@ -1,6 +1,6 @@
 # Fortissimo #
 Matt Butcher <matt@aleph-null.tv>
-Copyright (c) 2010
+Copyright (c) 2010-12
 
 Fortissimo is a PHP framework. It's key features are:
 
@@ -17,82 +17,56 @@ Fortissimo is a PHP framework. It's key features are:
 
 ## Installation (Early Release Version) ##
 
-Eventually, Fortissimo will be installed using either a Phar package or a PEAR 
-package. For now, though, it must be installed manually.
+The preferred method of installing Fortissimo is through composer. We
+will be moving Fortissimo into Packagist soon, but for now this is the
+way to use Fortissimo.
+
+```json
+{
+  "name": "Example",
+  "description": "Example app",
+  "require": {
+    "technosophos/fortissimo": "2.x",
+  },
+  "repositories": [
+    {
+      "type":"vcs",
+      "url": "https://github.com/technosophos/Fortissimo"
+    },
+  ],
+}
+```
 
 ### Prerequisites ###
 
-Install Phing and PHPUnit.
+For using Fortissimo:
 
-* [Phing](http://phing.info)
+* [get Composer](http://getcomposer.org) to install Fortissimo. You can
+  build it out of Git if you prefer.
+
+For developing Fortissimo:
+
 * [PHPUnit](http://phpunit.de)
-
-Phing is absolutely required. It currently powers the Fortissimo isntaller. PHPUnit is for unit testing, but is not strictly necessary.
-
-When you *deploy* a Fortissimo application, there are no required libraries. You are encouraged, however, to use PHPUnit
-to unit test your code.
-
-In addition, there are several options (and supported) packages, such as Twig and PhpDocumentor. You can install all of these using the `bin/install.sh` script that comes with Fortissimo. You may need to be root or use 'sudo' on some systems.
-
-### Installing Fortissimo ###
-
-To begin, download Fortissimo and untar it into a directory.
-
-To start a new Fortissimo project, execute the `fff.php` command. To create a new
-project called `MyProject`, run this command:
-
-  $ /path/to/fff.php MyProject
-  
-This will create a directory called `MyProject/` and stub it out with the appropriate
-files.
-
-From there, you can begin by editing the `commands.xml` file. You can write your 
-own commands and put them in the project's `includes/` directory, where Fortissimo
-will automatically find them. For examples, see the commands in `src/core/Fortissimo`.
-
-To run a Fortissimo application as a web app, simply ensure that the project directory is visible to the web server, and that the web server can correctly execute PHP files.
-
-For example, if MyProject is inside of the root directory of a webserver on 
-the domain example.com, then you should be able to access the page in a browser
-using the URL http://example.com/MyProject. Note that that request will execute the 
-default request.
-
-#### Project Documentation ####
-
-Your project will contain its own documentation in MyProject/doc
-
-Projects are also self-documenting (assuming you write commands using 
-`BaseFortissimoCommand`). You can run `phing explain` or `fort --explain` in your project's root, and 
-documentation on all requests (and their commands) will be automatically generated
-and displayed.
-
-### Generating API Documentation ###
-
-To generate API documentation for Fortissimo, go to the base installation directory
-and execute the following:
-
-    $ phing doc
-
-This will generate robust HTML-formatted API documentation, which will be available in 
-`doc/api/`.
-
-Documentation support is currently being moved from PhpDocumentor to doxygen.
+* [Doxygen](http://www.stack.nl/~dimitri/doxygen/) (for documentation)
 
 ### Getting Started ###
 
-Get started here: Fortissimo/skel/doc/QUICKSTART.mdown or [online](http://github.com/technosophos/Fortissimo/blob/master/Fortissimo/skel/doc/QUICKSTART.mdown)
+* Create a new project
+* Add a `composer.json` file like the one above
+* Run `composer.phar install` to fetch and install Fortissimo in your
+  project
+* Start coding.
+  - You will want to use the `\Fortissimo\Runner\WebRunner` for web apps
 
-If you have already created a project, the above will be available in your project's
-`doc/` directory.
+An example will be placed here shortly.
 
-### Optional Packages ###
+## More Fortissimo Goodness!
 
-THe following PEAR packages have built-in support in Fortissimo:
-
-* [PHPDocumentor](http://phpdoc.org) Doxygen is actually the preferred doc tool, now, and PHPDocumentor support is being phased out. However, it still works.
-* [Twig Template engine](http://www.twig-project.org)
-
-
+* Take a look at the [Masterminds
+projects](https://github.com/masterminds).
+* [Fortissimo-Base](https://github.com/Masterminds/Fortissimo-Base) aims to be a quick-start tool for using
+  Fortissimo.
+* [Fortissimo-Twig](https://github.com/Masterminds/Fortissimo-Twig) provides Twig template language support.
 
 ## ABOUT THE LICENSE ##
 Fortissimo is licensed under the MIT license. The version of QueryPath that is
@@ -102,3 +76,4 @@ You may build applications on top of Fortissimo without releasing your own code
 under an Open Source (or Free Software) license. Of course, the Fortissimo team
 is very grateful for any improvements you contribute back to the framework. But
 we believe that the best person to choose how you license your software is you.
+
