@@ -6,12 +6,15 @@ namespace Fortissimo\Tests;
 
 require_once 'TestCase.php';
 
+/**
+ * @group deprecated
+ */
 class FortissimoTest extends TestCase {
   
   const config = './test/test_commands.php';
   
   public function setUp() {
-    \Fortissimo\Config::initialize();
+    \Fortissimo\Registry::initialize();
   }
   
   public function testConstructor() {
@@ -261,7 +264,7 @@ class FortissimoHarness extends \Fortissimo {
   
   public function __construct($file = NULL) {
     if (isset($file)) {
-      Config::initialize();
+      \Fortissimo\Registry::initialize();
     }
     parent::__construct($file);
   }

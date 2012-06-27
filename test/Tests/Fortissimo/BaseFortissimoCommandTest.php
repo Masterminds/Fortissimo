@@ -8,15 +8,15 @@
 namespace Fortissimo\Tests;
 require_once 'TestCase.php';
 
-use \Fortissimo\Config;
+use \Fortissimo\Registry;
 
 /**
- * @ group deprecated.
+ * @group deprecated.
  */
 class BaseFortissimoCommandTest extends TestCase {
   const config = './test/test_commands.php';
   
-  public function setUp() { Config::initialize(); }
+  public function setUp() { Registry::initialize(); }
   
   public function testExpects() {
     //$ff = new FortissimoHarness(self::config);
