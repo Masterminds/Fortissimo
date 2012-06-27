@@ -85,6 +85,65 @@ class RequestMapper {
   }
 
   /**
+   * The base path to the application.
+   *
+   * The base path is calculated as the URI up to
+   * the currently executing script. This method can
+   * adjust to Apache mod_rewrite.
+   *
+   * @param string $uri
+   *   The URI. If this is not supplied, $_SERVER['REQUEST_URI']
+   *   is used.
+   * @retval string
+   *   The base path.
+   */
+  public function basePath($uri = NULL) {
+    if (!isset($uri)) {
+      $uri = $_SERVER['REQUEST_URI'];
+    }
+
+    $fullPath = parse_url($uri, PHP_URL_PATH);
+    $script = dirname($_SERVER['SCRIPT_NAME']);
+    $basedir = substr($fullPath, 0, strlen($script));
+    // printf("Full: %s, Script: %s, Base: %s\n", $fullPath, $script, $basedir);
+
+    return $basedir;
+  }
+
+  /**
+   * Get the local path.
+   *
+   * This returns the path relative to the application's
+   * base path.
+   *
+   * Generally, path is calculated from the request URI.
+   *
+   * Typically, this is useful in cases where the URL does not match the 
+   * script name, such as cases where mod_rewrite was used.
+   *
+   * @param string $uri
+   *   The URI. If not given, $_SERVER['REQUEST_URI'] is used.
+   * @param string $basepath
+   *   The base path to the app. If not supplied, this is
+   *   computed from basePath().
+   * @retval string
+   *   The computed local path. This will be any part of the path
+   *   that appears after the base path.
+   */
+  public function localPath($uri = NULL, $basepath = NULL) {
+    if (!isset($uri)) {
+      $uri = $_SERVER['REQUEST_URI'];
+    }
+
+    if (!isset($basepath)) {
+      $basepath = $this->basePath($uri);
+    }
+
+    return substr($uri, strlen($basepath));
+
+  }
+
+  /**
    * The canonical host name to be used in Fortissimo.
    *
    * By default, this is fetched from the $_SERVER variables as follows:
