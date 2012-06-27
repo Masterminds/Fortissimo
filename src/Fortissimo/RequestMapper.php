@@ -166,16 +166,39 @@ class RequestMapper {
    *  A string of the form 'http[s]://hostname[:port]/[base_uri]'
    */
   public function baseURL() {
-    $uri = empty($_SERVER['REQUEST_URI']) ? '/' : $_SERVER['REQUEST_URI'];
+    //$uri = empty($_SERVER['REQUEST_URI']) ? '/' : $_SERVER['REQUEST_URI'];
+    $uri = $this->basePath();
     $host = $this->hostname();
     $scheme = empty($_SERVER['HTTPS']) ? 'http://' : 'https://';
 
-    $default_port = empty($_SERVER['HTTPS']) ? 80 : 443;
+    $default_port = $this->isHTTPS() ? 443 : 80;
 
     if ($_SERVER['SERVER_PORT'] != $default_port) {
       $host .= ':' . $_SERVER['SERVER_PORT'];
     }
 
     return $scheme . $host . $uri;
+  }
+
+  /**
+   * Tries to determine if the request is over SSL.
+   *
+   * Checks the HTTPS flag in $_SERVER and looks for the 
+   * X-Forwarded-Proto proxy header.
+   *
+   * @retval boolean
+   *   TRUE if this is HTTPS, FALSE otherwise.
+   */
+  public function isHTTPS() {
+    // Local support.
+    if (!empty($_SERVER['HTTPS']) && strtolower($_SERVER['HTTPS']) != 'off') {
+      return TRUE;
+    }
+    // Proxy support.
+    if (!empty($_SERVER['HTTP_X_FORWARDED_PROTO']) && strtolower($_SERVER['HTTP_X_FORWARDED_PROTO']) == 'https') {
+      return TRUE;
+    }
+    return FALSE;
+
   }
 }
