@@ -13,11 +13,6 @@ namespace Fortissimo\Runtime;
  */
 class WebRunner extends Runner {
 
-  public function intialContext() {
-    $cxt = new \Fortissimo\ExecutionContext();
-    return $cxt;
-  }
-
   public function run($route = 'default') {
     if (empty($this->registry)) {
       throw new \Fortissimo\Runtime\Exception('No registry found.');
@@ -26,6 +21,8 @@ class WebRunner extends Runner {
     $cxt = $this->initialContext();
     //$cxt->attachFortissimo($this->ff);
     $cxt->attachRegistry($this->registry);
+
+    print_r($cxt->toArray());
 
     try {
       $this->ff->handleRequest($route, $cxt, $this->allowInternalRequests);
@@ -43,6 +40,12 @@ class WebRunner extends Runner {
     return $cxt;
   }
 
+  public function initialContext() {
+    $cxt = $this->ff->createBasicContext();
+    $this->addPathsToContext($cxt);
+    return $cxt;
+  }
+
   protected function generateErrorHeader($msg) {
     if (strpos($_SERVER['GATEWAY_INTERFACE'], 'CGI') !== FALSE) {
       header('Status: ' . $msg);
@@ -50,6 +53,25 @@ class WebRunner extends Runner {
     else {
       header('HTTP/1.1 ' . $msg);
     }
+  }
+
+  /**
+   * Add paths to the context.
+   *
+   * This adds standard URI paths into the context.
+   */
+  protected function addPathsToContext($cxt) {
+    $mapper = $cxt->getRequestMapper();
+
+    $fullPath = $_SERVER['REQUEST_URI'];
+    $basePath = $mapper->basePath($fullPath);
+    $localPath = $mapper->localPath($fullPath, $basePath);
+    $baseURL = $mapper->baseURL();
+
+    $cxt->add('fullPath', $fullPath);
+    $cxt->add('basePath', $basePath);
+    $cxt->add('localPath', $localPath);
+    $cxt->add('baseURL', $baseURL);
   }
 
 }
