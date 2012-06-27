@@ -46,7 +46,8 @@ class TestCase extends \PHPUnit_Framework_TestCase {
   }
 
 
-  public static function setUpBeforeClass() {
+  /*public static function setUpBeforeClass() {
     spl_autoload_register('\Fortissimo\Tests\TestCase::autoloader');
-  }
+  }*/
 }
+spl_autoload_register('\Fortissimo\Tests\TestCase::autoloader');

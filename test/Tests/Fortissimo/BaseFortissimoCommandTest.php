@@ -3,10 +3,17 @@
  * Unit tests for the SimpleFortissimoCommand class.
  */
 
-require_once 'PHPUnit/Framework.php';
-require_once 'Fortissimo/skel/src/Fortissimo.php';
+##require_once 'PHPUnit/Framework.php';
+##require_once 'Fortissimo/skel/src/Fortissimo.php';
+namespace Fortissimo\Tests;
+require_once 'TestCase.php';
 
-class BaseFortissimoCommandTest extends PHPUnit_Framework_TestCase {
+use \Fortissimo\Config;
+
+/**
+ * @ group deprecated.
+ */
+class BaseFortissimoCommandTest extends TestCase {
   const config = './test/test_commands.php';
   
   public function setUp() { Config::initialize(); }
@@ -70,7 +77,7 @@ class SimpleValidatorTest{
   }
 }
 
-class SimpleCommandTest extends BaseFortissimoCommand {
+class SimpleCommandTest extends \Fortissimo\Command\Base {
   
   public function expects() {
     

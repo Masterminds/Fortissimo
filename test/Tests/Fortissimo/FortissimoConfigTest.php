@@ -2,11 +2,14 @@
 /**
  * Unit tests for the FortissimoConfig class.
  */
+namespace Fortissimo\Tests;
 
-require_once 'PHPUnit/Framework.php';
-require_once 'Fortissimo/skel/src/Fortissimo.php';
+require_once 'TestCase.php';
 
-class FortissimoConfigTest extends PHPUnit_Framework_TestCase {
+/**
+ * @group deprecated
+ */
+class FortissimoConfigTest extends TestCase {
   
   const command = './test/test_commands.php';
   
@@ -39,7 +42,7 @@ class FortissimoConfigTest extends PHPUnit_Framework_TestCase {
   
   public function testHasRequest() {
     $requestName = 'item';
-    $fc = new FortissimoConfig(self::command);
+    $fc = new \Fortissimo\Config(self::command);
     
     $this->assertTrue($fc->hasRequest($requestName), "Has a request named $request.");
   }
@@ -50,13 +53,13 @@ class FortissimoConfigTest extends PHPUnit_Framework_TestCase {
     
     $req = $fc->getRequest($requestName);
     
-    $this->assertTrue($req instanceof FortissimoRequest, 'Request is a fortissimo  request.');
+    $this->assertTrue($req instanceof \Fortissimo\Request, 'Request is a fortissimo  request.');
     $this->assertTrue($req instanceof IteratorAggregate, 'Request is iterable.');
   }
   
 }
 
-class AbstractCommandMock implements FortissimoCommand {
+class AbstractCommandMock implements \Fortissimo\Command {
   protected $name = NULL;
   protected $cxt = NULL;
   protected $params = NULL;
@@ -65,7 +68,7 @@ class AbstractCommandMock implements FortissimoCommand {
     $this->name = $name;
   }
   
-  public function execute($paramArray, FortissimoExecutionContext $cxt) {
+  public function execute($paramArray, \Fortissimo\ExecutionContext $cxt) {
     if ($paramArray['retval'])
       $cxt->put($this->name, $paramArray['retval']);
   }

@@ -2,14 +2,14 @@
 /**
  * Unit tests for the SimpleFortissimoCommand class.
  */
+namespace Fortissimo\Tests;
 
-require_once 'PHPUnit/Framework.php';
-require_once 'Fortissimo/skel/src/Fortissimo.php';
+require_once 'TestCase.php';
 
 /**
  * @group deprecated
  */
-class ConfigTest extends PHPUnit_Framework_TestCase {
+class ConfigTest extends TestCase {
   
   public function setUp() {
     Config::initialize();
