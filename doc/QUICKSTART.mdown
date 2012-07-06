@@ -89,11 +89,11 @@ commands will (presumably) return data to the browser.
 
 ## Writing Routes
 
-Writing routes is covred the `Command-exaples.mdown`
+See Routes.mdown
 
 ## Writing Commands
 
-Writing commands is covered... somewhere.
+See Commands.mdown
 
 Take a look at the example commands in `src/Fortissimo/Command` inside
 of Fortissimo's source code.

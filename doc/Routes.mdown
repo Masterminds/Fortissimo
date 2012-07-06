@@ -1,4 +1,4 @@
-# Command Examples
+# How To Use Routes and the Registry
 
 This document provides an intro to writing request configurations. It also provides a few examples of using commands in practical situations.
 

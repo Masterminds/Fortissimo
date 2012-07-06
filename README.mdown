@@ -69,8 +69,7 @@ projects](https://github.com/masterminds).
 * [Fortissimo-Twig](https://github.com/Masterminds/Fortissimo-Twig) provides Twig template language support.
 
 ## ABOUT THE LICENSE ##
-Fortissimo is licensed under the MIT license. The version of QueryPath that is
-included within Fortissimo is dual-licensed under LGPL 2.1 and MIT.
+Fortissimo is licensed under the MIT license.
 
 You may build applications on top of Fortissimo without releasing your own code
 under an Open Source (or Free Software) license. Of course, the Fortissimo team
