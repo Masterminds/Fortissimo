@@ -1,5 +1,7 @@
 Events (Observers) in Fortissimo
 
+*This document needs updating*
+
 In Fortissimo, commands can declare events that other classes can listen for. In this way, an
 application can extend not just vertically (chain of command), but also horizontally
 (event listeners).
@@ -42,7 +44,7 @@ case below, we return that data, assuming that it is a modified version of `$dat
 **Developer's Note:** There is no guarantee that there will be a listener. Code accordingly.
 
 <?php
-class FooCommand extends BaseFortissimoCommand {
+class FooCommand extends \Fortissimo\Command\Base {
   
   public function expects() {
     return $this->description('Example of an observeable command.')
@@ -86,9 +88,8 @@ Next, we need to add this observer.
 Let's say we have a basic request called `default`, and let's configure it to use the `FooCommand` that we created above.
 <?php
 // This is executed if no path is specified.
-Config::request('default')
-  ->doesCommand('foo')
-    ->whichInvokes('FooCommand')
+$registry->route('default')
+  ->does('\FooCommand', 'foo')
     ->bind('prepare_results', array('PrepareResultListener', 'hello') )
 ;
 ?>
@@ -110,7 +111,7 @@ Now, when the default request is executed, it will execute the `FooCommand` comm
 In many cases, you may wish to modify a command's data from within an event handler. This is how you ought to do that:
 
 <?php
-class FooCommand extends BaseFortissimoCommand {
+class FooCommand extends \Fortissimo\Command\Base {
   
   public function expects() {
     return $this->description('Example of an observeable command.')
@@ -151,17 +152,14 @@ In the examples above, I've explained how to assign an event listener in a speci
 
 <?php
 // This is executed if no path is specified.
-Config::request('default')
-  ->doesCommand('foo')
-    ->whichInvokes('FooCommand')
+$register->route('default')
+  ->does('\FooCommand', 'foo')
+;
+$register->route('another')
+  ->does('\FooCommand', 'foo')
 ;
 
-Config::request('another')
-  ->doesCommand('foo')
-    ->whichInvokes('FooCommand')
-;
-
-Config::listener('FooCommand', 'prepare_results', array('PrepareResultListener', 'hello') )
+$register->listener('FooCommand', 'prepare_results', array('PrepareResultListener', 'hello') )
 ?>
 
 In the example above, the `PrepareResultListener::hello()` method will be called for both the `default` and the `another` requests.
