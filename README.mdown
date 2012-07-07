@@ -15,25 +15,17 @@ Fortissimo is a PHP framework. It's key features are:
 * _NSFW_: There are No Stupid Fortissimo Wrappers. In other words, you don't need to 
   learn a new API that simply wraps basic PHP functions. Fortissimo is thin.
 
-## Installation (Early Release Version) ##
+## Installation ##
 
-The preferred method of installing Fortissimo is through composer. We
-will be moving Fortissimo into Packagist soon, but for now this is the
-way to use Fortissimo.
+The preferred method of installing Fortissimo is through composer.
 
 ```json
 {
   "name": "Example",
   "description": "Example app",
   "require": {
-    "technosophos/fortissimo": "2.x",
+    "Masterminds/fortissimo": "2.*",
   },
-  "repositories": [
-    {
-      "type":"vcs",
-      "url": "https://github.com/technosophos/Fortissimo"
-    },
-  ],
 }
 ```
 
