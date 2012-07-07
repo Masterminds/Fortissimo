@@ -54,7 +54,7 @@ abstract class Wrapper extends \Fortissimo\Command\Base {
       unset($params[$name]);
     }
 
-    fwrite(STDOUT, implode('===', array_keys($params)) . PHP_EOL);
+    //fwrite(STDOUT, implode('===', array_keys($params)) . PHP_EOL);
 
     $this->childParams = $params;
   }
