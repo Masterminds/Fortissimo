@@ -81,13 +81,13 @@ class Syslogger extends Base {
   protected function getLogLevel($severity) {
     $level = LOG_NOTICE;
     switch ($severity) {
-      case Fortissimo::LOG_FATAL:
-      case Fortissimo::LOG_RECOVERABLE:
+      case \Fortissimo::LOG_FATAL:
+      case \Fortissimo::LOG_RECOVERABLE:
       // Used in unit tests.
       case 'Exception':
         $level = LOG_ERR;
         break;
-      case Fortissimo::LOG_USER:
+      case \Fortissimo::LOG_USER:
         $level = LOG_WARNING;
         break;
       default:

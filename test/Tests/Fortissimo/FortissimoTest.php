@@ -2,22 +2,25 @@
 /**
  * Unit tests for the Fortissimo class.
  */
+namespace Fortissimo\Tests;
 
-require_once 'PHPUnit/Framework.php';
-require_once 'Fortissimo/skel/src/Fortissimo.php';
+require_once 'TestCase.php';
 
-class FortissimoTest extends PHPUnit_Framework_TestCase {
+/**
+ * @group deprecated
+ */
+class FortissimoTest extends TestCase {
   
   const config = './test/test_commands.php';
   
   public function setUp() {
-    Config::initialize();
+    \Fortissimo\Registry::initialize();
   }
   
   public function testConstructor() {
-    $ff = new Fortissimo(self::config);
+    $ff = new \Fortissimo(self::config);
     
-    $this->assertTrue($ff instanceof Fortissimo);
+    $this->assertTrue($ff instanceof \Fortissimo);
   }
   
   public function testFetchParams() {
@@ -167,7 +170,7 @@ class FortissimoTest extends PHPUnit_Framework_TestCase {
 // MOCKS
 // //////////////////////////// //
 
-class MockAlwaysReturnFooCache extends FortissimoCache /* implements FortissimoRequestCache */ {
+class MockAlwaysReturnFooCache extends \Fortissimo\Cache\Base /* implements FortissimoRequestCache */ {
   public function init(){}
   public function set($k, $v, $t = NULL) {}
   public function get($key) { return 'foo'; }
@@ -175,7 +178,7 @@ class MockAlwaysReturnFooCache extends FortissimoCache /* implements FortissimoR
   public function clear() {}
 }
 
-class MockAlwaysSetValueCache extends FortissimoCache /* implements FortissimoRequestCache */ {
+class MockAlwaysSetValueCache extends \Fortissimo\Cache\Base /* implements FortissimoRequestCache */ {
   public $cache = array();
   public function init(){}
   public function set($k, $v, $t = NULL) {$this->cache[$k] = $v;}
@@ -187,13 +190,13 @@ class MockAlwaysSetValueCache extends FortissimoCache /* implements FortissimoRe
   public function clear() {}
 }
 
-class MockCommand implements FortissimoCommand {
+class MockCommand implements \Fortissimo\Command {
   public $name = NULL;
   public function __construct($name) {
     $this->name = $name;
   }
   
-  public function execute($paramArray, FortissimoExecutionContext $cxt) {
+  public function execute($paramArray, \Fortissimo\ExecutionContext $cxt) {
     $value = isset($paramArray['value']) ? $paramArray['value'] : 'test';
     $cxt->add($this->name, $value);
   }
@@ -201,13 +204,13 @@ class MockCommand implements FortissimoCommand {
   public function isCacheable() {return FALSE;}
 }
 
-class MockPrintBarCommand implements FortissimoCommand {
+class MockPrintBarCommand implements \Fortissimo\Command {
   public $name = NULL;
   public function __construct($name) {
     $this->name = $name;
   }
   
-  public function execute($p, FortissimoExecutionContext $cxt) {
+  public function execute($p, \Fortissimo\ExecutionContext $cxt) {
     print 'bar';
   }
   
@@ -217,7 +220,7 @@ class MockPrintBarCommand implements FortissimoCommand {
 /**
  * re-maps all requests to 'default'.
  */
-class MockRequestMapper extends FortissimoRequestMapper {
+class MockRequestMapper extends \Fortissimo\RequestMapper {
   public function uriToRequest($string) {
     if ($string == 'NonExistentRequestName') return 'testHandleRequest2';
     
@@ -225,30 +228,30 @@ class MockRequestMapper extends FortissimoRequestMapper {
   }
 }
 
-class CommandRepeater implements FortissimoCommand {
+class CommandRepeater implements \Fortissimo\Command {
   public $name = NULL;
   public function __construct($name) {
     $this->name = $name;
   }
   
-  public function execute($paramArray, FortissimoExecutionContext $cxt) {
+  public function execute($paramArray, \Fortissimo\ExecutionContext $cxt) {
     $cxt->add($this->name, $paramArray['cmd']);
   }
   public function isCacheable() {return FALSE;}
   
 }
 
-class CommandForward implements FortissimoCommand {
+class CommandForward implements \Fortissimo\Command {
   public $name;
   
   public function __construct($name) {
     $this->name = $name;
   }
   
-  public function execute($paramArray, FortissimoExecutionContext $cxt) {
+  public function execute($paramArray, \Fortissimo\ExecutionContext $cxt) {
     $forwardTo = $paramArray['forward'];
     $cxt->add($this->name, __CLASS__);
-    throw new FortissimoForwardRequest($forwardTo, $cxt);
+    throw new \Fortissimo\ForwardRequest($forwardTo, $cxt);
   }
   public function isCacheable() {return FALSE;}
   
@@ -257,11 +260,11 @@ class CommandForward implements FortissimoCommand {
 /**
  * Harness methods for testing specific parts of Fortissimo.
  */
-class FortissimoHarness extends Fortissimo {
+class FortissimoHarness extends \Fortissimo {
   
   public function __construct($file = NULL) {
     if (isset($file)) {
-      Config::initialize();
+      \Fortissimo\Registry::initialize();
     }
     parent::__construct($file);
   }

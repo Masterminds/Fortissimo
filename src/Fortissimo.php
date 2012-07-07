@@ -340,16 +340,19 @@ class Fortissimo {
     // This allows pre-seeding of the context.
     if (isset($initialCxt)) {
       $this->cxt = $initialCxt;
+      //$this->cxt->setRequestMapper($this->requestMapper);
     }
     // This sets up the default context.
     else {
-      $this->cxt = new \Fortissimo\ExecutionContext(
+      $this->cxt = $this->createBasicContext();
+      /*$this->cxt = new \Fortissimo\ExecutionContext(
         $this->initialConfig,
         $this->logManager,
         $this->datasourceManager,
         $this->cacheManager,
         $this->requestMapper
       );
+       */
     }
 
     // Loop through requests and execute each command. Most of the logic in this
@@ -429,6 +432,28 @@ class Fortissimo {
     $this->isCachingRequest = TRUE;
     ob_start();
   }
+
+  /**
+   * Create a basic context.
+   *
+   * This creates a Fortissimo::ExecutionContext
+   * initialized with the basic managers.
+   *
+   * @retval object Fortissimo::ExecutionContext
+   *   An initialized context.
+   */
+  public function createBasicContext() {
+    $cxt = new \Fortissimo\ExecutionContext(
+      $this->initialConfig,
+      $this->logManager,
+      $this->datasourceManager,
+      $this->cacheManager,
+      $this->requestMapper
+    );
+
+    return $cxt;
+  }
+
 
   /**
    * Stop caching this request.

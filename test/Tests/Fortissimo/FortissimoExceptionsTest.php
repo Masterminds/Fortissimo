@@ -1,8 +1,9 @@
 <?php
-require_once 'PHPUnit/Framework.php';
-require_once 'Fortissimo/skel/src/Fortissimo.php';
+namespace Fortissimo\Tests;
 
-class FortissimoExceptionsTest extends PHPUnit_Framework_TestCase {
+require_once 'TestCase.php';
+
+class FortissimoExceptionsTest extends TestCase {
   const config = './test/test_commands.php';
   
   public function setUp() {
@@ -53,7 +54,7 @@ class FortissimoExceptionsTest extends PHPUnit_Framework_TestCase {
   }
 }
 
-class ExceptionThrowingCommand extends BaseFortissimoCommand {
+class ExceptionThrowingCommand extends \Fortissimo\Command\Base {
   
   public function expects() {
     return $this->description('Throws an exception.');

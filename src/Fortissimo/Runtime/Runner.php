@@ -57,8 +57,7 @@ class Runner {
    *   method. It is called in run().
    */
   public function initialContext() {
-    $cxt = new \Fortissimo\ExecutionContext();
-    return $cxt;
+    return $this->ff->createBasicContext();
   }
 
   /**
@@ -84,7 +83,8 @@ class Runner {
    * the final context.
    *
    * @param string $route
-   *   The name of the request.
+   *   The name of the request. This will be resolved by the
+   *   request mapper (See Fortissimo::RequestMapper).
    * @retval object Fortissimo::ExecutionContext
    *   The final context, containing whatever modifications were
    *   made during running.
