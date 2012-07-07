@@ -1,6 +1,5 @@
 # Fortissimo #
-Matt Butcher <matt@aleph-null.tv>
-Copyright (c) 2010-12
+Copyright (c) 2010-12, Matt Butcher
 
 Fortissimo is a PHP framework. It's key features are:
 
@@ -24,10 +23,12 @@ The preferred method of installing Fortissimo is through composer.
   "name": "Example",
   "description": "Example app",
   "require": {
-    "Masterminds/fortissimo": "2.*",
+    "Masterminds/Fortissimo": "2.*",
   },
 }
 ```
+
+You can also clone the Git repository and use it directly.
 
 ### Prerequisites ###
 
@@ -38,8 +39,8 @@ For using Fortissimo:
 
 For developing Fortissimo:
 
-* [PHPUnit](http://phpunit.de)
-* [Doxygen](http://www.stack.nl/~dimitri/doxygen/) (for documentation)
+* [PHPUnit](http://phpunit.de) for unit testing
+* [Doxygen](http://www.stack.nl/~dimitri/doxygen/) for documentation
 
 ### Getting Started ###
 
@@ -50,7 +51,7 @@ For developing Fortissimo:
 * Start coding.
   - You will want to use the `\Fortissimo\Runner\WebRunner` for web apps
 
-An example will be placed here shortly.
+Check out the `docs/` directory for more.
 
 ## More Fortissimo Goodness!
 

@@ -8,12 +8,8 @@
 - Code to generate a compiled set of config.php files (prod mode)
 
 ## Fortissimo and Runners
-X Create WebRunner
 - Runners should handle Explain mode -- maybe an ExplainRunner?
-X Runners should handle RequestNotFoundException condition
-X Replace $_ENV with get_env.
 - Extend fetchParameterFromSource to search datasources.
-- Do we need an autoloader?
 
 ## Event Handlers
 
@@ -22,7 +18,6 @@ X Replace $_ENV with get_env.
 ## Commands
 
 - Theme commands need updating.
-- Twig commands need updating.
 - Base needs better explain support.
 - Add Context\AddJSON command.
 
@@ -39,7 +34,7 @@ X Replace $_ENV with get_env.
 ## Datasources
 
 - Test PDO datasource
-- Should MongoDB datasources be moved to separate project?
+- Move MongoDB to separate project
 
 ## Fort
 
@@ -48,7 +43,7 @@ X Replace $_ENV with get_env.
 
 ## Tests
 
-- Clean up tests
+- Clean up tests!!!
 - Remove unused fixtures and stubs
 
 # Misc
