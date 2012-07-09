@@ -18,7 +18,7 @@ namespace Fortissimo\Command\Context;
  */
 class IntoArray extends \Fortissimo\Command\Base {
   public function expects() {
-    return $this->description('Load the conents of an INI file into the context.')
+    return $this->description('Put some or all of a context into an array.')
       ->usesParam('names', 'The names of context items that should be put into this array if found.')
       ->andReturns('An associative array of context names/values.')
     ;

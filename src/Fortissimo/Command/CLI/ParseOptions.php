@@ -177,7 +177,7 @@ class ParseOptions extends \Fortissimo\Command\Base {
    *  The specifications array.
    * @param array $args
    *  The arguments to parse.
-   * @return
+   * @return array
    *  The arguments array without any options in it. Options are placed directly
    *  into the context as name/value pairs. Boolean flag options will have the 
    *  value TRUE.
