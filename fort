@@ -66,271 +66,58 @@ if ($argc <= 1) {
   printf('%s expects at least one parameter. Try --help.'. PHP_EOL, $argv[0]);
   exit(1);
 }
-elseif ($argv[1] == '--help') {
-  fort_help($opts, $examples);
-  exit(0);
+
+// Configure the autoloader.
+fort_init();
+
+$register = new \Fortissimo\Registry();
+$register->logger('\Fortissimo\Logger\OutputInjectionLogger', 'foil');
+
+// Register commands here.
+fort_register($register);
+
+$runner = new \Fortissimo\Runtime\CLIRunner($argv);
+$runner->useRegistry($register);
+
+try {
+  $runner->run('default');
 }
-
-// Get configuration.
-$modifiers = fort_parse_args($opts);
-$ini       = fort_load_ini($modifiers);
-$config    = fort_setup_configuration($modifiers, $ini);
-
-
-// Set Fortissimo registry file.
-$registry = empty($config['config']) ? 'config/registry.php' : $config['config'];
-
-// Set the base directory for Fortissimo.
-$basedir = getcwd();
-if (isset($config['base'])) {
-  $basedir = $config['base'];
-
-  if (!is_dir($basedir)) {
-    print "ERROR: Not a directory: " . $basedir;
-    exit(1);
-  }
-}
-
-// Go to the base directory.
-chdir($basedir);
-
-// See if we need to look for Fortissimo.php.
-if (!file_exists('Fortissimo.php') && is_dir('src/')) {
-  chdir('src');
-}
-
-// Die if we cannot load Fortissimo.php
-if (!file_exists('Fortissimo.php')) {
-  print "ERROR: Could not find Fortissimo.php in " . getcwd();
+catch (\Exception $e) {
+  fprintf(STDERR, "Fatal Error: %s\n", $e->getMessage());
   exit(1);
 }
 
-require 'Fortissimo.php';
-
-/*
- * Set configuration file. 
- */
-if (strpos($registry, '/') === 0) {
-  // If absolute path, include directly.
-  $basedir = dirname($registry);
-  require $registry;
-}
-else {
-  // Look in common places for registry file.
-  $cwd = getcwd();
-  $bases = array(
-    $cwd . '/',
-    $cwd . '/src/',
+function fort_init() {
+  $composer_basedir = dirname(__DIR__);
+  $candidates = array(
+    '.',
+    $composer_basedir,
   );
 
-  $basedir = NULL;
-  foreach ($bases as $base) {
-    if (is_file($base . $registry)) {
-      //$practicalBase = $base;
-      $basedir = $base;// . '/config/registry.php';
-      break;
+  foreach ($candidates as $path) {
+    $file = $path . '/vendor/autoload.php';
+    if (file_exists($file)) {
+      require_once $file;
+      return $path;
     }
   }
-  //chdir($basedir);
-  //$ret = @include $basedir . DIRECTORY_SEPARATOR . $registry;
-  $ret = @include $basedir . $registry;
-  if ($ret == FALSE) {
-    die('Could not find configuration file at: ' . $basedir . DIRECTORY_SEPARATOR . $registry . PHP_EOL);
-  }
-  //chdir($cwd);
+  throw new \Exception('Could not find an autoloader. Aborting.');
 }
 
-// If $basedir is not set, it means we never found a config file.
-if (empty($basedir)) {
-  print 'No configuration file found. Quitting.' . PHP_EOL;
-  exit(1);
-}
-
-// If we are explaining, then mark all requests
-// as being in explain mode.
-if (!empty($config['explain'])) {
-  $conf = Config::getConfiguration();
-  
-  foreach ($conf[Config::REQUESTS] as $reqName => $payload) {
-    $conf[Config::REQUESTS][$reqName]['#explaining'] = TRUE;
-  }
-  Config::initialize($conf);
-}
-
-// If this is set, we don't allow @-requests.
-$allowInternalRequests = !isset($config['no-internals']);
-
-// If 'list' is set, we list all of the available
-// requests and then exit.
-if (!empty($config['list'])) {
-  $conf = Config::getConfiguration();
-  foreach ($conf[Config::REQUESTS] as $reqName => $data) {
-    printf("\t%s\n", $reqName);
-  }
-  exit;
-}
-
-// If we don't have a command name, we can't execute 
-// anything, so we exit.
-if ($argc < 2) {
-  die('No command name specified.');
-}
-
-// Set command name.
-$commandName = $argv[1];
-
-// Convert --get args to $_GET params.
-if(isset($config['get'])) {
-  print "Extracting GET params.\n";
-  fort_handle_get_params($config['get']);
-}
-
-/*
- * Build a new Fortissimo server and execute the command. 
- */
-$ff = new Fortissimo();
-$ff->handleRequest($commandName, NULL, $allowInternalRequests);
-
-
-/////////////////////////// FUNCTIONS //////////////////////////////////
-
-/**
- * Parse command line args.
- *
- * This makes me wish I didn't hate getopt.
- *
- * If you want to chain options, see ParseOptions in Fortissimo/CLI.
- *
- * @param array $opts
- *  An options array.
- * @see ParseOptions
- */
-function fort_parse_args($opts) {
-  global $argv, $argc;
-  
-  $modifiers = array();
-  $endOpts = 1;
-    
-  for ($i = 1; $i < $argc; ++$i) {
-    if (isset($opts[$argv[$i]])) {
-      $flag = substr($argv[$i], 2);
-      
-      // If option needs a value...
-      if ($opts[$argv[$i]]['value']) {
-        if (!isset($argv[$i + 1])) {
-          die($argv[$i] . ' requires a valid value. Try --help.' . PHP_EOL);
-        }
-        $modifiers[$flag] = $argv[++$i];
-      }
-      // Option doesn't need a value
-      else {
-        $modifiers[$flag] = TRUE;
-      }
-      $endOpts = $i + 1;
-    }
-    elseif ($argv[$i] == '--') {
-      $endOpts = ++$i;
-      break;
-    }
-    elseif (strpos($argv[$i], '--') === 0) {
-      printf("Unrecognized option %s.", $argv[$i]);
-      exit;
-    }
-    else {
-      $endOpts = $i;
-      break;
-    }
-  }
-  
-  // Now we shift argv and fix argc
-  array_splice($argv, 1, $endOpts - 1);
-  $argc = count($argv);
-  
-  return $modifiers;
-}
-
-/**
- * Load an INI file.
- *
- * Check the options for 'ini', and (if found) load that INI file, parsing
- * it with parse_ini_file().
- *
- * @param array $options
- *  The options. This looks for an option called 'ini'.
- */
-function fort_load_ini(array $options) {
-  if (!empty($options['ini'])) {
-    $file = $options['ini'];
-    return parse_ini_file($file, TRUE);
-  }
-  elseif(is_file('./fort.ini')) {
-    return parse_ini_file('./fort.ini', TRUE);
-  }
-  return array();
-}
-
-/**
- * Merge fort INI and options.
- *
- * @param array $options
- *  The CLI options.
- * @param array $ini
- *  A parsed INI file.
- */
-function fort_setup_configuration(array $options, array $ini) {
-  
-  if (empty($ini)) {
-    return $options;
-  }
-  
-  if (isset($options['alias'])) {
-    $alias = $options['alias'];
-    if (!isset($ini[$alias])) {
-      die('No alias found in ini: ' . $alias);
-    }
-    $ini = $ini[$alias];
-  }
-  
-  if (empty($options)) {
-    return $ini;
-  }
-  return array_merge($ini, $options);
-}
-/**
- * Print help text.
- * @param array $options
- *  Options array.
- * @param array $examples
- *  Additional examples to display.
- */
-function fort_help($options, $examples) {
-  global $argv;
-  printf('This is a command-line Fortissimo command runner.'. PHP_EOL);
-  printf('Syntax: %s [OPTIONS] COMMAND [ARGUMENTS]'. PHP_EOL, $argv[0]);
-  print 'Options:' . PHP_EOL;
-  
-  $ofmt = "\t%s: %s" . PHP_EOL;
-  foreach ($options as $opt => $data) {
-    printf($ofmt, $opt, $data['help']);
-  }
-  
-  print 'Examples:' . PHP_EOL;
-  foreach ($examples as $cmd => $exp) {
-    print "\t";
-    printf ($cmd, $argv[0]);
-    print ":  " . $exp . PHP_EOL;
-  }
-}
-/**
- * Parse commandline GET options and put them in $_GET.
- *
- * @param string $data
- *  The data to parse.
- */
-function fort_handle_get_params($data) {
-  $pairs = explode(',', $data);
-  foreach ($pairs as $pair) {
-    list($name, $value) = explode('=', $pair, 2);
-    $_GET[$name] = urldecode($value);
-  }
+function fort_register($registry) {
+  global $argv, $opts;
+  $registry->route('default')
+    ->does('\Fortissimo\Command\CLI\ParseOptions', 'globalOptions')
+      ->using('options', $argv)
+      ->using('optionSpec', $opts)
+      ->using('help', 'Interact with Fortissimo from the command line.')
+      ->using('usage', '%s [GLOBAL_OPTIONS] COMMAND [LOCAL_OPTIONS]')
+    ->does('\Fortissimo\Command\Util\Head', 'target')
+      ->using('list')->from('cxt:globalOptions-extra')
+    ->does('\Fortissimo\Command\Flow\Forward')
+      ->using('route', 'help')->from('cxt:target')
+      ;
+  $registry->route('help', 'Display help text.')
+    ->does('\Fortissimo\Command\CLI\ShowHelp')
+    ;
 }
