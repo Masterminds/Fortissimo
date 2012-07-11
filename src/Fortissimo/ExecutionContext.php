@@ -113,6 +113,13 @@ class ExecutionContext implements \IteratorAggregate {
   }
 
   /**
+   * Get a copy of the registry.
+   */
+  public function registry() {
+    return $this->registry;
+  }
+
+  /**
    * Get the Fortissimo server instance.
    *
    * The current implementation creates a new Fortissimo server for each call to this
