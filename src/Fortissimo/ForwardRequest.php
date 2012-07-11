@@ -14,6 +14,7 @@ namespace Fortissimo;
 class ForwardRequest extends Interrupt {
   protected $destination;
   protected $cxt;
+  protected $internal;
 
   /**
    * Construct a new forward request.
@@ -29,9 +30,10 @@ class ForwardRequest extends Interrupt {
    *  context. IF THIS IS NOT PASSED OR IS NULL, the next request will begin afresh
    *  with an empty context.
    */
-  public function __construct($requestName, \Fortissimo\ExecutionContext $cxt = NULL) {
+  public function __construct($requestName, \Fortissimo\ExecutionContext $cxt = NULL, $allowInternal = TRUE) {
     $this->destination = $requestName;
     $this->cxt = $cxt;
+    $this->internal = $allowInternal;
     parent::__construct('Request forward.');
   }
 
@@ -53,5 +55,9 @@ class ForwardRequest extends Interrupt {
    */
   public function context() {
     return $this->cxt;
+  }
+
+  public function allowInternal() {
+    return $this->internal;
   }
 }
