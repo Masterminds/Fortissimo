@@ -1,6 +1,7 @@
 <?php
 namespace Fortissimo\Tests;
-require_once 'TestCase.php';
+$base = dirname(__DIR__);
+require_once $base . '/TestCase.php';
 
 /**
  * @group command

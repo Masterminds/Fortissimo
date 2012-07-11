@@ -1,8 +1,7 @@
 <?php
 namespace Fortissimo\Tests;
-
-
-require_once 'TestCase.php';
+$base = dirname(__DIR__);
+require_once $base . '/TestCase.php';
 
 /**
  * @group command
@@ -15,7 +14,7 @@ class EachTest extends TestCase {
       ->using('list', array(1, 2, 3))
       ->using('command', '\Fortissimo\Command\Util\Increment')
       ->using('commandName', 'up')
-      ->using('startWith', 'cxt:each_value')
+      ->using('startWith')->from('each:value')
       ;
 
     $runner = $this->runner($r);

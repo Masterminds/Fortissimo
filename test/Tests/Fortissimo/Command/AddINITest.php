@@ -1,16 +1,18 @@
 <?php
 namespace Fortissimo\Tests;
-require_once 'TestCase.php';
+$base = dirname(__DIR__);
+require_once $base . '/TestCase.php';
 
 /**
  * @group command
  */
 class AddINITest extends TestCase {
   public function testDoCommand() {
+    global $base;
     $reg = $this->registry();
 
     $reg->route('ini')->does('\Fortissimo\Command\Context\AddINI', 'i')
-      ->using('file', __DIR__ . '/../../test.ini')
+      ->using('file', $base . '/../../test.ini')
       ;
 
     $runner = $this->runner($reg);
@@ -22,7 +24,7 @@ class AddINITest extends TestCase {
 
     // Test with sections
     $reg->route('ini')->does('\Fortissimo\Command\Context\AddINI', 'i')
-      ->using('file', __DIR__ . '/../../test.ini')
+      ->using('file', $base . '/../../test.ini')
       ->using('process_sections', TRUE)
       ;
 
@@ -37,7 +39,7 @@ class AddINITest extends TestCase {
 
     // Test with one named section
     $reg->route('ini')->does('\Fortissimo\Command\Context\AddINI', 'i')
-      ->using('file', __DIR__ . '/../../test.ini')
+      ->using('file', $base . '/../../test.ini')
       ->using('section', 'example')
       ;
 
