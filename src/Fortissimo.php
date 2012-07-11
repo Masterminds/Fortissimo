@@ -375,8 +375,8 @@ class Fortissimo {
         $this->stopCaching();
 
         // Forward the request to another handler. Note that we allow forwarding
-        // to internal requests.
-        $this->handleRequest($forward->destination(), $forward->context(), TRUE);
+        // to internal requests if the forward request says we can.
+        $this->handleRequest($forward->destination(), $forward->context(), $forward->allowInternal());
         return;
       }
       // Kill the request, no error.
@@ -562,7 +562,8 @@ class Fortissimo {
    * This does the following:
    *
    * - Find out what parameters a command expects.
-   * - Look at the Config::from() calls on an object and retrieve data as necessary. This uses fetchParameterFromSource() to retrieve the data.
+   * - Look at the Config::from() calls on an object and retrieve data as
+   *   necessary. This uses fetchParameterFromSource() to retrieve the data.
    * - Fill in default values from Config::whoseValueIs() calls
    * - Return the mapping of parameter names to (newly fetched) values.
    *
@@ -670,6 +671,9 @@ class Fortissimo {
       case 'file':
       case 'files':
         return isset($_FILES[$paramName]) ? $_FILES[$paramName] : NULL;
+      // New for 2.1
+      default:
+        return $from;
     }
   }
 }
