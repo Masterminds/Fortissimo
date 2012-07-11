@@ -1,2 +1,4 @@
 Fortissimo.tmproj
 test/reports/html/*
+composer.lock
+vendor/
