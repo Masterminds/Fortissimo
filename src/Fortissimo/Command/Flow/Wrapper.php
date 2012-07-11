@@ -65,17 +65,13 @@ abstract class Wrapper extends \Fortissimo\Command\Base {
    * These are params that are not used by the wrapper, and so should
    * be passed through (where applicable) to the inner wrapped command.
    *
+   * @return array
    * @retval array
-   *   An indexed array of parameters to be passed through. No
-   *   validation has been run on these params.
+   *   The parameters to be passed through to the underlying command.
+   *
    */
-  protected function passthruParams($commandCfg) {
-    if (empty($this->ff)) {
-      $ff = $this->context->fortissimo();
-    }
-
-    $params = $this->ff->fetchParameters($commandCfg);
-    return $params;
+  protected function passthruParams() {
+    return $this->childParams;
   }
 
   /**

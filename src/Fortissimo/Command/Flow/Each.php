@@ -66,19 +66,34 @@ class Each extends Wrapper {
   }
 
   protected function processCommandLoop($list, $command, $name) {
-    $ff = $this->context->fortissimo();
+    //$this->ff = $this->context->fortissimo();
     $results = array();
     foreach ($list as $k => $v) {
-      // Add the list item to the context.
-      $this->context->add($this->name . '_key', $k);
-      $this->context->add($this->name . '_value', $v);
+      $params = $this->passthruParams();
+      $params = $this->replaceAdHocFrom($params, $k, $v);
 
-      $results[] = $this->fireInnerCommand($command, $name, $this->passthruParams());
-
+      $results[] = $this->fireInnerCommand($command, $name, $params);
     }
 
     return $results;
 
+  }
+
+  protected function replaceAdHocFrom($params, $key, $value) {
+    $prefix = $this->name . ':';
+    $prefix_len = strlen($prefix);
+    foreach ($params as $pname => $pval) {
+      if (strpos($pval, $prefix) === 0) {
+        $replace = substr($pval, $prefix_len);
+        if ($replace == 'key') {
+          $params[$pname] = $key;
+        }
+        elseif ($replace == 'value') {
+          $params[$pname] = $value;
+        }
+      }
+    }
+    return $params;
   }
 
   protected function fireInnerCommand($klass, $name, $params) {
@@ -87,4 +102,5 @@ class Each extends Wrapper {
 
     return $this->context->get($name, NULL);
   }
+
 }

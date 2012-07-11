@@ -11,10 +11,10 @@ namespace Fortissimo\Command\Util;
  * puts the first item in a list into the context.
  *
  */
-class Increment extends \Fortissimo\Command\Base {
+class Head extends \Fortissimo\Command\Base {
   public function expects() {
     return $this
-      ->description('Put the first (head) value into the context. This does not modify the list.')
+      ->description('Put the first (head) value in the list and move the pointer to the next. This does not modify the list.')
       ->usesParam('list', 'An iterable or an array.')
       ->andReturns('The first item in the iterable.');
   }
@@ -23,6 +23,7 @@ class Increment extends \Fortissimo\Command\Base {
     // XXX: Should this use a foreach? Not sure if a plain Iterable can 
     // do current().
     $ret = current($list);
+    next($list);
     return $ret;
   }
 }
