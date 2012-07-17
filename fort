@@ -87,6 +87,8 @@ catch (\Exception $e) {
   exit(1);
 }
 
+// SUPPORTING FUNCTIONS
+
 function fort_init() {
   $composer_basedir = dirname(__DIR__);
   $candidates = array(
@@ -112,12 +114,21 @@ function fort_register($registry) {
       ->using('optionSpec', $opts)
       ->using('help', 'Interact with Fortissimo from the command line.')
       ->using('usage', '%s [GLOBAL_OPTIONS] COMMAND [LOCAL_OPTIONS]')
+    ->does('\Fortissimo\Command\Flow\Iterator', 'args')
+      ->using('array')->from('cxt:globalOptions-extra')
     ->does('\Fortissimo\Command\Util\Head', 'target')
-      ->using('list')->from('cxt:globalOptions-extra')
+      ->using('list')->from('cxt:args')
     ->does('\Fortissimo\Command\Flow\Forward')
       ->using('route', 'help')->from('cxt:target')
       ;
   $registry->route('help', 'Display help text.')
     ->does('\Fortissimo\Command\CLI\ShowHelp')
+    ;
+  $registry->route('run', 'Run a Fortissimo route from a given application.')
+    ->does('\Fortissimo\Command\Util\Head', 'cmd')
+      ->using('list')->from('cxt:args')
+    ->does('\Fortissimo\Command\Flow\Forward')
+      ->using('route')->from('cxt:cmd')
+    ->does('\Fortissimo\Command\EchoText')->using('text', 'Not Implemented.')
     ;
 }

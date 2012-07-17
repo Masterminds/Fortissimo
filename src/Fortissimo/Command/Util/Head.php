@@ -10,6 +10,9 @@ namespace Fortissimo\Command\Util;
  * In functional programming, the head is the first item in a list. This 
  * puts the first item in a list into the context.
  *
+ * Pass in an Itertable to progress through the list. Using an array will
+ * result in an automatic array rewind.
+ *
  */
 class Head extends \Fortissimo\Command\Base {
   public function expects() {
@@ -19,7 +22,7 @@ class Head extends \Fortissimo\Command\Base {
       ->andReturns('The first item in the iterable.');
   }
   public function doCommand() {
-    $list = $this->param('list', array());
+    $list =& $this->param('list', array());
     // XXX: Should this use a foreach? Not sure if a plain Iterable can 
     // do current().
     $ret = current($list);
