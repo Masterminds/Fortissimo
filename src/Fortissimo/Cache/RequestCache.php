@@ -26,7 +26,7 @@ namespace Fortissimo\Cache;
  *
  * @deprecated
  */
-interface FortissimoRequestCache {
+interface RequestCache {
 
   /**
    * Perform any necessary initialization.
