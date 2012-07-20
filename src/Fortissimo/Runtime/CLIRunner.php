@@ -50,6 +50,8 @@ class CLIRunner extends Runner {
 
   public function initialContext() {
     $cxt = parent::initialContext();
+    $cxt->add('output', $this->output);
+    $cxt->add('input', $this->input);
     return $cxt;
   }
 }
