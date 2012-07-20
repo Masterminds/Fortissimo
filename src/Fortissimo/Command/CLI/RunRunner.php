@@ -6,7 +6,8 @@ class RunRunner extends \Fortissimo\Command\Base {
   public function expects() {
     return $this
       -> description('Runs a CLI runner inside of a runner.')
-      -> usesParam('registry', 'A Registry.')->whichIsRequired()
+      -> usesParam('route', 'The route to run')->whichIsRequired()
+      -> usesParam('registry', 'A Registry.')
       -> usesParam('args', 'An array of arguments, like argv.')
       // -> usesParam('runner', 'The classname of the runner to run.')->whichIsRequired()
       -> andReturns('Nothing, but the context will be modified.')
@@ -16,30 +17,37 @@ class RunRunner extends \Fortissimo\Command\Base {
   public function doCommand() {
 
     //$runnerName = $this->param('runner');
-    $registry = $this->param('registry');
+    $registry = $this->param('registry', NULL);
+    $route = $this->param('route');
     $args = $this->param('args', array());
 
-    $registry = $this->initializeRegistry($registry);
+    // We use a special runner for this.
+    $runner = new _InnerCLIRunner($args);
 
-    $runner = new _InnerCLIRunner($args, $in, $out);
-    $runner->useRegistry($registry);
+    $this->initializeRegistry($registry, $runner);
+
     $runner->setContext($this->context);
 
-    $runner->run($cmd);
+    $runner->run($route);
   }
 
-  protected function initializeRegistry($reg) {
-    if (is_string($reg)) {
+  protected function initializeRegistry($reg, $runner) {
+    if (empty($reg)) {
+      $registry = $this->context->registry();
+    }
+    /*
+    elseif (is_string($reg)) {
       $registry = new Registry('internal');
       // Some use $register.
       $register =& $registry;
       require_once $reg;
     }
+     */
     else {
       $registry = $reg;
     }
 
-    return $registry;
+    $runner->useRegistry($registry);
   }
 
 }
