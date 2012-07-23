@@ -59,6 +59,7 @@ Check out the `docs/` directory for more.
 projects](https://github.com/masterminds).
 * [Fortissimo-Base](https://github.com/Masterminds/Fortissimo-Base) aims to be a quick-start tool for using
   Fortissimo.
+* [Forissimo-CLI-Base](https://github.com/Masterminds/Fortissimo-CLI-Base) is a quick-start/skeleton project for CLI applications using Fortissimo.
 * [Fortissimo-Twig](https://github.com/Masterminds/Fortissimo-Twig) provides Twig template language support.
 
 ## ABOUT THE LICENSE ##
