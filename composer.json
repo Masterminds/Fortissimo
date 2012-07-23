@@ -1,5 +1,5 @@
 {
-  "name": "Masterminds/Fortissimo",
+  "name": "masterminds/fortissimo",
   "description": "A Chain-of-Command framework.",
   "autoload": {
     "psr-0": {"Fortissimo": "src"}
