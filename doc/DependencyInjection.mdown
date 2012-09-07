@@ -1,0 +1,157 @@
+# How Fortissimo Does Dependency Injection
+
+Dependency Injection (DI) is a software design strategy for making software more flexible by passing an object the components it needs to get its job done. This is more flexible than having each object manage its own components. If you are not familiar with DI, check out a [great introduction](http://net.tutsplus.com/tutorials/php/dependency-injection-huh/).
+
+Fortissimo comes with Dependency Injection built-in. Not only is it built in, but it's transparent. You don't need to learn anything about dependency injection containers or inversion of control.
+
+In this post, we'll look at the most common dependency injection mechanism in Fortissimo.
+
+This article was originally published [on TechnoSophos.com](http://www.technosophos.com/content/how-fortissimo-does-dependency-injection).
+
+## The Chain of Commands
+
+At its highest level, Fortissimo works by mapping a **request** (or **route**) to a series of **commands** that are run in sequence. A command receives, among other things, a **context**. The context carries with it a bundle of data about the current request.
+
+Each command declares two things about itself: What parameters it receives, and what data it returns.
+
+A chain of commands might be declared like this:
+
+~~~ php
+$registry->route('hello_user')
+  ->does('\Foo\PrintHello', 'hello')
+  ->does('\Foo\PrintUserName', 'user')->using('username', 'Fred');
+~~~
+
+The above declares a route named `hello_user` that, when run, does two commands in sequence: 
+
+1. The command name `hello` runs a mythical command `\Foo\PrintHello`, which just prints `Hello `.
+2. The command named `user` runs a mythical command `\Foo\PrintUserName`, which takes a username as input and prints it out.
+
+When we run that route, we would get the output:
+
+    Hello Fred
+    
+The `using()` method tells Fortissimo to pass this command a parameter named `username`. (Of course, it's up to a command whether or not to use the param.) We've hard-coded in the value `Fred`. So every time the route is run, it will print `Hello Fred`.
+
+But now let's make a simple step forward by passing the value of the username into the command. We could, for example, make the very unwise decision of having this code use `$_GET` as a source for user names:
+
+~~~ php
+$registry->route('hello_user')
+  ->does('\Foo\PrintHello', 'hello')
+  ->does('\Foo\PrintUserName', 'user')->using('username')->from('get:username');
+~~~
+
+In this example, the `from()` call tells Fortissimo to get the username from `get:username`, which is essentially `$_GET['username']`. Now we can inject a different value into the command using GET parameters. (Note that filtering parameters is a responsibility of the command.)
+
+But what if we wanted to do something more sophisticated, like fetch the username from a database?
+
+## An Example Command
+
+Let's add another mythical command to our Fortissimo application. This command is called `\Foo\LookupUsername`, and it looks up a username in some unspecified datasource. Commands are simple classes. Here's our command:
+
+~~~ php
+<?php
+namespace Foo;
+class LookupUsername extends \Fortissimo\Command\Base {
+
+  public function expects() {
+    return $this
+      ->description('Get a random username.')
+      ->andReturns('A username string.')
+    ;
+  }
+  
+  public function doCommand() {
+    $username = $this->getRandomUsername();
+    
+    return $username;
+  }
+  
+  public function getRandomUsername() {
+    // Does a lookup.
+  }
+}
+?>
+~~~
+
+When a command is executed, the `expects()` method is called to learn about what the command is expecting as input, and what it will return. An `expects()` function is partly for Fortissimo, and partly for developers to learn about a command.
+
+Once Fortissimo knows what to pass to the command, it then calls `doCommand()`. This method is responsible for doing whatever work the command is supposed to do. The command above retrieves a username from some unspecified datasource and returns it. Where do return values go for a command? Into the context. They're stored as name/value pairs, where the name is the name of the command, and the value is the return value.
+
+## The Context and Dependency Injection
+
+We can insert our shiny new command above into our `hello_user` route like this:
+
+~~~ php
+$registry->route('hello_user')
+  ->does('\Foo\LookupUsername', 'random_user')
+  ->does('\Foo\PrintHello', 'hello')
+  ->does('\Foo\PrintUserName', 'user')->using('username')->from('cxt:random_user');
+~~~
+
+Now we have three commands that will be run as part of the `hello_user` route.
+
+1. `random_user` runs the `LookupUsername` command we just wrote. *When this is finished*, the context will have an entry for `random_user`, and that entry will contain a random username.
+2. `hello` runs the `PrintHello` command. 
+3. `user` runs the `PrintUserName` command.
+
+That third command is the important one. Its `username` parameter will be populated with the value from `cxt:random_user`. That's the output of the first command! We've looked up data in one command and injected it into another.
+
+So let's say that `LookupUsername` returns `Bob`. This value is then placed into the context. the second command prints `Hello `, and the third command prints whatever username is stored in `cxt:random_user`, which we'll say is `Bob` (Hey, that's a good strong "random" name!).
+
+So we'd get `Hello Bob` as output.
+
+## Inject More Than Strings
+
+So far we've been injecting a string into `PrintUserName`. This isn't exactly the most spectacular dependency to inject. (Some might even claim, with good reason, that a string isn't *really* a dependency, since it's not really a component.)
+
+But here's the thing: Fortissimo doesn't care what sort of thing you pass from one command to another. One command may put a database handle into the context, and then another command may use that. Or it could be a classed object. Or a resource handle. Or any other PHP type. It can even be a function or closure!
+
+So say `\Foo\PrintUserName` took a mythical `\Foo\User` object instead of a string. Say that we wanted to take a user ID from the GET parameters and lookup the corresponding user object. This is handled by our fabled `\Foo\LookupUserObject` command. Now we might have something like this:
+
+~~~ php
+<?php
+$registry->route('hello_user')
+  ->does('\Foo\LookupUserObject', 'user_object')->using('user_id')->from('get:uid')
+  ->does('\Foo\PrintHello', 'hello')
+  ->does('\Foo\PrintUserName', 'user')->using('user')->from('cxt:user_object');
+?>
+~~~
+
+Now here's what happens:
+
+1. When `LookupUserObject` is executed, it is passed the parameter `user_id`, whose value is retrieved from `$_GET['uid']`.
+2. `LookupUserObject` returns a `\Foo\User` object, which is stored in the context as `user_object`.
+3. `PrintHello` is executed, printing `Hello `.
+4. `PrintUserName` is run, and it is handed the parameter named `user`, whose value is the `\Foo\User` object from `cxt:user_object`.
+5. `PrintUserName` uses the `User` object to get a user name, and prints that out.
+
+That's how dependency injection works in Fortissimo.
+
+I'll close with some code for this `LookupUserObject` command to illustrate how that command declares its parameters and then uses them.
+
+~~~ php
+<?php
+namespace Foo;
+class PrintUserName extends \Fortissimo\Command\Base {
+
+  public function expects() {
+    return $this
+      ->description('Given a \Foo\User object, print the username.')
+      ->usesParam('user', 'A \Foo\User object')->whichIsRequired()
+      ->andReturns('Nothing. Data is printed.')
+    ;
+  }
+  
+  public function doCommand() {
+    $user = $this->param('user')
+    
+    print $user->name;
+  }
+}
+?>
+~~~
+
+The command above declares that it takes a single parameter: `user` (which is required). Looking back at our last `hello_user` chain, we can see how this command was passed the `user` parameter from the `user_object` stored in the context.
+
+This command didn't need to do any lookup on its own. Some other command handles that. The `User` object is injected, freeing this command from any implementation details.
