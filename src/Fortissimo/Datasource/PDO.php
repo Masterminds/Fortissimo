@@ -14,7 +14,7 @@ namespace Fortissimo\Datasource;
  * @code
  * <?php
  * $registry->datasource('pdo')
- *   ->whichInvokes('FortissimoPDODatasource')
+ *   ->whichInvokes('\Fortissimo\Datasource\PDO')
  *   ->withParam('dsn')
  *     ->whoseValueIs('mysql:host=localhost;dbname=test')
  *   ->withParam('user')
@@ -42,7 +42,7 @@ namespace Fortissimo\Datasource;
  *
  *  public function doCommand() {
  *    // Note that 'pdo' is the name we declared in the example above.
- *    $db = $this->context->datasource('pdo')->get();
+ *    $db = $this->context->datasource('pdo');
  *    // Do whatever with DB:
  *    $res = $db->query('SELECT * FROM foo');
  *  }
@@ -58,31 +58,20 @@ namespace Fortissimo\Datasource;
  *
  * @ingroup Fortissimo
  */
-class PDO extends \Fortissimo\Datasource {
+class PDO {
 
-  /**
-   * The connection object, which is opened during init().
-   */
-  protected $con = NULL;
+  public function __invoke($params, $name, $manager) {
 
-
-  public function init() {
-
-    if (empty($this->params['dsn'])) {
+    if (empty($params['dsn'])) {
       throw new \Fortissimo\InterruptException('Missing DSN in ' . __CLASS__);
     }
 
-    $dsn = $this->params['dsn'];
+    $dsn = $params['dsn'];
 
-    $user = isset($this->params['user']) ? $this->params['user'] : NULL;
-    $pass = isset($this->params['password']) ? $this->params['password'] : NULL;
-    $options = isset($this->params['driver_options']) ? $this->params['driver_options'] : NULL;
+    $user = isset($params['user']) ? $params['user'] : NULL;
+    $pass = isset($params['password']) ? $params['password'] : NULL;
+    $options = isset($params['driver_options']) ? $params['driver_options'] : NULL;
 
-    $this->con = new \PDO($dsn, $user, $pass, $options);
+    return new \PDO($dsn, $user, $pass, $options);
   }
-
-  public function get() {
-    return $this->con;
-  }
-
 }

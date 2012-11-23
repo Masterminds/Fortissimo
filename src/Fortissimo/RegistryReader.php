@@ -136,8 +136,14 @@ class RegistryReader {
     return $caches;
   }
 
+  /**
+   * This fetches the datasouce config. The datasouce manager builds the datasources.
+   * 
+   * @return array
+   *   An array of datasource configuration.
+   */
   public function getDatasources() {
-    return $this->getFacility(Registry::DATASOURCES);
+    return $this->config[Registry::DATASOURCES];
   }
 
   /**

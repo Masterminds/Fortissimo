@@ -17,80 +17,96 @@ namespace Fortissimo\Datasource;
  */
 class Manager {
 
-  protected $datasources = NULL;
-  protected $initMap = array();
+  /**
+   * The configuration to create datasouces.
+   */
+  protected $config = NULL;
 
+  /**
+   * A cache of instanciated datasources. Assuming that datasources are kept 
+   * once built unless intentionally removed.
+   * @var array
+   */
+  protected $datasourceCache = array();
+
+  protected $cacheManager = NULL;
+  protected $logManager = NULL;
 
   /**
    * Build a new datasource manager.
    *
    * @param array $config
    *  The configuration for this manager as an associative array of
-   *  names=>instances.
+   *  names => config.
    */
   public function __construct($config) {
-    $this->datasources = &$config;
+    $this->config = &$config;
   }
 
+  /**
+   * Set the cache manager.
+   *
+   * @param \Fortissimo\Cache\Manager $manager
+   *   A cache manager object.
+   *
+   * @return \Fortissimo\Datasource\Manager
+   *   $this is returned because it is useful for chaining.
+   */
   public function setCacheManager(\Fortissimo\Cache\Manager $manager) {
-    foreach ($this->datasources as $name => $obj) $obj->setCacheManager($manager);
+    $this->cacheManager = $manager;
+
+    return $this;
   }
 
+  /**
+   * Get the cache manager.
+   * 
+   * @return \Fortissimo\Cache\Manager
+   *   The cache manager object.
+   */
+  public function cacheManager() {
+    return $this->cacheManager;
+  }
+
+  /**
+   * Set the log manager
+   *
+   * @param \Fortissimo\Logger\Manager $manager
+   *   The log manager.
+   *
+   * @return \Fortissimo\Datasource\Manager
+   *   $this is returned because it is useful for chaining.
+   */
   public function setLogManager(\Fortissimo\Logger\Manager $manager) {
-    foreach ($this->datasources as $name => $obj) $obj->setLogManager($manager);
+    $this->logManager = $manager;
+
+    return $this;
   }
 
-
-  /**
-   * Get a datasource by its string name.
-   *
-   * @param string $name
-   *  The name of the datasource to get.
-   * @return FortissimoDatasource
-   *  The requested source, or NULL if no such source exists.
-   */
-  public function getDatasourceByName($name) {
-    return $this->datasources[$name];
-  }
-
-  /**
-   * Scan the datasources and return the first one marked default.
-   *
-   * Note that this does not make sure that datasources have been initialized.
-   * @return FortissimoDatasource
-   *  An initialized FortissimoDatasource, or NULL if no default is found.
-   */
-  protected function getDefaultDatasource() {
-    foreach ($this->datasources as $k => $o) if ($o->isDefault()) return $o;
+  public function logManager() {
+    return $this->logManager;
   }
 
   /**
    * Get a datasource.
    *
-   * If a name is given, retrieve the named datasource. Otherwise, return
-   * the default. If no suitable datasource is found, return NULL.
+   * If a datasouce has not been initialized first initialize it.
    *
    * @param string $name
    *  The name of the datasource to return.
-   * @return FortissimoDatasource
+   *
+   * @return mixed
    *  The datasource.
    */
-  public function datasource($name = NULL) {
-    $ds = NULL;
-    if (empty($name)) {
-      $ds = $this->getDefaultDatasource();
-    }
-    else {
-      $ds = $this->getDatasourceByName($name);
+  public function datasource($name) {
+    
+    // If the datasource does not already exist create it.
+    if (!isset($this->datasourceCache[$name])) {
+      $params = isset($this->config[$name]['params']) ? $this->getParams($this->config[$name]['params']) : array();
+      $this->datasourceCache[$name] = $this->config[$name]['class']($params, $name, $this);
     }
 
-    // We initialize lazily so that datasources do not
-    // have resources allocated until necessary.
-    if (!empty($ds) && !isset($this->initMap[$name])) {
-      $ds->init();
-      $this->initMap[$name] = TRUE;
-    }
-    return $ds;
+    return $this->datasourceCache[$name];
   }
 
   /**
@@ -102,18 +118,23 @@ class Manager {
    *
    * Keep in mind that if there are a lot of datasources, this may consume many
    * system resources.
+   *
+   * @return \Fortissimo\Datasource\Manager
+   *   $this is returned because it is useful for chaining.
    */
   public function initializeAllDatasources() {
-    foreach ($this->datasources as $name => $ds) {
-      if (!isset($this->initMap[$name])) {
-        $ds->init();
-        $this->initMap[$name] = TRUE;
+    foreach ($this->confit as $name => $config) {
+      if (!isset($this->datasourceCache[$name])) {
+        $params = isset($this->config[$name]['params']) ? $this->getParams($this->config[$name]['params']) : array();
+        $this->datasourceCache[$name] = $this->config[$name]['class']($params, $name, $this);
       }
     }
+
+    return $this;
   }
 
   /**
-   * Get all datasources.
+   * Get all initialized datasources.
    *
    * This does not initialize resources automatically. If you need all datasources
    * to be initialized first, call initializeAllDatasources() before calling this.
@@ -122,6 +143,78 @@ class Manager {
    *  Returns an associative array of datasource name=>object pairs.
    */
   public function datasources() {
-    return $this->datasources;
+    return $this->datasourceCache;
+  }
+
+  /**
+   * Remove a Datasource from the cache.
+   *
+   * The config for the datasouce is still kept and a new one can be created from
+   * the existing config. The existing datasouce is unset.
+   * 
+   * @param  string $name
+   *   The name of the Datasource to unset.
+   *
+   * @return \Fortissimo\Datasource\Manager
+   *   $this is returned because it is useful for chaining.
+   */
+  public function removeDatasource($name) {
+
+    if (isset($this->datasourceCache[$name])) {
+      unset($this->datasourceCache[$name]);
+    }
+    else {
+      throw new \Fortissimo\Exception('Attempting to remove Datasource (' . $name .'). Datasource does not exist.');
+    }
+
+    return $this;
+  }
+
+  /**
+   * Add a Datasource.
+   *
+   * The config for the datasouce is still kept and a new one can be created from
+   * the existing config. The existing datasouce is unset.
+   *
+   * Note, this can be used to override the config for an existing datasource.
+   *
+   * @param callable $factory
+   *   A factory function, anonymous function, or class with __invoke that can
+   *   create the datasource.
+   * @param string $name
+   *   The name of the Datasource to unset.
+   * @param array $params
+   *   An array of key/value pairs to pass to the factory when it is called to
+   *   create the datasource. (OPTIONAL)
+   * 
+   * @return \Fortissimo\Datasource\Manager
+   *   $this is returned because it is useful for chaining.
+   */
+  public function addDatasource($factory, $name, $params = array()) {
+
+    $this->config[$name] = array(
+      'class' => $factory,
+      'params' => $params,
+    );
+
+    return $this;
+  }
+
+  /**
+   * Get the parameters for a datasource.
+   *
+   * @param array $params
+   *  Configuration for the given facility.
+   * @return array
+   *  An associative array of param name/values. @code<param name="foo">bar</param>@endcode
+   *  becomes @code array('foo' => 'bar') @endcode.
+   */
+  protected function getParams(array $params) {
+    $res = array();
+    // Basically, for facility params we just collapse the array.
+    foreach ($params as $name => $values) {
+      $res[$name] = $values['value'];
+    }
+    return $res;
   }
 }

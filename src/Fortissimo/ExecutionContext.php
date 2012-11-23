@@ -172,15 +172,13 @@ class ExecutionContext implements \IteratorAggregate {
   /**
    * Retrieve a named datasource.
    *
-   * If no name is passed, this will try to retrieve the default datasource.
-   *
    * @param string $name
-   *  The name of the datasource to retrieve. If no name is given, the default
-   *  datasource will be used.
-   * @return FortissimoDatasource
+   *  The name of the datasource to retrieve.
+   *
+   * @return mixed
    *  The requested datasource, or NULL if none is found.
    */
-  public function datasource($name = NULL) {
+  public function datasource($name) {
     return $this->datasources->datasource($name);
   }
 
@@ -189,6 +187,42 @@ class ExecutionContext implements \IteratorAggregate {
    */
   public function ds($name = NULL) {
     return $this->datasource($name);
+  }
+
+  /**
+   * Remove a named datasource.
+   *
+   * @param string $name
+   *  The name of the datasource to retrieve.
+   *
+   * @return \Fortissimo\ExecutionContext
+   *  $this so it can be used in chaining.
+   */
+  public function removeDatasource($name) {
+    $this->datasources->removeDatasource($name);
+
+    return $this;
+  }
+
+  /**
+   * Add a named datasource.
+   *
+   * @param callable $factory
+   *   A factory function, anonymous function, or class with __invoke that can
+   *   create the datasource.
+   * @param string $name
+   *   The name of the Datasource to unset.
+   * @param array $params
+   *   An array of key/value pairs to pass to the factory when it is called to
+   *   create the datasource. (OPTIONAL)
+   *
+   * @return \Fortissimo\ExecutionContext
+   *  $this so it can be used in chaining.
+   */
+  public function addDatasource($factory, $name, $params = array()) {
+    $this->datasources->addDatasource($factory, $name, $params);
+
+    return $this;
   }
 
   /**
