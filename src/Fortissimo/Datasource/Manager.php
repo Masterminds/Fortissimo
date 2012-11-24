@@ -103,7 +103,19 @@ class Manager {
     // If the datasource does not already exist create it.
     if (!isset($this->datasourceCache[$name])) {
       $params = isset($this->config[$name]['params']) ? $this->getParams($this->config[$name]['params']) : array();
-      $this->datasourceCache[$name] = $this->config[$name]['class']($params, $name, $this);
+      $klass = $this->config[$name]['class'];
+
+      // If we don't have an object (a closure is an object) we check if the
+      // name passed in is that of a class we can try to instanciate.
+      if (!is_object($klass) && is_string($klass) && class_exists($klass)) {
+        $klass = new $klass();
+      }
+
+      // Using call_user_func insteasd of $klass($params, $name, $this) because
+      // $klass could be a callable array. This is the simplest way to get all
+      // the possible cases.
+      $this->datasourceCache[$name] = call_user_func($klass, $params, $name, $this);
+      
     }
 
     return $this->datasourceCache[$name];
@@ -124,10 +136,7 @@ class Manager {
    */
   public function initializeAllDatasources() {
     foreach ($this->confit as $name => $config) {
-      if (!isset($this->datasourceCache[$name])) {
-        $params = isset($this->config[$name]['params']) ? $this->getParams($this->config[$name]['params']) : array();
-        $this->datasourceCache[$name] = $this->config[$name]['class']($params, $name, $this);
-      }
+      $this->datasource($name);
     }
 
     return $this;
