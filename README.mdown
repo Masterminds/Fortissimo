@@ -51,7 +51,7 @@ For developing Fortissimo:
 * Start coding.
   - You will want to use the `\Fortissimo\Runner\WebRunner` for web apps
 
-Check out the `docs/` directory for more.
+Check out the [Wiki Documentation](https://github.com/Masterminds/Fortissimo/wiki) for more.
 
 ## More Fortissimo Goodness!
 
