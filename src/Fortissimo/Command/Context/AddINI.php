@@ -12,6 +12,7 @@ class AddINI extends \Fortissimo\Command\Base {
   public function expects() {
     return $this->description('Load the conents of an INI file into the context.')
       ->usesParam('file', 'The path to the INI file.')->whichIsRequired()
+      ->usesParam('basedir', 'A base directory that, if set, will be prepended.')
       ->usesParam('optional', 'Whether the INI file is optional (TRUE) or required (FALSE)')
           ->whichHasDefault(FALSE)
           ->withFilter('boolean')
@@ -25,9 +26,14 @@ class AddINI extends \Fortissimo\Command\Base {
 
   public function doCommand() {
     $file = $this->param('file');
+    $basedir = $this->param('basedir');
     $section = $this->param('section');
     $process_section = $this->param('process_sections') || strlen($section) > 0;
     $optional = $this->param('optional', FALSE);
+
+    if (!empty($basedir)) {
+      $file = $basedir . '/' . $file;
+    }
 
     if ($optional && !is_readable($file)) {
       return;
