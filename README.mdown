@@ -23,10 +23,12 @@ The preferred method of installing Fortissimo is through composer.
   "name": "Example",
   "description": "Example app",
   "require": {
-    "Masterminds/Fortissimo": "2.*",
+    "Masterminds/Fortissimo": "dev-master",
   },
 }
 ```
+
+(For a stable version, use `2.x`)
 
 You can also clone the Git repository and use it directly.
 
