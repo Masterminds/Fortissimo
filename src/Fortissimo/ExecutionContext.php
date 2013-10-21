@@ -183,7 +183,7 @@ class ExecutionContext implements \IteratorAggregate {
     $args = func_get_args();
     $message = array_shift($args);
     $category = array_pop($args);
-    return $this->log(vsprintf($message, $args, $category));
+    return $this->log(vsprintf($message, $args), $category);
   }
 
   /**
