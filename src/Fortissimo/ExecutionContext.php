@@ -170,6 +170,23 @@ class ExecutionContext implements \IteratorAggregate {
   }
 
   /**
+   * Log a message, using sprintf-style formatting.
+   *
+   * @param mixed $msg
+   *   A message to log.
+   * @param ...
+   *   Any number of format objects. These will be passed to sprintf.
+   * @param string $category
+   *   The logging category.
+   */
+  public function logf($msg) {
+    $args = func_get_args();
+    $message = array_shift($args);
+    $category = array_pop($args);
+    return $this->log(vsprintf($message, $args, $category));
+  }
+
+  /**
    * Retrieve a named datasource.
    *
    * @param string $name
